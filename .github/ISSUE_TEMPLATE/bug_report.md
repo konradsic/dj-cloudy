@@ -26,5 +26,3 @@ Make sure that you understood latest updates and input data you entered is compa
 
 **Additional context**
 Anything like screenshots, links, reference and everything that can help this issue be more understandable. 
-
-**Know whats wrong? Create a pull request instead of an issue**
