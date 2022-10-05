@@ -15,4 +15,11 @@ The bot is currently in a pre-beginning alpha stage. More than 90% of features d
 Planned stable relase date: `December 2022`
 
 More version info can be found in `CHANGELOG.md`
+
+## 💻 Github related info
+This includes: contribution, Code of Conduct, issue and pull request template files
+
+All of that can be found [here](https://github.com/konradsic/dj-cloudy/tree/main/.github) (or in `dj-cloudy/.github`
+
+
 *Please note that the relase date can change, features may not work and other things can unexceptedly crash. Make sure to visit the Issues section*
