@@ -18,12 +18,15 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] Checking feature functionality
 - [ ] Testing and looking for bugs in code
 
-**Test Configuration**:
-* Dependency list
-* Python version
-* Virtual Environment (yes/no)
-* Lavalink version
-
+**Test Configuration**: 
+<!--- 
+edit this section if needed or you want to add something
+-->
+* Dependency list `discord >=2.0.0 yourpkg >=1.2.3`
+* Python version: `a.b.c`
+* Virtual Environment: `(yes/no)`
+* Lavalink version: `x.y.z`
+* Any other config elements
 
 # Checklist:
 
