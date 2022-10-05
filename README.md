@@ -13,7 +13,7 @@ With many many commands you can make your server more engaging and open to peopl
 ## 🔗 Links
 * [Invite me by clicking here](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands)
 * [Join the support server (in progress)](https://discord.com)
-* [Discuss with others aboutatest announcements](https://github.com/konradsic/dj-cloudy/discussions) 
+* [Discuss with others about latest announcements](https://github.com/konradsic/dj-cloudy/discussions) 
 * [Report bugs, ask for help and request features](https://github.com/konradsic/dj-cloudy/issues) *1.*
 ---
 *1.* also available via the discord server
