@@ -5,7 +5,7 @@ If you are cloning this repo make sure to credit me for my hard work!
 
 ## 🎶 Easy to use, rich feature music bot that will make your server better
 With many many commands you can make your server more engaging and open to people
- *Featured commands:**
+ **Featured commands:**
 * `/play <query>` plays music in your voice channel
 * `/help [command]` returns help that you need!
 * `/nowplaying` get currently paying track info in a nice embed
