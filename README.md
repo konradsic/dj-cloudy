@@ -10,6 +10,14 @@ With many many commands you can make your server more engaging and open to peopl
 * `/help [command]` returns help that you need!
 * `/nowplaying` get currently paying track info in a nice embed
 
+## 🔗 Links
+* [Invite me by clicking here](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands)
+* [Join the support server (in progress)](https://discord.com)
+* [Discuss with others aboutatest announcements](https://github.com/konradsic/dj-cloudy/discussions) 
+* [Report bugs, ask for help and request features](https://github.com/konradsic/dj-cloudy/issues) *1.*
+---
+*1.* also available via the discord server
+
 ## 📝 Version related info
 The bot is currently in a pre-beginning alpha stage. More than 90% of features doesn't really work
 Planned stable relase date: `December 2022`
