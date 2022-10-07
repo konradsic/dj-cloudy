@@ -77,4 +77,4 @@ class DJ_Cloudy(commands.Bot):
 bot = DJ_Cloudy()
 bot.loaded = False
 bot.last_restart = round(time.time())
-bot.run(TOKEN)
+bot.run(TOKEN, log_handler=None) # we disable discord logging

@@ -36,5 +36,13 @@ class Queue:
     def length(self):
         return len(self._queue)
 
+    @property
+    def upcoming_tracks(self):
+        return self._queue[self.position+1:]
+    
+    @property
+    def track_history(self):
+        return self._queue[:self.position]
+
     def add(self, *tracks):
         self._queue.extend(tracks)

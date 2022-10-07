@@ -11,6 +11,10 @@ from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound
 from utils.regexes import URL_REGEX
 
+from utils.errors import (
+    NoTracksFound
+)
+
 logging = logger.Logger().get("cogs.play")
 
 class PlayCommand(commands.Cog):
@@ -30,7 +34,8 @@ class PlayCommand(commands.Cog):
                 await channel.connect(cls=MusicPlayer, self_deaf=True)
                 player = self.bot.node.get_player(interaction.guild)
             except: 
-                await interaction.response.send_message("You're not connected to a voice channel")
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You're not connected to a voice channel",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed)
                 return "failed"
 
         if not (re.match(URL_REGEX, query)):
@@ -38,7 +43,13 @@ class PlayCommand(commands.Cog):
 
         query = query.strip("<>")
         tracks = await self.bot.node.get_tracks(cls=wavelink.Track, query=query)
-        await player.add_tracks(interaction, tracks)
+        try:
+            await player.add_tracks(interaction, tracks)
+        except Exception as e:
+            if isinstance(e, NoTracksFound):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed)
+                return "failed"
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(

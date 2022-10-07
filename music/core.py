@@ -48,6 +48,34 @@ class MusicPlayer(wavelink.Player):
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
+        if self.is_playing():
+            embed = discord.Embed(
+                title = "<:play_button:1028004869019279391> Added song to the queue",
+                color = BASE_COLOR,
+                timestamp = datetime.datetime.utcnow()
+            )
+            dur = track.duration
+            lm, ls = divmod(dur,60)
+            lh, lm = divmod(lm, 60)
+            ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
+            try: # add thumbnail
+                embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
+            except: pass
+            embed.add_field(name="Track title", value=track.title)
+            embed.add_field(name="Author", value=track.author)
+            embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
+            embed.add_field(name="Requested by", value=interaction.user.mention)
+            # calculating estimated time to play this song
+            current_pos = self.position
+            current_len = self.queue.current_track.duration
+            to_end = current_len-current_pos
+            upc_tracks = self.queue.upcoming_tracks[:-1]
+            for upcoming in upc_tracks:
+                to_end += upcoming.duration
+            durm, durs = divmod(to_end,60)
+            durh, durm = divmod(durm, 60)
+            durs, durm, durh = math.floor(durs), math.floor(durm), math.floor(durh)
+            embed.add_field(name="Estimated time until playback", value=f"`{durh + ':' if durh != 0 else ''}{durm}:{durs}`")
         await interaction.response.send_message(embed=embed)
 
         if not self.is_playing():

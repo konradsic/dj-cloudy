@@ -82,7 +82,7 @@ class VC_Handler(commands.Cog):
             embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Connected to <#{channel.id}>", color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
         except Exception as e:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return
 
@@ -95,7 +95,7 @@ class VC_Handler(commands.Cog):
             embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected", color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
         except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return
 
