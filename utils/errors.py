@@ -2,16 +2,14 @@ import discord
 from discord.ext import commands
 from utils import logger
 
-ERROR = logger.LoggingType.ERROR
-
-log_instance = logger.LoggerInstance(ERROR, "system.utils.errors")
+log_instance = logger.Logger().get("utils.errors")
 
 class UnhandledBotException(Exception):
     def __init__(self,error_name=None, string=None):
         if string:
-            log_instance.log(error_name,string)
+            log_instance.error(error_name,string)
         else:
-            log_instance.log(error_name, "Unhandled exception occured")
+            log_instance.error(error_name, "Unhandled exception occured")
     
 
 # ERROR CLASSES

@@ -10,7 +10,7 @@ from utils.errors import (
     QueueIsEmpty
 )
 
-logger = log.LoggerInstance(log.LoggingType.INFO,"system.music.core")
+logger = log.Logger().get("music.core")
 
 class MusicPlayer(wavelink.Player):
     def __init__(self, *args, **kwargs):
@@ -39,7 +39,7 @@ class MusicPlayer(wavelink.Player):
             message = f"(guild:`{interaction.guild.name}` channel:`{interaction.user.voice.channel.name}`)"
         except:
             message = "(No additional interaction info)"
-        logger.log("MusicPlayer.start_playback", f"Playing {self.queue.current_track} {message}")
+        logger.log("start-playback", f"Playing {self.queue.current_track} {message}")
         await self.play(self.queue.current_track)
         
 
