@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import datetime
-from system.utils.colors import BASE_COLOR
+from utils.colors import BASE_COLOR
 
 class PingCommand(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:

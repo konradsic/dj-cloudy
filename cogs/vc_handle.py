@@ -2,16 +2,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import datetime
-from system.utils.colors import BASE_COLOR
-from system.music.core import MusicPlayer
-from system.utils import logger
+from utils.colors import BASE_COLOR
+from music.core import MusicPlayer
+from utils import logger
 import wavelink
 
-INFO = logger.LoggingType.INFO
-WARN = logger.LoggingType.WARN
-ERROR = logger.LoggingType.ERROR
-
-logs = logger.LoggerInstance(INFO, "cogs.vc_handle")
+logging = logger.Logger().get("cogs.vc_handle")
 
 
 class VC_Handler(commands.Cog):
@@ -59,7 +55,7 @@ class VC_Handler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node):
-        logs.log("VC_Handler.on_wavelink_node_ready", f"Wavelink node `{node.identifier}` ready")
+        logging.info("on-wavelink-node-ready", f"Wavelink node `{node.identifier}` ready")
         self.node = node
         self.bot.node = node
 

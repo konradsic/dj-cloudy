@@ -4,34 +4,39 @@ import requests, os, time
 from utils import logger
 import colorama
 
-# disabling logging from flask
+# disabling logging
 import logging
+discord.utils.setup_logging(level=logging.ERROR, root=True)
+logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 os.system("cls")
 
 # setting up logging instances
-logging.config["logging-path"] = "./bot-logs/bot-logging.txt"
-main_logger = logging.Logger(name="main")
-_ = logging.Logger(name="utils.run")
-_ = logging.Logger(name="utils.errors")
-_ = logging.Logger(name="music.core")
-_ = logging.Logger(name="music.queue")
-_ = logging.Logger(name="music.playlist")
+logger.config["logging-path"] = "bot-logs/bot.log"
+main_logger = logger.Logger("dj-cloudy-onready","main")
+_ = logger.Logger("run_lavalink", "utils.run")
+_ = logger.Logger("AlreadyConnectedToVoice", "utils.errors")
+_ = logger.Logger("start-playback","music.core")
+_ = logger.Logger("None","music.queue")
+_ = logger.Logger("None","music.playlist")
+_ = logger.Logger("None","cogs.ping")
+_ = logger.Logger("None","cogs.play")
+_ = logger.Logger("on-wavelink-node-ready","cogs.vc_handle")
 
 # getting token, logger and init() colorama
 with open("./config/token.txt", mode="r") as f:
     TOKEN = f.read().strip("\n ")
 colorama.init(autoreset=True)
-main_logger.info("Initializing...")
+main_logger.info("main", "Initializing...")
 
 # checking up on the rate limits
 r = requests.head(url="https://discord.com/api/v1")
 try:
-    logging.critical("Request-Check",f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
+    main_logger.critical("Request-Check",f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
 except:
-    logging.info("Request-Check", "No Rate Limit.")
+    main_logger.info("Request-Check", "No Rate Limit.")
 
     
 # loading extensions
@@ -39,10 +44,10 @@ async def load_extensions():
     for cog in os.listdir('./cogs'):
         if cog.endswith('.py'):
             await bot.load_extension("cogs."+cog[:-3])
-            logging.info("load_extensions",f"Extension `{cog[:-3]}` loaded successfully")
+            main_logger.info("load_extensions",f"Extension `{cog[:-3]}` loaded successfully")
     for guild in list(bot.guilds):
         await bot.tree.sync(guild=guild)
-        logging.info("load_extensions", "Extensions synced with guilds")
+        main_logger.info("load_extensions", "Extensions synced with guilds")
     bot.loaded = True
 
 # main bot class, close() still does not work
@@ -56,20 +61,20 @@ class DJ_Cloudy(commands.Bot):
         )
     
     async def on_ready(self):
-        logging.info("DJ_Cloudy.on_ready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
+        main_logger.info("dj-cloudy-onready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
         await load_extensions()
         while not bot.loaded:
             pass
-        logging.info("DJ_Cloudy.on_ready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
+        main_logger.info("dj-cloudy-onready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
 
     async def close(self):
         try:
-            logging.info("dj-cloudy-close", "Closing gateway...")
+            main_logger.info("dj-cloudy-close", "Closing gateway...")
             await super().close()
-            logging.warn("dj-cloudy-close", "Connection closed. Consider this not a warning but a important information")
+            main_logger.warn("dj-cloudy-close", "Connection closed. Consider this not a warning but a important information")
         except:
-            logging.error("dj-cloudy-close","Closing session failed")
+            main_logger.error("dj-cloudy-close","Closing session failed")
 
 bot = DJ_Cloudy()
 bot.loaded = False

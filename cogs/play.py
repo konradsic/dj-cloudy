@@ -5,19 +5,15 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from system.music.core import MusicPlayer
-from system.utils import logger
-from system.utils.colors import BASE_COLOR
-from system.utils.regexes import URL_REGEX
-from system.utils.errors import (
+from music.core import MusicPlayer
+from utils import logger
+from utils.colors import BASE_COLOR
+from utils.regexes import URL_REGEX
+from utils.errors import (
     NoPlayerFound
 )
 
-INFO = logger.LoggingType.INFO
-WARN = logger.LoggingType.WARN
-ERROR = logger.LoggingType.ERROR
-
-logs = logger.LoggerInstance(INFO, "cogs.play")
+logging = logger.Logger().get("cogs.play")
 
 class PlayCommand(commands.Cog):
 

@@ -10,8 +10,6 @@ config = {
     "logging-path": "bot-logs/test.txt"
 }
 
-longest_debug_message = "Task-Test-Logging"
-
 class Logger:
     """
     Logger
@@ -20,7 +18,7 @@ class Logger:
     Logger is a class that provides logging at the next level.
     """
 
-    def __init__(self, longest_process_name: str, name: str=None):
+    def __init__(self, longest_process_name: str="None", name: str=None):
         if len(longest_process_name) > config["longest_process_len"]:
             config["longest_process_len"] = len(longest_process_name)
         if name:
@@ -51,7 +49,7 @@ class Logger:
         `message`: str - message you want to log
 
         """
-        longest_logger_name = len(max(list(loggers.keys())))
+        longest_logger_name = longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
 
         color = Fore.BLUE
         len_process = config["longest_process_len"]
@@ -76,8 +74,7 @@ class Logger:
         `message`: str - message you want to log
 
         """
-        longest_logger_name = len(max(list(loggers.keys())))
-
+        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
         color = Fore.GREEN
         len_process = config["longest_process_len"]
         
@@ -101,7 +98,7 @@ class Logger:
         `message`: str - message you want to log
 
         """
-        longest_logger_name = len(max(list(loggers.keys())))
+        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
 
         color = Fore.YELLOW
         len_process = config["longest_process_len"]
@@ -126,7 +123,7 @@ class Logger:
         `message`: str - message you want to log
 
         """
-        longest_logger_name = len(max(list(loggers.keys())))
+        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
 
         color = Fore.RED
         len_process = config["longest_process_len"]
@@ -151,7 +148,7 @@ class Logger:
         `message`: str - message you want to log
 
         """
-        longest_logger_name = len(max(list(loggers.keys())))
+        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
 
         len_process = config["longest_process_len"]
         
