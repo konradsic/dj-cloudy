@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 import requests, os, time
-from system.utils import logger
-from system.utils.logger import LoggingType as ltype
+from utils import logger
+from utils.logger import LoggingType as ltype
 import colorama
 
 # disabling logging from flask

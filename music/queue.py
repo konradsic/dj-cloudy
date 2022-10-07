@@ -1,4 +1,4 @@
-from system.utils.errors import (
+from utils.errors import (
     QueueIsEmpty
 )
 

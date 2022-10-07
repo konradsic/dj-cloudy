@@ -1,9 +1,9 @@
 import wavelink
 from discord.ext import commands
 import discord
-from system.music.queue import Queue
-import system.utils.logger as log
-from system.utils.errors import (
+from music.queue import Queue
+import utils.logger as log
+from utils.errors import (
     #NotConnectedToVoice,
     #AlreadyConnectedToVoice,
     NoTracksFound,

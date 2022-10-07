@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from system.utils import logger
+from utils import logger
 
 ERROR = logger.LoggingType.ERROR
 

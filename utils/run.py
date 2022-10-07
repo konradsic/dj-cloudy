@@ -1,7 +1,7 @@
 from threading import Thread
 import os
 from flask import Flask
-from system.utils import logger
+from utils import logger
 from time import sleep
 app = Flask('')
 
