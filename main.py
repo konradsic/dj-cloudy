@@ -51,7 +51,6 @@ async def load_extensions():
     bot.loaded = True
 
 # main bot class, close() still does not work
-### TODO: fix close() not working
 class DJ_Cloudy(commands.Bot):
     def __init__(self):
         super().__init__(
