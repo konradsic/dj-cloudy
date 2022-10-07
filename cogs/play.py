@@ -8,10 +8,8 @@ from discord.ext import commands
 from music.core import MusicPlayer
 from utils import logger
 from utils.colors import BASE_COLOR
+from utils.errors import NoPlayerFound
 from utils.regexes import URL_REGEX
-from utils.errors import (
-    NoPlayerFound
-)
 
 logging = logger.Logger().get("cogs.play")
 

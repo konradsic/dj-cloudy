@@ -6,7 +6,6 @@ import colorama
 
 # disabling logging
 import logging
-discord.utils.setup_logging(level=logging.ERROR, root=True)
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)

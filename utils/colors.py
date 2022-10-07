@@ -1,2 +1,2 @@
 from discord import Colour
-BASE_COLOR = 0x00dffc
+BASE_COLOR = 0x2f3136

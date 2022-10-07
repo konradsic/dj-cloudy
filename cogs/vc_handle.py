@@ -79,18 +79,25 @@ class VC_Handler(commands.Cog):
         try:
             channel = interaction.user.voice.channel
             await channel.connect(cls=MusicPlayer, self_deaf=True)
-            await interaction.response.send_message(f"Connected to {channel.name}")
+            embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Connected to <#{channel.id}>", color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
         except Exception as e:
-            await interaction.response.send_message(f"You're not connected to a channel! (or maybe {e.__class__.__name__}: {str(e)})")
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            await interaction.response.send_message(embed=embed)
             return
 
     @app_commands.command(name="disconnect", description="Disconnects from channel that bot is in")
     async def disconnect_command(self, interaction: discord.Interaction):
-        player = self.node.get_player(interaction.guild)
+        try:
+            player = self.node.get_player(interaction.guild)
 
-        await player.disconnect()
-
-        await interaction.response.send_message("Disconnected")
+            await player.disconnect()
+            embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected", color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+        except:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            await interaction.response.send_message(embed=embed)
+            return
 
 
 async def setup(bot: commands.Bot) -> None:
