@@ -65,6 +65,7 @@ class DJ_Cloudy(commands.Bot):
         while not bot.loaded:
             pass
         main_logger.info("dj-cloudy-onready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
+        main_logger.log("dj-cloudy-onready", "Bot is in those guilds: " + "".join(e.name + " " + str(e.id) + "  " for e in bot.guilds))
 
     async def close(self):
         try:

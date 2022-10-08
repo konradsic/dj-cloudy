@@ -48,6 +48,7 @@ class MusicPlayer(wavelink.Player):
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
+            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         if self.is_playing():
             embed = discord.Embed(
                 title = "<:play_button:1028004869019279391> Added song to the queue",
@@ -76,6 +77,7 @@ class MusicPlayer(wavelink.Player):
             durh, durm = divmod(durm, 60)
             durs, durm, durh = math.floor(durs), math.floor(durm), math.floor(durh)
             embed.add_field(name="Estimated time until playback", value=f"`{durh + ':' if durh != 0 else ''}{durm}:{durs}`")
+            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         await interaction.response.send_message(embed=embed)
 
         if not self.is_playing():
