@@ -4,7 +4,7 @@ A Discord music bot made for fun using Python and Wavelink
 If you are cloning this repo make sure to credit me for my hard work!
 
 ## 🎶 Easy to use, rich feature music bot that will make your server better
-With many many commands you can make your server more engaging and open to people
+With many many commands you can make your server more engaging and open to people <br>
  **Featured commands:**
 * `/play <query>` plays music in your voice channel
 * `/help` get embedded help in one place at any time
