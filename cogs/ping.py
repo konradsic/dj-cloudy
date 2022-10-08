@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import datetime
 from utils.colors import BASE_COLOR
+from utils import help_utils
 
 class PingCommand(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:
@@ -20,6 +21,7 @@ class PingCommand(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
+    help_utils.register_command("ping", "Returns latency and uptime of the bot", "Miscellaneous")
     await bot.add_cog(
         PingCommand(bot),
         guilds = [discord.Object(id=g.id) for g in bot.guilds]

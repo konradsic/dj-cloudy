@@ -4,6 +4,7 @@ from discord.ext import commands
 import datetime
 from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound
+from utils import help_utils
 
 class PlayPauseCommands(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:
@@ -30,6 +31,7 @@ class PlayPauseCommands(commands.Cog):
         
     @app_commands.command(name="resume", description="Resumes paused playback")
     async def resume_command(self, interaction: discord.Interaction):
+        help_utils.register_command("resume", "Resumes paused playback", "Music: Base commands")
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")
@@ -49,6 +51,8 @@ class PlayPauseCommands(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
+    help_utils.register_command("pause", "Pauses current playing track", "Music: Base commands")
+    help_utils.register_command("resume", "Resumes paused playback", "Music: Base commands")
     await bot.add_cog(
         PlayPauseCommands(bot),
         guilds = [discord.Object(id=g.id) for g in bot.guilds]

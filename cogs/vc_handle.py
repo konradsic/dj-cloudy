@@ -1,11 +1,12 @@
+import datetime
+
 import discord
+import wavelink
 from discord import app_commands
 from discord.ext import commands
-import datetime
-from utils.colors import BASE_COLOR
 from music.core import MusicPlayer
-from utils import logger
-import wavelink
+from utils import help_utils, logger
+from utils.colors import BASE_COLOR
 
 logging = logger.Logger().get("cogs.vc_handle")
 
@@ -17,7 +18,6 @@ class VC_Handler(commands.Cog):
         self.Node = None
 
     async def on_player_track_error(self, player):
-        logging.log("track-end", "Player advance")
         await player.advance()
 
     @commands.Cog.listener()
@@ -101,5 +101,7 @@ class VC_Handler(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
+    help_utils.register_command("connect", "Connects to your voice channel", "Music: Base commands")
+    help_utils.register_command("disconnect", "Disconnects from channel that bot is in", "Music: Base commands")
     await bot.add_cog(VC_Handler(bot),
                       guilds=[discord.Object(id=g.id) for g in bot.guilds])

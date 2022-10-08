@@ -10,6 +10,7 @@ from utils import logger
 from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound
 from utils.regexes import URL_REGEX
+from utils import help_utils
 
 from utils.errors import (
     NoTracksFound
@@ -52,6 +53,7 @@ class PlayCommand(commands.Cog):
                 return "failed"
 
 async def setup(bot: commands.Bot) -> None:
+    help_utils.register_command("play", "Plays music", "Music: Base commands", [("query","What song to play",True)])
     await bot.add_cog(
         PlayCommand(bot),
         guilds =[discord.Object(id=g.id) for g in bot.guilds]
