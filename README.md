@@ -19,9 +19,10 @@ With many many commands you can make your server more engaging and open to peopl
 *1.* also available via the discord server
 
 ## 📝 Version related info
-The bot is currently in a pre-beginning alpha stage. More than 90% of features doesn't really work
-Planned stable relase date: `December 2022`
+The bot is currently in version `0.2.1`
 
+Planned stable relase date: `December 2022`
+---
 More version info can be found in `CHANGELOG.md`
 
 ## 💻 Github related info

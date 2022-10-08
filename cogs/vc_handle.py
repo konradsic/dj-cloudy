@@ -9,7 +9,6 @@ import wavelink
 
 logging = logger.Logger().get("cogs.vc_handle")
 
-
 class VC_Handler(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
@@ -18,6 +17,7 @@ class VC_Handler(commands.Cog):
         self.Node = None
 
     async def on_player_track_error(self, player):
+        logging.log("track-end", "Player advance")
         await player.advance()
 
     @commands.Cog.listener()

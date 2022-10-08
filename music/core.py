@@ -13,6 +13,15 @@ from music.queue import Queue
 
 logger = log.Logger().get("music.core")
 
+def convert_to_double(val):
+    if val < 10:
+        return "0" + str(val)
+    return val
+
+def shorten_name(string):
+    if len(string) > 30:
+        return string[:30] + "..."
+    return string
 class MusicPlayer(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,13 +50,18 @@ class MusicPlayer(wavelink.Player):
             lm, ls = divmod(dur,60)
             lh, lm = divmod(lm, 60)
             ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
+            if lh >= 1:
+                lm = convert_to_double(lm)
+            ls = convert_to_double(ls)
             try: # add thumbnail
                 embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
             except: pass
-            embed.add_field(name="Track title", value=track.title)
+            embed.add_field(name="Track title", value=shorten_name(track.title))
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
+            if track.uri:
+                embed.add_field(name="Link", value=f"[**Click me!**]({track.uri})")
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         if self.is_playing():
             embed = discord.Embed(
@@ -59,13 +73,18 @@ class MusicPlayer(wavelink.Player):
             lm, ls = divmod(dur,60)
             lh, lm = divmod(lm, 60)
             ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
+            if lh >= 1:
+                lm = convert_to_double(lm)
+            ls = convert_to_double(ls)
             try: # add thumbnail
                 embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
             except: pass
-            embed.add_field(name="Track title", value=track.title)
+            embed.add_field(name="Track title", value=shorten_name(track.title))
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
+            if track.uri:
+                embed.add_field(name="Link", value=f"[**Click me!**]({track.uri})")
             # calculating estimated time to play this song
             current_pos = self.position
             current_len = self.queue.current_track.duration
@@ -76,6 +95,9 @@ class MusicPlayer(wavelink.Player):
             durm, durs = divmod(to_end,60)
             durh, durm = divmod(durm, 60)
             durs, durm, durh = math.floor(durs), math.floor(durm), math.floor(durh)
+            if durh >= 1:
+                durm = convert_to_double(durm)
+            durs = convert_to_double(durs)
             embed.add_field(name="Estimated time until playback", value=f"`{durh + ':' if durh != 0 else ''}{durm}:{durs}`")
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         await interaction.response.send_message(embed=embed)
@@ -94,7 +116,8 @@ class MusicPlayer(wavelink.Player):
 
     async def advance(self):
         try:
-            if (track := self.queue.next_track) is not None:
-                await self.play(track)
+            next_track = self.queue.get_next_track()
+            if next_track is not None:
+                await self.play(next_track)
         except QueueIsEmpty:
-            pass
+            return False
