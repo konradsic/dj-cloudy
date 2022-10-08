@@ -22,7 +22,8 @@ With many many commands you can make your server more engaging and open to peopl
 The bot is currently in version `0.2.1`
 
 Planned stable relase date: `December 2022`
----
+
+
 More version info can be found in `CHANGELOG.md`
 
 ## 💻 Github related info
