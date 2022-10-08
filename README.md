@@ -7,7 +7,7 @@ If you are cloning this repo make sure to credit me for my hard work!
 With many many commands you can make your server more engaging and open to people
  **Featured commands:**
 * `/play <query>` plays music in your voice channel
-* `/help [command]` returns help that you need!
+* `/help` get embedded help in one place at any time
 * `/nowplaying` get currently paying track info in a nice embed
 
 ## 🔗 Links
@@ -19,7 +19,7 @@ With many many commands you can make your server more engaging and open to peopl
 *1.* also available via the discord server
 
 ## 📝 Version related info
-The bot is currently in version `0.2.1`
+The bot is currently in version `0.2.3`
 
 Planned stable relase date: `December 2022`
 
