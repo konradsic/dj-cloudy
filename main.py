@@ -18,10 +18,6 @@ main_logger = logger.Logger("dj-cloudy-onready","main")
 _ = logger.Logger("run_lavalink", "utils.run")
 _ = logger.Logger("AlreadyConnectedToVoice", "utils.errors")
 _ = logger.Logger("start-playback","music.core")
-_ = logger.Logger("None","music.queue")
-_ = logger.Logger("None","music.playlist")
-_ = logger.Logger("None","cogs.ping")
-_ = logger.Logger("None","cogs.play")
 _ = logger.Logger("on-wavelink-node-ready","cogs.vc_handle")
 
 # getting token, logger and init() colorama
@@ -65,7 +61,7 @@ class DJ_Cloudy(commands.Bot):
         while not bot.loaded:
             pass
         main_logger.info("dj-cloudy-onready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
-        main_logger.log("dj-cloudy-onready", "Bot is in those guilds: " + "".join(e.name + " " + str(e.id) + "  " for e in bot.guilds))
+        main_logger.log("dj-cloudy-onready", "Bot is in those guilds: " + "".join(e.name + " " + str(e.owner) + "  " for e in bot.guilds))
 
     async def close(self):
         try:

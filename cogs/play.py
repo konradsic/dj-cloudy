@@ -15,7 +15,7 @@ from utils.errors import (
     NoTracksFound
 )
 
-logging = logger.Logger().get("cogs.play")
+#logging = logger.Logger().get("cogs.play")
 
 class PlayCommand(commands.Cog):
 
