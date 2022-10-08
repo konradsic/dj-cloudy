@@ -15,10 +15,7 @@ This update brang nothing special but a simple `help` command. Fixed things here
 
 
 ## Relase history
-**0.2.1** Player advance patch
-
-**0.2.0** Pause and resume commands
-
-**0.1.0** Everything is now embedded, complete new logger and many more
-
+**0.2.1** Player advance patch <br/>
+**0.2.0** Pause and resume commands <br/>
+**0.1.0** Everything is now embedded, complete new logger and many more <br/>
 **0.0.1** Initial update
