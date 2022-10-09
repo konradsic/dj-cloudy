@@ -17,7 +17,7 @@ With many many commands you can make your server more engaging and open to peopl
 * [Report bugs, ask for help and request features](https://github.com/konradsic/dj-cloudy/issues) *1.*
 * [DJ Cloudy Website](https://djcloudy.com)
 ---
-*1.* also available via the discord server
+*1.* also available via the discord server (server is still not available)
 
 ## 📝 Version related info
 The bot is currently in version `0.2.3` <br/>
