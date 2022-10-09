@@ -1,4 +1,4 @@
-# DJ Cloudy 
+# [DJ Cloudy](https://djcloudy.com)
 A Discord music bot made for fun using Python and Wavelink
 
 If you are cloning this repo make sure to credit me for my hard work!
