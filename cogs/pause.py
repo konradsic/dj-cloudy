@@ -21,7 +21,7 @@ class PlayPauseCommands(commands.Cog):
             return "failed"
 
         if player.is_paused():
-            embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> The played is already paused",color=BASE_COLOR)
+            embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> The player is already paused",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return "alr paused"
         
@@ -31,7 +31,6 @@ class PlayPauseCommands(commands.Cog):
         
     @app_commands.command(name="resume", description="Resumes paused playback")
     async def resume_command(self, interaction: discord.Interaction):
-        help_utils.register_command("resume", "Resumes paused playback", "Music: Base commands")
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")

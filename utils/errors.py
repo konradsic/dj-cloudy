@@ -31,3 +31,7 @@ class NoTracksFound(UnhandledBotException):
 class NoPlayerFound(UnhandledBotException): 
     def __init__(self, string=None):
         super().__init__(error_name = self.__class__.__name__, string = string or "No players available for this guild")
+
+class NoVoiceChannel(UnhandledBotException): 
+    def __init__(self, string=None):
+        super().__init__(error_name = self.__class__.__name__, string = string or "No voice channel is available")

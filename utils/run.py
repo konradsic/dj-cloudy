@@ -7,6 +7,8 @@ app = Flask('')
 
 logging = logger.Logger().get("utils.run")
 
+running_nodes = []
+
 @app.route("/")
 def home():
     return "The bot is alive!"

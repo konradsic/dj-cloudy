@@ -17,7 +17,7 @@ class ChangelogCommand(commands.Cog):
         with open("CHANGELOG.md", mode="r") as changelog_file:
             lines = changelog_file.readlines()[5:]
             for line in lines:
-                line = line.strip("\n ")
+                line = line.strip("\n <br/>")
                 if line.startswith("##"):
                     fields.append([line[3:], ""])
                 else:

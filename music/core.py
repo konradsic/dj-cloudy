@@ -1,13 +1,14 @@
 import datetime
-from time import time
 import math
+from time import time
+
 import discord
 import utils.logger as log
 import wavelink
 from discord.ext import commands
 from utils.colors import BASE_COLOR
-from utils.errors import (  # NotConnectedToVoice,; AlreadyConnectedToVoice,
-    NoTracksFound, QueueIsEmpty)
+from utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
+                          NoTracksFound, QueueIsEmpty, NoVoiceChannel)
 
 from music.queue import Queue
 
@@ -19,9 +20,10 @@ def convert_to_double(val):
     return val
 
 def shorten_name(string):
-    if len(string) > 30:
-        return string[:30] + "..."
+    if len(string) > 25:
+        return string[:25] + "..."
     return string
+
 class MusicPlayer(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,12 +58,10 @@ class MusicPlayer(wavelink.Player):
             try: # add thumbnail
                 embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
             except: pass
-            embed.add_field(name="Track title", value=shorten_name(track.title))
+            embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
-            if track.uri:
-                embed.add_field(name="Link", value=f"[**Click me!**]({track.uri})")
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         if self.is_playing():
             embed = discord.Embed(
@@ -79,12 +79,10 @@ class MusicPlayer(wavelink.Player):
             try: # add thumbnail
                 embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
             except: pass
-            embed.add_field(name="Track title", value=shorten_name(track.title))
+            embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
-            if track.uri:
-                embed.add_field(name="Link", value=f"[**Click me!**]({track.uri})")
             # calculating estimated time to play this song
             current_pos = self.position
             current_len = self.queue.current_track.duration
@@ -110,9 +108,8 @@ class MusicPlayer(wavelink.Player):
             message = f"(guild:`{interaction.guild.name}` channel:`{interaction.user.voice.channel.name}`)"
         except:
             message = "(No additional interaction info)"
-        logger.log("start-playback", f"Playing {self.queue.current_track} {message}")
+        logger.log("start-playback", f"Playing {self.queue.current_track.uri} {message}")
         await self.play(self.queue.current_track)
-        
 
     async def advance(self):
         try:
