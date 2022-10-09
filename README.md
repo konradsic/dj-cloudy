@@ -31,4 +31,4 @@ All of that can be found [here](https://github.com/konradsic/dj-cloudy/tree/main
 
 *Please note that the relase date can change, features may not work and other things can unexceptedly crash. Make sure to visit the Issues section*
 
-Website credits: @AdamB2N
+Website credits: @ArgoMk3
