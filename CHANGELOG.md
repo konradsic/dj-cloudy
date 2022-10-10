@@ -15,7 +15,7 @@ This update is a great implementation of the `autocomplete` discord's function
 
 
 ## Relase history
-**0.2.3** Changelog command
+**0.2.3** Changelog command <br/>
 **0.2.2** Help command <br/>
 **0.2.1** Player advance patch <br/>
 **0.2.0** Pause and resume commands <br/>
