@@ -10,7 +10,6 @@ class Queue:
     
     @property
     def tracks(self):
-        print(self._queue)
         return [track.title for track in self._queue]
 
     @property
