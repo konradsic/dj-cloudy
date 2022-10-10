@@ -43,7 +43,7 @@ async def load_extensions():
             main_logger.info("load_extensions",f"Extension `{cog[:-3]}` loaded successfully")
     for guild in list(bot.guilds):
         await bot.tree.sync(guild=guild)
-        main_logger.info("load_extensions", "Extensions synced with guilds")
+    main_logger.info("load_extensions", f"Extensions synced with {len(bot.guilds)} guilds")
     bot.loaded = True
 
 # main bot class, close() still does not work

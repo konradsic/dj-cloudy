@@ -83,6 +83,7 @@ class PlayCommand(commands.Cog):
                 return
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
+            player.bound_channel = interaction.channel
 
         query = query.strip("<>")
         tracks = await self.bot.node.get_tracks(cls=wavelink.Track, query=query)

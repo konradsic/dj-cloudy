@@ -29,6 +29,7 @@ class MusicPlayer(wavelink.Player):
         super().__init__(*args, **kwargs)
         self.paused_vc = False
         self.queue = Queue()
+        self.bound_channel = None
 
     async def teardown(self):
         try:

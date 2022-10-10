@@ -1,6 +1,7 @@
 from utils.errors import (
     QueueIsEmpty
 )
+import random
 
 class Queue:
     def __init__(self):
@@ -9,6 +10,7 @@ class Queue:
     
     @property
     def tracks(self):
+        print(self._queue)
         return [track.title for track in self._queue]
 
     @property
@@ -50,3 +52,18 @@ class Queue:
             return None
 
         return self._queue[self.position]
+
+    def shuffle(self):
+        tracks_to_shuffle = self.track_history + self.upcoming_tracks
+        random.shuffle(tracks_to_shuffle)
+        # putting the current track to avoid errors with player position
+        shuffled = []
+        if self.track_history != []:
+            shuffled.extend(tracks_to_shuffle[:len(self.track_history)])
+        shuffled.append(self.current_track)
+        shuffled.extend(tracks_to_shuffle[len(self.track_history):])
+        self._queue = shuffled
+        return self._queue
+
+    def __len__(self):
+        return len(self._queue)

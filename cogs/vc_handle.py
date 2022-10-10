@@ -46,16 +46,17 @@ class VC_Handler(commands.Cog):
                     await player.set_pause(True)
                     if player.channel is not None:
                         embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused because everybody left",color=BASE_COLOR)
-                        await player.channel.send(embed=embed)
+                        await player.bound_channel.send(embed=embed)
                     player.paused_vc = True
         try:
             if len([m for m in after.channel.members if not m.bot]) >= 1:
                 player = self.node.get_player(member.guild)
+                if player is None: return
                 if player.paused_vc == True:
                     await player.set_pause(False)
-                    if player.channel is not None:
+                    if player.bound_channel is not None:
                         embed = discord.Embed(description=f"<:play_button:1028004869019279391> Resuming playback...",color=BASE_COLOR)
-                        await player.channel.send(embed=embed)
+                        await player.bound_channel.send(embed=embed)
                     player.paused_vc = False
         except: pass
 
@@ -88,6 +89,7 @@ class VC_Handler(commands.Cog):
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
             embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Connected to <#{channel.id}>", color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
+            player.bound_channel = interaction.channel
         except Exception as e:
             logging.log("connect-command", f"Debug errors: {e.__class__.__name__} - {str(e)}")
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
