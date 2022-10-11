@@ -155,7 +155,7 @@ async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("queue previous", "Play the previous track if one exists", "Music: Queue navigation")
     help_utils.register_command("queue skip", "Skip to the next track if one exists", "Music: Queue navigation")
     help_utils.register_command("queue cleanup", "Clean the queue and stop the player", "Music: Queue navigation")
-    help_utils.register_command("queue moveto", "Move the player to hte specified position in the queue", "Music: Queue navigation", arguments=[("position", "Position in the queue between 1 and queue length", True)])
-    
+    help_utils.register_command("queue moveto", "Move the player to the specified position in the queue", "Music: Queue navigation", arguments=[("position", "Position in the queue between 1 and queue length", True)])
+
     await bot.add_cog(QueueCommands(bot),
                       guilds=[discord.Object(id=g.id) for g in bot.guilds])
