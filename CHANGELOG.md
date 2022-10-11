@@ -16,9 +16,9 @@ This update added 2 new commands: previous and a bonus: cleanup command
 
 
 ## Relase history
-**pre2-0.3.0** Queue skip command
-**pre1-0.3.0** Queue view and shuffle
-**0.2.4** Song autocompletion in `/play` command
+**pre2-0.3.0** Queue skip command <br/>
+**pre1-0.3.0** Queue view and shuffle <br/>
+**0.2.4** Song autocompletion in `/play` command <br/>
 **0.2.3** Changelog command <br/>
 **0.2.2** Help command <br/>
 **0.2.1** Player advance patch <br/>
