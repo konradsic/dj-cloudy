@@ -6,7 +6,6 @@ from discord.ext import commands
 from utils import help_utils
 from utils.colors import BASE_COLOR
 
-
 class ChangelogCommand(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -18,6 +17,7 @@ class ChangelogCommand(commands.Cog):
             lines = changelog_file.readlines()[5:]
             for line in lines:
                 line = line.strip("\n <br/>")
+                if line == "": continue
                 if line.startswith("##"):
                     fields.append([line[3:], ""])
                 else:
