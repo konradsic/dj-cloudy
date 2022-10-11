@@ -3,19 +3,21 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## pre-0.4.0 relase notes
+We are finally doing something than queue navigation. In this update - we are controlling the volume
+- Volume set command - set volume to given value
+- Volume get command - get current volume of the playback
+- Volume default command - set volume to the default value (100%) <br/>
+__Upcoming: Volume buttons, stay tuned!__
 
 ## 0.3.0 relase notes
 The great update, we all have been waiting for it
 - Added `/queue moveto` - one of least commands that will be implement to upgrade queue functionality
 - Small bugfixes and other miscellaneous things.
 
-## pre3-0.3.0 relase notes
-This update added 2 new commands: previous and a bonus: cleanup command
-- Added `/queue previous` command that lets to play the previous command
-- Added `/queue cleanup` command that cleans the queue and stops the player so you can re-populate the queue
-
 
 ## Relase history
+**pre3-0.3.0** Queue moveto and cleanup commands
 **pre2-0.3.0** Queue skip command <br/>
 **pre1-0.3.0** Queue view and shuffle <br/>
 **0.2.4** Song autocompletion in `/play` command <br/>
