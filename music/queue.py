@@ -18,7 +18,6 @@ class Queue:
             raise QueueIsEmpty
         return self._queue[0]
 
-    
     @property
     def current_track(self):
         if not self._queue:
@@ -63,6 +62,13 @@ class Queue:
         shuffled.extend(tracks_to_shuffle[len(self.track_history):])
         self._queue = shuffled
         return self._queue
+
+    def cleanup(self):
+        if not self._queue:
+            raise QueueIsEmpty
+        self._queue.clear()
+        self.position = 0
+        return []
 
     def __len__(self):
         return len(self._queue)

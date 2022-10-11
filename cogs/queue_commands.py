@@ -86,7 +86,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             await interaction.response.send_message(embed=embed)
             return
         elif not player.queue.upcoming_tracks:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The skip command could not be executed because there is nothing to skip to",color=BASE_COLOR)
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return
 
@@ -95,10 +95,48 @@ class QueueCommands(commands.GroupCog, name="queue"):
         embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Successfully skipped to the next track", color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
         
+    @app_commands.command(name="previous", description="Play the previous track if one exists")
+    async def previous(self, interaction: discord.Interaction):
+        if not (player := self.bot.node.get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+        elif not player.queue.track_history:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `previous` command could not be executed because there is nothing to play that is before this track",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
 
+        # setting player index to current-2 because
+        #   1) we go 1 track back
+        #   2) we go one more because when stop() 
+        #      is invoked we go to the next track so it would play the current track one more time
+
+        player.queue.position -= 2 # explained up there
+        await player.stop()
+        embed = discord.Embed(description=f"<:previous_button:1029418191274905630> Playing previous track", color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
+    async def cleanup_command(self, interaction: discord.Interaction):
+        if not (player := self.bot.node.get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+        elif not player.queue.tracks:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+
+        player.queue.cleanup() # defined in music/queue.py
+        await player.stop() # stop the player
+        embed = discord.Embed(description=f"<:playlist_button:1028926036181794857> Queue cleaned up successfully", color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("queue view", "View the queue in  a nice embed", "Music: Queue navigation")
     help_utils.register_command("queue shuffle", "Shuffle the queue", "Music: Queue navigation")
+    help_utils.register_command("queue previous", "Play the previous track if one exists", "Music: Queue navigation")
+    help_utils.register_command("queue skip", "Skip to the next track if one exists", "Music: Queue navigation")
+    help_utils.register_command("queue cleanup", "Clean the queue and stop the player", "Music: Queue navigation")
     await bot.add_cog(QueueCommands(bot),
                       guilds=[discord.Object(id=g.id) for g in bot.guilds])
