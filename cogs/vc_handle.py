@@ -79,7 +79,7 @@ class VC_Handler(commands.Cog):
         }
 
         for node in nodes.values():
-            await wavelink.NodePool.create_node(bot=self.bot, **node)
+            await wavelink.NodePool.create_node(bot=self.bot, **node, secure:True)
             #logs.log(INFO,"VC_Handler.start_nodes", f"Node `{node}` created")
 
     @app_commands.command(name="connect",description="Connects to your voice channel")
