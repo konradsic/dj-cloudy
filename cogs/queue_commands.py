@@ -80,7 +80,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="skip", description="Skip to the next track if one exists")
-    async def skip_command(self, interaction: discord.Interaction):
+    async def queue_skip_command(self, interaction: discord.Interaction):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
@@ -96,7 +96,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await interaction.response.send_message(embed=embed)
         
     @app_commands.command(name="previous", description="Play the previous track if one exists")
-    async def previous(self, interaction: discord.Interaction):
+    async def queue_previous(self, interaction: discord.Interaction):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
@@ -117,7 +117,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
-    async def cleanup_command(self, interaction: discord.Interaction):
+    async def queue_cleanup_command(self, interaction: discord.Interaction):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
@@ -134,7 +134,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     
     @app_commands.command(name="moveto", description="Move the player to the specified position in the queue")
     @app_commands.describe(position="Position in the queue between 1 and queue length")
-    async def moveto_command(self, interaction: discord.Interaction, position: int):
+    async def queue_moveto_command(self, interaction: discord.Interaction, position: int):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
