@@ -12,12 +12,12 @@ __Upcoming: Volume buttons, stay tuned!__
 
 ## 0.3.0 relase notes
 The great update, we all have been waiting for it
-- Added `/queue moveto` - one of least commands that will be implement to upgrade queue functionality
+- Added `/queue moveto` - one of last commands that will be implement to upgrade queue functionality
 - Small bugfixes and other miscellaneous things.
 
 
 ## Relase history
-**pre3-0.3.0** Queue moveto and cleanup commands
+**pre3-0.3.0** Queue previous and cleanup commands <br/>
 **pre2-0.3.0** Queue skip command <br/>
 **pre1-0.3.0** Queue view and shuffle <br/>
 **0.2.4** Song autocompletion in `/play` command <br/>
