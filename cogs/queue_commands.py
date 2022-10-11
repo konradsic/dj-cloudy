@@ -78,6 +78,22 @@ class QueueCommands(commands.GroupCog, name="queue"):
         player.queue.shuffle()
         embed = discord.Embed(description=f"<:shuffle_button:1028926038153117727> Queue has been successfully shuffled",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="skip", description="Skip to the next track if one exists")
+    async def skip_command(self, interaction: discord.Interaction):
+        if not (player := self.bot.node.get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+        elif not player.queue.upcoming_tracks:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The skip command could not be executed because there is nothing to skip to",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+
+        # we are using stop function because then the advance function will be called (from the event) and next track will be played
+        await player.stop()
+        embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Successfully skipped to the next track", color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
         
 
 
