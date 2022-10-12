@@ -18,7 +18,7 @@ __Upcoming: Volume buttons, stay tuned!__
 
 
 ## Relase history
-**0.3.0** Queue moveto, end queue navigation commands, small bugfixes
+**0.3.0** Queue moveto, end queue navigation commands, small bugfixes <br/>
 **pre3-0.3.0** Queue previous and cleanup commands <br/>
 **pre2-0.3.0** Queue skip command <br/>
 **pre1-0.3.0** Queue view and shuffle <br/>
