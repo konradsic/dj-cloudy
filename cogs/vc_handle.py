@@ -72,9 +72,9 @@ class VC_Handler(commands.Cog):
 
         nodes = {
             "MAIN": {
-                "host": "127.0.0.1",
-                "port": 2333,
-                "password": "youshallnotpass",
+                "host": "lavalink-hosting-247.konradsicinski.repl.co",
+                "port": 443,
+                "password": "dj-cloudy@Lava1Host",
             }
         }
 
