@@ -94,6 +94,7 @@ class PlayCommand(commands.Cog):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
                 await interaction.response.send_message(embed=embed)
                 return "failed"
+            logging.error("play-command", f"Exception occured -- {e.__class__.__name__}: {str(e)}")
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("play", "Plays music", "Music: Base commands", [("query","What song to play",True)])

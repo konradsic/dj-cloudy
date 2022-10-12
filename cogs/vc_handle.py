@@ -72,14 +72,14 @@ class VC_Handler(commands.Cog):
 
         nodes = {
             "MAIN": {
-                "host": "lavalink-hosting-247.konradsicinski.repl.co",
-                "port": 443,
-                "password": "dj-cloudy@Lava1Host",
+                "host": "127.0.0.1",
+                "port": 2333,
+                "password": "youshallnotpass",
             }
         }
 
         for node in nodes.values():
-            await wavelink.NodePool.create_node(bot=self.bot, **node, https=True)
+            await wavelink.NodePool.create_node(bot=self.bot, **node)
             #logs.log(INFO,"VC_Handler.start_nodes", f"Node `{node}` created")
 
     @app_commands.command(name="connect",description="Connects to your voice channel")

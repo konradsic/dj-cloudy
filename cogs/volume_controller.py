@@ -18,6 +18,7 @@ class VolumeController(commands.GroupCog, name="volume"):
 
     @app_commands.command(name="get", description="Get current playback volume")
     async def volume_get_command(self, interaction: discord.Interaction):
+        print(volume_guilds)
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)

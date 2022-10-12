@@ -9,6 +9,7 @@ from discord.ext import commands
 from utils.colors import BASE_COLOR
 from utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
                           NoTracksFound, QueueIsEmpty, NoVoiceChannel)
+from utils.buttons import VoiceControllerButtonMenu
 
 from music.queue import Queue
 
@@ -99,7 +100,7 @@ class MusicPlayer(wavelink.Player):
             durs = convert_to_double(durs)
             embed.add_field(name="Estimated time until playback", value=f"`{durh + ':' if durh != 0 else ''}{durm}:{durs}`")
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, view=VoiceControllerButtonMenu(user=interaction.user))
 
         if not self.is_playing():
             await self.start_playback(interaction)
