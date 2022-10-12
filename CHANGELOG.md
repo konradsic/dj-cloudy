@@ -3,6 +3,12 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 0.4.0 relase notes
+In this update we added the following features to the bot:
+- Volume contrlling commands (see pre-0.4.0)
+- Custom volume controll buttons in added to queue and now playing embeds (after running `/play`)
+- Switched Lavalink server to replit (before: localhost)
+
 ## pre-0.4.0 relase notes
 We are finally doing something than queue navigation. In this update - we are controlling the volume
 - Volume set command - set volume to given value
@@ -10,13 +16,9 @@ We are finally doing something than queue navigation. In this update - we are co
 - Volume default command - set volume to the default value (100%) <br/>
 __Upcoming: Volume buttons, stay tuned!__
 
-## 0.3.0 relase notes
-The great update, we all have been waiting for it
-- Added `/queue moveto` - one of last commands that will be implement to upgrade queue functionality
-- Small bugfixes and other miscellaneous things.
-
 
 ## Relase history
+**0.3.0** Queue moveto, end queue navigation commands, small bugfixes
 **pre3-0.3.0** Queue previous and cleanup commands <br/>
 **pre2-0.3.0** Queue skip command <br/>
 **pre1-0.3.0** Queue view and shuffle <br/>

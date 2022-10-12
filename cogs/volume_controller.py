@@ -6,10 +6,9 @@ from discord import app_commands
 from discord.ext import commands
 from utils import help_utils
 from utils.colors import BASE_COLOR
+from utils import base_utils
 
-# from music.core import 
-
-volume_guilds = {} # guildID: value
+# from music.core import some-import
 
 class VolumeController(commands.GroupCog, name="volume"):
     def __init__(self, bot: commands.Bot) -> None:
@@ -18,7 +17,6 @@ class VolumeController(commands.GroupCog, name="volume"):
 
     @app_commands.command(name="get", description="Get current playback volume")
     async def volume_get_command(self, interaction: discord.Interaction):
-        print(volume_guilds)
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
@@ -28,10 +26,7 @@ class VolumeController(commands.GroupCog, name="volume"):
             await interaction.response.send_message(embed=embed)
             return
 
-        try:
-            volume = volume_guilds[str(interaction.guild.id)]
-        except:
-            volume = 100
+        volume = base_utils.get_volume(interaction.guild)
 
         emoji = ""
         comment = ""
@@ -63,7 +58,7 @@ class VolumeController(commands.GroupCog, name="volume"):
             return
 
         await player.set_volume(volume=value)
-        volume_guilds[str(interaction.guild.id)] = value
+        base_utils.change_volume(interaction.guild, value)
         emoji = ""
         comment = ""
         if value == 0: emoji = "<:volume_none:1029437733631967233>"
@@ -87,7 +82,7 @@ class VolumeController(commands.GroupCog, name="volume"):
             await interaction.response.send_message(embed=embed)
             return
         await player.set_volume(100) # default value
-        volume_guilds[str(interaction.guild.id)] = 100
+        base_utils.change_volume(interaction.guild, 100)
         embed = discord.Embed(description="<:volume_high:1029437727294361691> Volume successfully set to default (`100%`)", color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
 

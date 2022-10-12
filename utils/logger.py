@@ -132,9 +132,9 @@ class Logger:
 
         print(message)
 
-        with open("bot-logs/test.txt", mode="r") as f:
+        with open(config["logging-path"], mode="r") as f:
             content = f.read()
-        with open("bot-logs/test.txt", mode="w") as f:
+        with open(config["logging-path"], mode="w") as f:
             f.write(content + message + "\n")
 
     def critical(self, process_name, message: str=None):
@@ -156,9 +156,9 @@ class Logger:
 
         print(message)
 
-        with open("bot-logs/test.txt", mode="r") as f:
+        with open(config["logging-path"], mode="r") as f:
             content = f.read()
-        with open("bot-logs/test.txt", mode="w") as f:
+        with open(config["logging-path"], mode="w") as f:
             f.write(content + message + "\n")
 
 def print_logs(history):
