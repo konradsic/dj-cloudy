@@ -10,7 +10,7 @@ In this update we added the following features to the bot:
 - Switched Lavalink server to replit (before: localhost)
 
 ## pre-0.4.0 relase notes
-We are finally doing something than queue navigation. In this update - we are controlling the volume
+We are finally doing something other than queue navigation. In this update - we are controlling the volume
 - Volume set command - set volume to given value
 - Volume get command - get current volume of the playback
 - Volume default command - set volume to the default value (100%) <br/>
