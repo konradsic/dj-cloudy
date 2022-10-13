@@ -1,6 +1,7 @@
 import datetime
 import math
 from time import time
+from enum import Enum
 
 import discord
 import utils.logger as log
@@ -14,6 +15,38 @@ from utils.buttons import VoiceControllerButtonMenu
 from music.queue import Queue
 
 logger = log.Logger().get("music.core")
+
+class RepeatMode(Enum):
+    REPEAT_NONE = 0
+    REPEAT_CURRENT_TRACK = 1
+    REPEAT_QUEUE = 2
+
+class Repeat:
+    def __init__(self):
+        self.repeat_mode = RepeatMode.REPEAT_NONE
+    
+    def set_repeat(self, mode):
+        if mode == "REPEAT_NONE":
+            self.repeat_mode = RepeatMode.REPEAT_NONE
+        elif mode == "REPEAT_CURRENT_TRACK":
+            self.repeat_mode = RepeatMode.REPEAT_CURRENT_TRACK
+        elif mode == "REPEAT_QUEUE":
+            self.repeat_mode = RepeatMode.REPEAT_QUEUE
+        return self.repeat_mode
+    
+    @property
+    def mode(self):
+        """
+        An alias to `repeat_mode`
+        """
+        return self.repeat_mode
+
+    @property
+    def get(self):
+        """
+        An alas to `repeat_mode`
+        """
+        return self.repeat_mode
 
 def convert_to_double(val):
     if val < 10:

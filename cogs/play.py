@@ -60,7 +60,6 @@ async def query_complete(
             for i,track in enumerate(tracks[:10])
         ]
     except Exception as e:
-        if e.__class__.__name__ == "LoadTrackError": return []
         logging.error("autocomplete-play", f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 
