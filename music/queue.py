@@ -50,6 +50,8 @@ class Queue:
             raise QueueIsEmpty
         
         self.position += 1
+	if self.repeat.mode == RepeatMode.REPEAT_CURRENT_TRACK:
+	    self.position -= 1 # reset back
         if self.position > len(self._queue) -1:
 	    if self.repeat.mode == RepeatMode.REPEAT_QUEUE:
 		self.position = 0
