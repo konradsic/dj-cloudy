@@ -8,7 +8,7 @@ With many many commands you can make your server more engaging and open to peopl
  **Featured commands:**
 * `/play <query>` plays music in your voice channel
 * `/help` get embedded help in one place at any time
-* `/nowplaying` get currently paying track info in a nice embed *NotImplementedError*
+* `/nowplaying` get currently playing track info in a nice embed *NotImplementedError*
 
 ## 🔗 Links
 * [Invite me by clicking here](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands)

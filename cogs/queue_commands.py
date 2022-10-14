@@ -47,6 +47,8 @@ class QueueCommands(commands.GroupCog, name="queue"):
         history = player.queue.track_history
         upcoming = player.queue.upcoming_tracks
         current = player.queue.current_track
+        length = sum([t.duration for t in player.queue.get_tracks()])
+        length = get_length(length)
 
         embed = discord.Embed(title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
         embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
@@ -60,6 +62,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
             upcoming_field = "".join(e + "\n" for e in upcoming_field)
             embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
+        embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`", inline=False)
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")

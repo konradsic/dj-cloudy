@@ -13,6 +13,7 @@ from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound, NoTracksFound
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
+from utils.base_utils import progressbar_emojis
 
 logging = logger.Logger().get("cogs.play")
 
@@ -41,6 +42,30 @@ def get_length(dur):
         lm = convert_to_double(lm)
     ls = convert_to_double(ls)
     return f"{str(lh) + ':' if lh != 0 else ''}{str(lm)}:{str(ls)}"
+
+def compose_progressbar(progress, end):
+    perc = round(progress/end*12) # there will be 20 emoji progressbars
+    full = 12
+    bar = ""
+    if perc in [0,1]: 
+        bar += progressbar_emojis["bar_left_nofill"]
+        bar += f"{progressbar_emojis['bar_mid_nofill'] * 10}"
+        bar += progressbar_emojis["bar_right_nofill"]
+        return bar # its just... short bar now
+    else:
+        bar += progressbar_emojis["bar_left_fill"]
+    midbars = perc-2 # first and last
+    # add midbars
+    bar += f"{progressbar_emojis['bar_mid_fill'] * midbars}"
+    if midbars < 10:
+        bar += progressbar_emojis["bar_mid_halffill"]
+    # add reamining bars
+    bar += f"{progressbar_emojis['bar_mid_nofill'] * (10-midbars)}"
+    if perc == 12:
+        bar += progressbar_emojis["bar_right_fill"]
+        return bar
+    bar += progressbar_emojis["bar_right_nofill"]
+    return bar
 
 async def query_complete(
     interaction: discord.Interaction, 
@@ -94,6 +119,40 @@ class PlayCommand(commands.Cog):
                 await interaction.response.send_message(embed=embed)
                 return "failed"
             logging.error("play-command", f"Exception occured -- {e.__class__.__name__}: {str(e)}")
+
+    @app_commands.command(name="nowplaying", description="Get currently playing track info in a nice embed")
+    @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")
+    async def nowplaying_command(self, interaction: discord.Interaction, hidden: bool=False):
+        if not (player := self.bot.node.get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+        if not player.is_playing():
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+
+        current = player.queue.current_track
+        duration = get_length(current.duration)
+        author = current.author
+        link = current.uri
+        thumb = f"https://img.youtube.com/vi/{current.identifier}/maxresdefault.jpg"
+        embed = discord.Embed(
+            title="Currently playing track informations", 
+            description="Here you can view informations about currently playing track", 
+            timestamp=datetime.datetime.utcnow(), 
+            color=BASE_COLOR
+        )
+        embed.add_field(name="Track title", value=f"[**{current.title}**]({link})", inline=False)
+        embed.add_field(name="Author / Artist", value=author, inline=True)
+        embed.add_field(name="Requested by", value=interaction.user.mention, inline=True)
+        embed.add_field(name="Next up", 
+            value=f"{'No upcoming track' if not player.queue.upcoming_tracks else f'[{player.queue.upcoming_tracks[0].title}]({player.queue.upcoming_tracks[0].uri})'}"
+        )
+        embed.add_field(name="Duration", value=f"{compose_progressbar(player.position, current.duration)} `{get_length(player.position)}/{duration}`", inline=False)    
+        embed.set_thumbnail(url=thumb)
+        embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, ephemeral=hidden)
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("play", "Plays music", "Music: Base commands", [("query","What song to play",True)])

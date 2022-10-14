@@ -7,7 +7,7 @@ from .base_utils import change_volume, get_volume
 from .run import running_nodes
 from .colors import BASE_COLOR
 
-class VoiceControllerButtonMenu(View):
+class PlayButtonsMenu(View):
     def __init__(self, timeout: float=None, user: t.Optional[discord.Member] = None) -> None:
         super().__init__(timeout=timeout)
         self.user = user

@@ -70,5 +70,8 @@ class Queue:
         self.position = 0
         return []
 
+    def get_tracks(self):
+        return [track for track in self._queue]
+
     def __len__(self):
         return len(self._queue)
