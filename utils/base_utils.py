@@ -39,15 +39,6 @@ class Repeat:
     def __init__(self):
         self.repeat_mode = RepeatMode.REPEAT_NONE
     
-    def set_repeat(self, mode):
-        if mode == "REPEAT_NONE":
-            self.repeat_mode = RepeatMode.REPEAT_NONE
-        elif mode == "REPEAT_CURRENT_TRACK":
-            self.repeat_mode = RepeatMode.REPEAT_CURRENT_TRACK
-        elif mode == "REPEAT_QUEUE":
-            self.repeat_mode = RepeatMode.REPEAT_QUEUE
-        return self.repeat_mode
-    
     @property
     def mode(self):
         """
@@ -60,4 +51,22 @@ class Repeat:
         """
         An alas to `repeat_mode`
         """
+        return self.repeat_mode
+
+    @property
+    def string_mode(self):
+        if self.repeat_mode == RepeatMode.REPEAT_NONE:
+            return "REPEAT_NONE"
+        elif self.repeat_mode == RepeatMode.REPEAT_CURRENT_TRACK:
+            return "REPEAT_CURRENT_TRACK"
+        elif self.repeat_mode == RepeatMode.REPEAT_QUEUE:
+            return "REPEAT_QUEUE"
+
+    def set_repeat(self, mode):
+        if mode == "REPEAT_NONE":
+            self.repeat_mode = RepeatMode.REPEAT_NONE
+        elif mode == "REPEAT_CURRENT_TRACK":
+            self.repeat_mode = RepeatMode.REPEAT_CURRENT_TRACK
+        elif mode == "REPEAT_QUEUE":
+            self.repeat_mode = RepeatMode.REPEAT_QUEUE
         return self.repeat_mode

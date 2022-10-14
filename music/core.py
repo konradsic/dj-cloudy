@@ -116,12 +116,13 @@ class MusicPlayer(wavelink.Player):
 
     async def advance(self):
         try:
+            print(self.queue.repeat.mode, self.queue.current_track, self.queue.first_track)
             if self.queue.repeat.mode == RepeatMode.REPEAT_CURRENT_TRACK:
                 await self.play(self.queue.current_track)
                 return
-            elif self.queue.repeat.mode == RepeatMode.REPEAT_QUEUE and self.queue.position == len(self.queue):
-                self.queue.position = 0
-                await self.play(self.queue.first_track)
+            elif (self.queue.repeat.mode == RepeatMode.REPEAT_QUEUE) and (self.queue.position == len(self.queue.tracks)-1):
+                first = self.queue.first_track
+                await self.play(first)
             next_track = self.queue.get_next_track()
             if next_track is not None:
                 await self.play(next_track)

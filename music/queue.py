@@ -19,6 +19,7 @@ class Queue:
     def first_track(self):
         if not self._queue:
             raise QueueIsEmpty
+        self.position = 0
         return self._queue[0]
 
     @property

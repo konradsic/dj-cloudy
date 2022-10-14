@@ -62,7 +62,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
             upcoming_field = "".join(e + "\n" for e in upcoming_field)
             embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
-        embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`", inline=False)
+        embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`", inline=False)
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
