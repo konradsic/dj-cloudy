@@ -1,4 +1,5 @@
 volume_guilds = {}
+registered_nodes = []
 
 def change_volume(guild, val):
     volume_guilds[str(guild.id)] = val
@@ -9,6 +10,13 @@ def get_volume(guild):
     except:
         volume_guilds[str(guild.id)] = 100
         return 100
+
+def register_node(node_cls):
+    if node_cls not in registered_nodes:
+        registered_nodes.append(node_cls)
+
+def get_nodes():
+    return registered_nodes
 
 progressbar_emojis = {
     "bar_left_nofill": "<:progressbarleftnofill:1030469955512193025>",

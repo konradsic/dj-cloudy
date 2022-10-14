@@ -156,6 +156,8 @@ class PlayCommand(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("play", "Plays music", "Music: Base commands", [("query","What song to play",True)])
+    help_utils.register_command("nowplaying", "Get currently playing track info in a nice embed", "Music: Base commands", 
+                                [("hidden", "Wherever to hide the message or not (it will be visible only to you)", False)])
     await bot.add_cog(
         PlayCommand(bot),
         guilds =[discord.Object(id=g.id) for g in bot.guilds]

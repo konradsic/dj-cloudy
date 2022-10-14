@@ -6,6 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 from music.core import MusicPlayer
 from utils import help_utils, logger
+from utils.base_utils import register_node
 from utils.colors import BASE_COLOR
 from utils.run import running_nodes
 
@@ -66,6 +67,7 @@ class VC_Handler(commands.Cog):
         self.node = node
         self.bot.node = node
         running_nodes.append(node)
+        register_node(node)
 
     async def start_nodes(self):
         await self.bot.wait_until_ready()

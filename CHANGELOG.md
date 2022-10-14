@@ -3,17 +3,17 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 0.4.4 relase notes
+This update added a small command
+- Added `/botinfo` command that displays bot info
+
 ## 0.4.3 relase notes
 This update focused mainly on the nowplaying command
 - Added a lot of new progressbar emojis (but haha no emoji folder)
 - Added the nowplaying command: useful informations about current playing track + progressbar
 
-## 0.4.2 relase notes
-In this update we did some small changes:
-- Ungrouped skipto (before moveto), skip and previous commands from queue group
-- Added sneak peaks for the next update in `./music/core.py`
-
 ## Relase history
+**0.4.2** {queue moveto => skipto}, sneak peak on 0.5.0 and bug fixes <br/>
 **0.4.1** Squished volume commands to one <br/>
 **0.4.0** Volume controlling by buttons, change lavalink server <br/>
 **pre-0.4.0** Volume get and set commands <br/>
