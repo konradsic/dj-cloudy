@@ -97,6 +97,29 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await player.stop() # stop the player
         embed = discord.Embed(description=f"<:playlist_button:1028926036181794857> Queue cleaned up successfully", color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="remove", description="Remove track with the given index from the queue")
+    @app_commands.describe(index="Index of the song you want to remove")
+    async def queue_remove_command(self, interaction: discord.Interaction, index: int):
+        if not (player := self.bot.node.get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+        elif not (1 <= index <= len(player.queue)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Index of the track is out of range",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+        if (index-1) == player.queue.position:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> For now you cannot remove current playing track",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return
+        del player.queue._queue[index-1]
+        if (index-1) < player.queue.position:
+            player.queue.position -= 1
+        
+        embed = discord.Embed(description=f"<:playlist_button:1028926036181794857> Successfully removed track at position `{index}`",color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
+        return
     
 class OtherQueueCommands(commands.Cog):
     def __init__(self, bot):
@@ -162,6 +185,7 @@ async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("queue view", "View the queue in  a nice embed", "Music: Queue navigation")
     help_utils.register_command("queue cleanup", "Clean the queue and stop the player", "Music: Queue navigation")
     help_utils.register_command("queue shuffle", "Shuffle the queue", "Music: Queue navigation")
+    help_utils.register_command("queue remove", "Remove track with the given index from the queue", "Music: Queue navigation", [("index","Index of the song you want to remove",True)])
     help_utils.register_command("previous", "Play the previous track if one exists", "Music: Queue navigation")
     help_utils.register_command("skip", "Skip to the next track if one exists", "Music: Queue navigation")
     help_utils.register_command("skipto", "Move the player to the specified position in the queue", "Music: Queue navigation", arguments=[("position", "Position in the queue between 1 and queue length", True)])

@@ -7,6 +7,7 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 In update `0.5.0` as you know from issues or discussions (or maybe you don't) we will focus on repeating tracks
 - Added repeat command (working? buggy)
 - Working on "toggle repeat" buttons
+- Added queue remove command
 
 ## 0.4.4 relase notes
 This update added a small command
