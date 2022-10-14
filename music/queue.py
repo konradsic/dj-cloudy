@@ -51,7 +51,8 @@ class Queue:
         
         self.position += 1
         if self.position > len(self._queue) -1:
-            return None
+	    if self.repeat.mode == RepeatMode.REPEAT_QUEUE:
+		self.position = 0
 
         return self._queue[self.position]
 
