@@ -1,52 +1,20 @@
 import datetime
 import math
-from time import time
 from enum import Enum
+from time import time
 
 import discord
 import utils.logger as log
 import wavelink
 from discord.ext import commands
+from utils.buttons import PlayButtonsMenu
 from utils.colors import BASE_COLOR
 from utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
-                          NoTracksFound, QueueIsEmpty, NoVoiceChannel)
-from utils.buttons import PlayButtonsMenu
-
+                          NoTracksFound, NoVoiceChannel, QueueIsEmpty)
 from music.queue import Queue
+from utils.base_utils import RepeatMode
 
 logger = log.Logger().get("music.core")
-
-class RepeatMode(Enum):
-    REPEAT_NONE = 0
-    REPEAT_CURRENT_TRACK = 1
-    REPEAT_QUEUE = 2
-
-class Repeat:
-    def __init__(self):
-        self.repeat_mode = RepeatMode.REPEAT_NONE
-    
-    def set_repeat(self, mode):
-        if mode == "REPEAT_NONE":
-            self.repeat_mode = RepeatMode.REPEAT_NONE
-        elif mode == "REPEAT_CURRENT_TRACK":
-            self.repeat_mode = RepeatMode.REPEAT_CURRENT_TRACK
-        elif mode == "REPEAT_QUEUE":
-            self.repeat_mode = RepeatMode.REPEAT_QUEUE
-        return self.repeat_mode
-    
-    @property
-    def mode(self):
-        """
-        An alias to `repeat_mode`
-        """
-        return self.repeat_mode
-
-    @property
-    def get(self):
-        """
-        An alas to `repeat_mode`
-        """
-        return self.repeat_mode
 
 def convert_to_double(val):
     if val < 10:
@@ -148,6 +116,12 @@ class MusicPlayer(wavelink.Player):
 
     async def advance(self):
         try:
+            if self.queue.repeat.mode == RepeatMode.REPEAT_CURRENT_TRACK:
+                await self.play(self.queue.current_track)
+                return
+            elif self.queue.repeat.mode == RepeatMode.REPEAT_QUEUE and self.queue.position == len(self.queue):
+                self.queue.position = 0
+                await self.play(self.queue.first_track)
             next_track = self.queue.get_next_track()
             if next_track is not None:
                 await self.play(next_track)

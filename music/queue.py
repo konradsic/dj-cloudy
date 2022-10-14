@@ -1,12 +1,15 @@
 from utils.errors import (
     QueueIsEmpty
 )
+from enum import Enum
 import random
+from utils.base_utils import Repeat
 
 class Queue:
     def __init__(self):
         self._queue = []
         self.position = 0
+        self.repeat: Repeat = Repeat()
     
     @property
     def tracks(self):

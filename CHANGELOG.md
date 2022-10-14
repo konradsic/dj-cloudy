@@ -3,16 +3,17 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## pre-0.5.0 relase notes
+In update `0.5.0` as you know from issues or discussions (or maybe you don't) we will focus on repeating tracks
+- Added repeat command (working? buggy)
+- Working on "toggle repeat" buttons
+
 ## 0.4.4 relase notes
 This update added a small command
 - Added `/botinfo` command that displays bot info
 
-## 0.4.3 relase notes
-This update focused mainly on the nowplaying command
-- Added a lot of new progressbar emojis (but haha no emoji folder)
-- Added the nowplaying command: useful informations about current playing track + progressbar
-
 ## Relase history
+**0.4.3** Bugfixes + nowplaying command
 **0.4.2** {queue moveto => skipto}, sneak peak on 0.5.0 and bug fixes <br/>
 **0.4.1** Squished volume commands to one <br/>
 **0.4.0** Volume controlling by buttons, change lavalink server <br/>

@@ -46,7 +46,7 @@ class MiscCommands(commands.Cog):
         embed = discord.Embed(title="Bot informations", description="Informations gathered are below",color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
         embed.add_field(name="Nodes data", value=node_data, inline=False)
         embed.add_field(name="Players data", value=players_data, inline=False)
-        embed.add_field(name="Bot informations", value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nCreated by: [Konradoo](https://github.com/konradoo) (bot), [ArgoMk3](https://github.com/ArgoTeam) (web)\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
+        embed.add_field(name="Bot informations", value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nCreated by: [Konradoo](https://github.com/konradsic) (bot), [ArgoMk3](https://github.com/ArgoTeam) (web)\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_footer(text=f"Requested by {interaction.user} | Licensed under the MIT License")
         await interaction.response.send_message(embed=embed, ephemeral=True)

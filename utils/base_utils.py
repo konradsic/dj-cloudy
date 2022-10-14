@@ -1,3 +1,5 @@
+from enum import Enum
+
 volume_guilds = {}
 registered_nodes = []
 
@@ -27,3 +29,35 @@ progressbar_emojis = {
     "bar_right_nofill": "<:progressbarrightnofill:1030469964383133777>",
     "bar_right_fill": "<:progressbarrightfill:1030469962583785552>"
 }
+
+class RepeatMode(Enum):
+    REPEAT_NONE = 0
+    REPEAT_CURRENT_TRACK = 1
+    REPEAT_QUEUE = 2
+
+class Repeat:
+    def __init__(self):
+        self.repeat_mode = RepeatMode.REPEAT_NONE
+    
+    def set_repeat(self, mode):
+        if mode == "REPEAT_NONE":
+            self.repeat_mode = RepeatMode.REPEAT_NONE
+        elif mode == "REPEAT_CURRENT_TRACK":
+            self.repeat_mode = RepeatMode.REPEAT_CURRENT_TRACK
+        elif mode == "REPEAT_QUEUE":
+            self.repeat_mode = RepeatMode.REPEAT_QUEUE
+        return self.repeat_mode
+    
+    @property
+    def mode(self):
+        """
+        An alias to `repeat_mode`
+        """
+        return self.repeat_mode
+
+    @property
+    def get(self):
+        """
+        An alas to `repeat_mode`
+        """
+        return self.repeat_mode
