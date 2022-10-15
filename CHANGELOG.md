@@ -13,9 +13,9 @@ In this update we brang to you a great feature - repeating!
 - Added repeat control buttons to the play, nowplaying and queue view commands
 
 ## Relase history
-**pre-0.5.0** Repeat command, working on buttons
-**0.4.4** `/botinfo` command
-**0.4.3** Bugfixes + nowplaying command
+**pre-0.5.0** Repeat command, working on buttons <br/>
+**0.4.4** `/botinfo` command <br/>
+**0.4.3** Bugfixes + nowplaying command <br/>
 **0.4.2** {queue moveto => skipto}, sneak peak on 0.5.0 and bug fixes <br/>
 **0.4.1** Squished volume commands to one <br/>
 **0.4.0** Volume controlling by buttons, change lavalink server <br/>
