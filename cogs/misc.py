@@ -26,7 +26,7 @@ class MiscCommands(commands.Cog):
             embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.add_field(name="Why you should choose me?", value="- I am all free\n- Advanced music functions such as equalizers (coming soon)\n- Easy to use")
-            embed.add_field(name="Links", value="[**Invite me!**](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands) `|` *Join Our Discord Server (in progress)*\n[GitHub Project: Report bugs, see code and more](https://github.com/konradsic/dj-cloudy)")
+            embed.add_field(name="Links", value="[**Invite me!**](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands)\n[*Join Our Discord Server*](https://discord.gg/t6qPGdHypw)\n[GitHub Project: Report bugs, see code and more](https://github.com/konradsic/dj-cloudy)")
             await message.channel.send(embed=embed)
 
     @app_commands.command(name="ping",description="Returns latency and uptime of the bot")
