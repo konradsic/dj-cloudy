@@ -3,18 +3,17 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 0.5.1 relase notes
+In this update we added event when user *@mentions* the bot
+- When you @mention the bot you will recieve a cool embed
+
 ## 0.5.0 relase notes
 In this update we brang to you a great feature - repeating!
 - Added `/repeat` command
 - Added repeat control buttons to the play, nowplaying and queue view commands
 
-## pre-0.5.0 relase notes
-In update `0.5.0` as you know from issues or discussions (or maybe you don't) we will focus on repeating tracks
-- Added repeat command (working? buggy)
-- Working on "toggle repeat" buttons
-- Added queue remove command
-
 ## Relase history
+**pre-0.5.0** Repeat command, working on buttons
 **0.4.4** `/botinfo` command
 **0.4.3** Bugfixes + nowplaying command
 **0.4.2** {queue moveto => skipto}, sneak peak on 0.5.0 and bug fixes <br/>

@@ -8,11 +8,26 @@ from discord.ext import commands
 from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils.base_utils import get_nodes
-
-
 class MiscCommands(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if (message.content.startswith(f"<@{str(self.bot.user.id)}>") or 
+            message.content.startswith(f"<@!{self.bot.user.id}>") or 
+            message.content.startswith(self.bot.user.mention)):
+            embed = discord.Embed(
+                title="Hello! I'm DJ Cloudy",
+                description="A cool bot that will make your server better by adding music functionality. Music playback at the next level. Invite now!",
+                timestamp=datetime.datetime.utcnow(),
+                color=BASE_COLOR
+            )
+            embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
+            embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+            embed.add_field(name="Why you should choose me?", value="- I am all free\n- Advanced music functions such as equalizers (coming soon)\n- Easy to use")
+            embed.add_field(name="Links", value="[**Invite me!**](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands) `|` *Join Our Discord Server (in progress)*\n[GitHub Project: Report bugs, see code and more](https://github.com/konradsic/dj-cloudy)")
+            await message.channel.send(embed=embed)
 
     @app_commands.command(name="ping",description="Returns latency and uptime of the bot")
     async def ping_command(self,interaction: discord.Interaction):
