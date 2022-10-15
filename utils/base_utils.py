@@ -1,4 +1,7 @@
 from enum import Enum
+import discord
+
+AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
 
 volume_guilds = {}
 registered_nodes = []
@@ -29,6 +32,11 @@ progressbar_emojis = {
     "bar_right_nofill": "<:progressbarrightnofill:1030469964383133777>",
     "bar_right_fill": "<:progressbarrightfill:1030469962583785552>"
 }
+
+def basic_auth(name: str, string: str, user: discord.User):
+    if str(user.id) not in AUTHENTICATED_USERS:
+        return "hidden_" + name
+    return string
 
 class RepeatMode(Enum):
     REPEAT_NONE = 0

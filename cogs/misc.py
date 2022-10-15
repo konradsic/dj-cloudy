@@ -7,7 +7,7 @@ from discord import app_commands
 from discord.ext import commands
 from utils import help_utils
 from utils.colors import BASE_COLOR
-from utils.base_utils import get_nodes
+from utils.base_utils import get_nodes, basic_auth
 class MiscCommands(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:
         self.bot = bot
@@ -44,7 +44,7 @@ class MiscCommands(commands.Cog):
     async def botinfo_command(self,interaction: discord.Interaction):
         # gather all informations below:
         nodes = get_nodes()
-        node_data = "".join(f'**Node `{node.identifier}`** at region *{node.region}*\n  - Host: `{node.host}:{node.port}`\n' for node in nodes)
+        node_data = "".join(f'**Node `{node.identifier}`** at region *{node.region}*\n  - Host: `{basic_auth("node_host", node.host, interaction.user)}:{basic_auth("node_port", node.port, interaction.user)}`\n' for node in nodes)
         if node_data == "":
             node_data = "No information about connected nodes"
         players = []
