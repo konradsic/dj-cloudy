@@ -14,6 +14,7 @@ from utils.errors import NoPlayerFound, NoTracksFound
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
 from utils.base_utils import progressbar_emojis
+from utils.buttons import PlayButtonsMenu
 
 logging = logger.Logger().get("cogs.play")
 
@@ -152,7 +153,7 @@ class PlayCommand(commands.Cog):
         embed.add_field(name="Duration", value=f"{compose_progressbar(player.position, current.duration)} `{get_length(player.position)}/{duration}`", inline=False)    
         embed.set_thumbnail(url=thumb)
         embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
-        await interaction.response.send_message(embed=embed, ephemeral=hidden)
+        await interaction.response.send_message(embed=embed, ephemeral=hidden, view=PlayButtonsMenu(user=interaction.user))
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("play", "Plays music", "Music: Base commands", [("query","What song to play",True)])

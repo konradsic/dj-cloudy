@@ -10,7 +10,7 @@ from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.colors import BASE_COLOR
 from utils.run import running_nodes
-
+from utils.buttons import PlayButtonsMenu
 
 def convert_to_double(val):
     if val < 10:
@@ -57,13 +57,14 @@ class QueueCommands(commands.GroupCog, name="queue"):
             history_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(history, 1)]
             history_field = "".join(e + "\n" for e in history_field)
             embed.add_field(name="Before tracks", value=history_field, inline=False)
-        embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri}) [{get_length(current.duration)}]")
+        if current:
+            embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri}) [{get_length(current.duration)}]")
         if upcoming:
             upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
             upcoming_field = "".join(e + "\n" for e in upcoming_field)
             embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
         embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`", inline=False)
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, view=PlayButtonsMenu(user=interaction.user))
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction):

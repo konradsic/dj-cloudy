@@ -3,7 +3,7 @@ from utils.errors import (
 )
 from enum import Enum
 import random
-from utils.base_utils import Repeat
+from utils.base_utils import Repeat, RepeatMode
 
 class Queue:
     def __init__(self):
@@ -50,11 +50,11 @@ class Queue:
             raise QueueIsEmpty
         
         self.position += 1
-	if self.repeat.mode == RepeatMode.REPEAT_CURRENT_TRACK:
-	    self.position -= 1 # reset back
+        if self.repeat.mode == RepeatMode.REPEAT_CURRENT_TRACK:
+            self.position -= 1 # reset back
         if self.position > len(self._queue) -1:
-	    if self.repeat.mode == RepeatMode.REPEAT_QUEUE:
-		self.position = 0
+            if self.repeat.mode == RepeatMode.REPEAT_QUEUE:
+                self.position = 0
 
         return self._queue[self.position]
 
