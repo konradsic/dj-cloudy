@@ -41,7 +41,7 @@ async def load_extension(ext):
     bot.current_ext_loading = ext
     bot.current_ext_idx += 1
     await bot.load_extension(ext)
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.01)
 async def extload(extensions):
     for extension in extensions:
         await load_extension(extension)
