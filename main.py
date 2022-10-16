@@ -5,6 +5,7 @@ from utils import logger
 import colorama
 from colorama import Fore, Back, Style
 import asyncio
+import threading
 
 # disabling logging
 import logging
@@ -40,10 +41,11 @@ async def load_extension(ext):
     bot.current_ext_loading = ext
     bot.current_ext_idx += 1
     await bot.load_extension(ext)
-    await asyncio.sleep(0.00000001)
+    await asyncio.sleep(0.1)
 async def extload(extensions):
-    async for extension in extensions:
+    for extension in extensions:
         await load_extension(extension)
+    bot.part_loaded = True
 
 async def update_progressbar():
     progress_running_icons: list = ["|", "/", "-", "\\", "|", "/", "-", "\\"]
@@ -57,7 +59,7 @@ async def update_progressbar():
         print(f" {Back.WHITE}{'#'*round(perc)}{Back.RESET}{'.'*(total-round(perc))} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}         ", end="\r")
         await asyncio.sleep(0.20)
         i += 1
-    print()
+    print(f" {Back.WHITE}{'#'*20}{Back.RESET} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                                                                                     ", end="\n")
 
 # loading extensions
 async def load_extensions():
@@ -70,10 +72,15 @@ async def load_extensions():
             extensions.append("cogs." + cog[:-3])
     bot.ext_len = len(extensions)
     main_logger.info("load_extensions",f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(update_progressbar(), extload(extensions)))
-    
-    bot.part_loaded = True
+    thread_loader = threading.Thread(target=asyncio.run, args=(update_progressbar(),))
+    thread_loader.start()
+    ext_loader = threading.Thread(target=asyncio.run, args=(extload(extensions),))
+    ext_loader.start()
+    thread_loader.join()
+    ext_loader.join()
+    while not bot.part_loaded:
+        pass
+    main_logger.info("load_extensions", "Extensions loaded successfully, syncing with guilds...")
     for guild in list(bot.guilds):
         await bot.tree.sync(guild=guild)
     main_logger.info("load_extensions", f"Extensions synced with {len(bot.guilds)} guilds")
