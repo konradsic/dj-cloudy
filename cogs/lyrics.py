@@ -11,7 +11,7 @@ from utils import lyrics_handler as lhandler
 from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
-
+from utils.buttons import EmbedPaginator
 
 class LyricsCommandHandler(commands.Cog):
     def __init__(self, bot):
@@ -32,20 +32,26 @@ class LyricsCommandHandler(commands.Cog):
         title, artist = None,None
         if not song: # we need to get current song
             title = player.queue.current_track.title
-            artist = player.queue.current_track.author
+            artist = player.queue.current_track.author.strip("- Topic")
         else:
             if not re.match(URL_REGEX, song):
                 song = "ytmsearch:" + song
-            queried_song = await running_nodes[0].get_tracks(cls=wavelink.Track, query=song)
-            queried_song = queried_song[0]
-            title = queried_song.title
-            artist = queried_song.author
-        if not title:
+            try:
+                queried_song = await running_nodes[0].get_tracks(cls=wavelink.Track, query=song)
+                queried_song = queried_song[0]
+                title = queried_song.title
+                artist = queried_song.author
+            except:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed)
+                return
+
+        try:
+            lyrics = lhandler.get_lyrics(client, artist, title)
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return
-
-        lyrics = lhandler.get_lyrics(client, artist, title)
         # paginator yay
         # split for 35 lines each
         lyrics = lyrics.split("\n")
@@ -66,8 +72,18 @@ class LyricsCommandHandler(commands.Cog):
                     del lyrics[0]
             lyric_groups.append(lyrics)
         
+        embeds = []
+        for group in lyric_groups:
+            embeds.append(discord.Embed(
+                title = f"Displaying lyrics for {title}",
+                description="".join(e + "\n" for e in group),
+                color=BASE_COLOR,
+                timestamp=datetime.datetime.utcnow()
+            ))
+        await interaction.response.send_message(embed=embeds[0], view=EmbedPaginator(embeds, 120, interaction.user))
 
 async def setup(bot):
+    help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Miscellaneous", [("song","Song you want lyrics for", False)])
     await bot.add_cog(
         LyricsCommandHandler(bot),
         guilds =[discord.Object(id=g.id) for g in bot.guilds]

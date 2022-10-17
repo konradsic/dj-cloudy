@@ -1,3 +1,4 @@
+from dis import dis
 import typing as t
 
 import discord
@@ -75,3 +76,42 @@ class PlayButtonsMenu(View):
             embed=discord.Embed(description=f"<:repeat_button:1030534158302330912> Repeat mode updated to `{player.queue.repeat.string_mode}`",color=BASE_COLOR),
             ephemeral=True
         )
+
+class EmbedPaginator(View):
+    def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:
+        super().__init__(timeout=timeout)
+        self.current_page = 0
+        self.pages = pages
+        self.user = user
+        self.length = len(self.pages)-1
+
+    async def update(self, page:int):
+        self.current_page = page
+        if page == 0:
+            self.children[0].disabled = True
+            self.children[-1].disabled = False
+        elif page == self.length:
+            self.children[0].disabled = False
+            self.children[-1].disabled = True
+        else:
+            for i in self.children: i.disabled = True
+
+    async def get_page(self, page):
+        return [page]
+
+    async def show_page(self, page:int, interaction: discord.Interaction):
+        await self.update(page)
+        embeds = await self.get_page(self.pages[page])
+
+        await interaction.response.edit_message(
+            embeds=embeds,
+            view=self
+        )
+    
+    @ui.button(emoji="◀", style=discord.ButtonStyle.blurple)
+    async def backwards_button(self, interaction: discord.Interaction, button):
+        await self.show_page(self.current_page-1, interaction)
+    
+    @ui.button(emoji="▶", style=discord.ButtonStyle.blurple)
+    async def forward_button(self, interaction: discord.Interaction, button):
+        await self.show_page(self.current_page+1, interaction)
