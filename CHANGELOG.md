@@ -15,9 +15,9 @@ This update doesn't bring a lot of functionality but it's just a little patch
     - Showing page number as embed footer
 
 ## Relase history
-**0.6.0** Lyrics update: lyrics command
-**0.5.1** Event on mentioning the bot
-**0.5.0** Repeating update
+**0.6.0** Lyrics update: lyrics command <br/> 
+**0.5.1** Event on mentioning the bot <br/>
+**0.5.0** Repeating update <br/>
 **pre-0.5.0** Repeat command, working on buttons <br/>
 **0.4.4** `/botinfo` command <br/>
 **0.4.3** Bugfixes + nowplaying command <br/>
