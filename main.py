@@ -41,7 +41,6 @@ async def load_extension(ext):
     bot.current_ext_loading = ext
     bot.current_ext_idx += 1
     await bot.load_extension(ext)
-    await asyncio.sleep(0.01)
 async def extload(extensions):
     for extension in extensions:
         await load_extension(extension)
@@ -54,12 +53,12 @@ async def update_progressbar():
         cur = bot.current_ext_loading or "NoExtension"
         cur_idx = bot.current_ext_idx or 0
         leng = bot.ext_len
-        total = 20
-        perc = (cur_idx/leng)*20
-        print(f" {Back.WHITE}{'#'*round(perc)}{Back.RESET}{'.'*(total-round(perc))} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}         ", end="\r")
-        await asyncio.sleep(0.20)
+        total = 40
+        perc = (cur_idx/leng)*total
+        print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}         ", end="\r")
+        await asyncio.sleep(0.1)
         i += 1
-    print(f" {Back.WHITE}{'#'*20}{Back.RESET} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                                                                                     ", end="\n")
+    print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*40}{Fore.RESET}{Style.RESET_ALL} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                                                                                     ", end="\n")
 
 # loading extensions
 async def load_extensions():

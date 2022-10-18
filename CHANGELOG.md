@@ -3,16 +3,19 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 0.6.1 relase notes
+This update doesn't bring a lot of functionality but it's just a little patch
+- Improved lyric handler:
+    - Checking if user who clicks the button is the user who invoked the command
+    - Showing page number as embed footer
+
 ## 0.6.0 relase notes
 This update can be really useful for karaoke!
 - Added lyrics command
 - Lyrics embed paginator
 
-## 0.5.1 relase notes
-In this update we added event when user *@mentions* the bot
-- When you @mention the bot you will recieve a cool embed
-
 ## Relase history
+**0.5.1** Event on mentioning the bot
 **0.5.0** Repeating update
 **pre-0.5.0** Repeat command, working on buttons <br/>
 **0.4.4** `/botinfo` command <br/>

@@ -100,6 +100,9 @@ class EmbedPaginator(View):
         return [page]
 
     async def show_page(self, page:int, interaction: discord.Interaction):
+        if str(interaction.user.id) != str(self.user.id):
+            await interaction.response.send_message("Thats not yours!", ephemeral=True)
+            return
         await self.update(page)
         embeds = await self.get_page(self.pages[page])
 
@@ -108,10 +111,10 @@ class EmbedPaginator(View):
             view=self
         )
     
-    @ui.button(emoji="◀", style=discord.ButtonStyle.blurple)
+    @ui.button(label="◄", style=discord.ButtonStyle.blurple)
     async def backwards_button(self, interaction: discord.Interaction, button):
         await self.show_page(self.current_page-1, interaction)
     
-    @ui.button(emoji="▶", style=discord.ButtonStyle.blurple)
+    @ui.button(label="►", style=discord.ButtonStyle.blurple)
     async def forward_button(self, interaction: discord.Interaction, button):
         await self.show_page(self.current_page+1, interaction)

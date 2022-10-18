@@ -67,20 +67,20 @@ class LyricsCommandHandler(commands.Cog):
             groups = len(lyrics)//35
             lyric_groups = []
             for i in range(groups):
-                lyric_groups.append(lyrics[0:36])
+                lyric_groups.append(lyrics[0:35])
                 for _ in range(35):
                     del lyrics[0]
             lyric_groups.append(lyrics)
         
         embeds = []
-        for group in lyric_groups:
+        for i,group in enumerate(lyric_groups,1):
             embeds.append(discord.Embed(
                 title = f"Displaying lyrics for {title}",
                 description="".join(e + "\n" for e in group),
                 color=BASE_COLOR,
                 timestamp=datetime.datetime.utcnow()
-            ))
-        await interaction.response.send_message(embed=embeds[0], view=EmbedPaginator(embeds, 120, interaction.user))
+            ).set_footer(text="Page {}/{}".format(i, len(lyric_groups))))
+        await interaction.response.send_message(embed=embeds[0], view=EmbedPaginator(embeds, 300, interaction.user))
 
 async def setup(bot):
     help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Miscellaneous", [("song","Song you want lyrics for", False)])
