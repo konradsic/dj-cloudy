@@ -25,8 +25,7 @@ Stable relase deadline: `End of November 2022` <br/>
 More version info can be found in `CHANGELOG.md`
 
 ## 💻 Github related info
-This includes: contribution, Code of Conduct, issue and pull request template files
-
+This includes: contribution, Code of Conduct, issue and pull request template files <br/>
 All of that can be found [here](https://github.com/konradsic/dj-cloudy/tree/main/.github) (or in `dj-cloudy/.github`)
 
 
