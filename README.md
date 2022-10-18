@@ -1,7 +1,7 @@
 # [DJ Cloudy](https://djcloudy.com)
 A Discord music bot made for fun using Python and Wavelink
 
-If you are cloning this repo make sure to credit me for my hard work!
+If you are cloning this repo make sure to credit me for my hard work! *Also see license for more detailed info*
 
 ## 🎶 Easy to use, rich feature music bot that will make your server better
 With many many commands you can make your server more engaging and open to people <br>
