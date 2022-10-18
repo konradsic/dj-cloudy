@@ -11,7 +11,7 @@ With many many commands you can make your server more engaging and open to peopl
 * `/nowplaying` get currently playing track info in a nice embed
 
 ## 🔗 Links
-* [Invite me by clicking here](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands)
+* [Invite me by clicking here](https://dsc.gg/dj-cloudy)
 * [Join our server](https://discord.gg/t6qPGdHypw)
 * [Discuss with others about latest announcements](https://github.com/konradsic/dj-cloudy/discussions) *1.*
 * [Report bugs, ask for help and request features](https://github.com/konradsic/dj-cloudy/issues) *1.*
