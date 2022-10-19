@@ -13,7 +13,7 @@ from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound, NoTracksFound
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
-from utils.base_utils import progressbar_emojis
+from utils.base_utils import progressbar_emojis, get_length
 from utils.buttons import PlayButtonsMenu
 
 logging = logger.Logger().get("cogs.play")
@@ -30,19 +30,6 @@ number_complete = {
     8: "9. ",
     9: "10. ",
 }
-def convert_to_double(val):
-    if val < 10:
-        return "0" + str(val)
-    return val
-
-def get_length(dur):
-    lm, ls = divmod(dur,60)
-    lh, lm = divmod(lm, 60)
-    ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
-    if lh >= 1:
-        lm = convert_to_double(lm)
-    ls = convert_to_double(ls)
-    return f"{str(lh) + ':' if lh != 0 else ''}{str(lm)}:{str(ls)}"
 
 def compose_progressbar(progress, end):
     perc = round(progress/end*12) # there will be 20 emoji progressbars

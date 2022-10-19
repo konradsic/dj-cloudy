@@ -11,15 +11,11 @@ from utils.buttons import PlayButtonsMenu
 from utils.colors import BASE_COLOR
 from utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
                           NoTracksFound, NoVoiceChannel, QueueIsEmpty)
+from utils.base_utils import convert_to_double
 from music.queue import Queue
 from utils.base_utils import RepeatMode
 
 logger = log.Logger().get("music.core")
-
-def convert_to_double(val):
-    if val < 10:
-        return "0" + str(val)
-    return val
 
 def shorten_name(string):
     if len(string) > 25:

@@ -77,6 +77,22 @@ class PlayButtonsMenu(View):
             ephemeral=True
         )
 
+    @ui.button(emoji="<:seek_button:1030534160844062790>", style=discord.ButtonStyle.gray)
+    async def restart_playback_button(self, interaction: discord.Interaction, button):
+        if not (player := running_nodes[0].get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        if not player.is_playing():
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot seek: nothing is currently playing",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        await player.seek(0) # restart
+        embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Track successfully restarted",color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return True
+
 class EmbedPaginator(View):
     def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:
         super().__init__(timeout=timeout)

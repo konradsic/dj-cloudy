@@ -3,18 +3,19 @@ Welcome to DJ Cloudy's relase notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 0.7.0 relase notes
+This update bring seeking functionality (we are finally getting into advanced commands)
+- Added `/restart` command - reset player position
+- Added `/seek <position>` command - seek to given position
+- Small bugfixes + on the coding site we've moved some functions to utils
+
 ## pre-0.7.0 relase notes
 In 0.7.0 we point at seeking so you can seek wherever you like to.
 - Added `restart` command - seeking to position 0
 - Working on new button and seek command. Should update tomorrow (19.10.2022)
 
-## 0.6.1 relase notes
-This update doesn't bring a lot of functionality but it's just a little patch
-- Improved lyric handler:
-    - Checking if user who clicks the button is the user who invoked the command
-    - Showing page number as embed footer
-
 ## Relase history
+**0.6.1** Improved lyrics handler and paginator <br/>
 **0.6.0** Lyrics update: lyrics command <br/> 
 **0.5.1** Event on mentioning the bot <br/>
 **0.5.0** Repeating update <br/>

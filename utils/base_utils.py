@@ -1,5 +1,6 @@
 from enum import Enum
 import discord
+import math
 
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
 
@@ -78,3 +79,23 @@ class Repeat:
         elif mode == "REPEAT_QUEUE":
             self.repeat_mode = RepeatMode.REPEAT_QUEUE
         return self.repeat_mode
+
+def convert_to_double(val):
+    if val < 10:
+        return "0" + str(val)
+    return val
+
+def get_length(dur):
+    lm, ls = divmod(dur,60)
+    lh, lm = divmod(lm, 60)
+    ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
+    if lh >= 1:
+        lm = convert_to_double(lm)
+    ls = convert_to_double(ls)
+    return f"{str(lh) + ':' if lh != 0 else ''}{str(lm)}:{str(ls)}"
+
+def double_to_int(value):
+    value = str(value)
+    if value.startswith("0"):
+        return int(value[1:])
+    return int(value)
