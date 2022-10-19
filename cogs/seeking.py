@@ -34,8 +34,8 @@ class SeekAndRestartCog(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="seek", description="Seek the player to given position")
-    @app_commands.describe(position="Position you want for player to seek ([h:]m:s)")
-    async def seek_command(self, interaction: discord.Interaction, position: str):
+    @app_commands.describe(position="Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s")
+    async def seek_command(self, interaction: discord.Interaction, position: str=None):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")
@@ -50,6 +50,15 @@ class SeekAndRestartCog(commands.Cog):
             return "not playing"
 
         # check if user inputted correct position
+        if position is None:
+            if player.position+15 > player.queue.current_track.length:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed)
+                return "cannot seek forward"
+            await player.seek(int((player.position+15)*1000))
+            embed = discord.Embed(description="<:seek_button:1030534160844062790> Seeked forward by `15 seconds`", color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "15s forward success!"
         h,m,s = 0,0,0
         try:
             pos = position.split(":")
@@ -83,7 +92,7 @@ class SeekAndRestartCog(commands.Cog):
             return "seek failed"
 
 async def setup(bot):
-    help_utils.register_command("seek", "Seek the player to given position", "Music: Advanced commands", [("position","Position you want for player to seek ([h:]m:s)",True)])
+    help_utils.register_command("seek", "Seek the player to given position", "Music: Advanced commands", [("position","Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s",False)])
     help_utils.register_command("restart", "Restart current playing track (replay)", "Music: Advanced commands")
     await bot.add_cog(SeekAndRestartCog(bot),
                 guilds=[discord.Object(id=g.id) for g in bot.guilds])
