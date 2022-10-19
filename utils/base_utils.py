@@ -1,6 +1,7 @@
 from enum import Enum
 import discord
 import math
+import wavelink
 
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
 
@@ -99,3 +100,27 @@ def double_to_int(value):
     if value.startswith("0"):
         return int(value[1:])
     return int(value)
+
+filters = {
+    wavelink.Karaoke: "Karaoke",
+    wavelink.Timescale: "Timescale",
+    wavelink.Tremolo: "Tremolo",
+    wavelink.Vibrato: "Vibrato",
+    wavelink.Rotation: "Rotation",
+    wavelink.Distortion: "Distortion",
+    wavelink.ChannelMix: "channel_mix",
+    wavelink.LowPass: "low_pass"
+}
+
+def filter_to_string(cls):
+    try:
+        return filters[cls]
+    except KeyError:
+        return False
+
+def string_to_filter(string):
+    _filters = list(filters.items())
+    for k,v in _filters:
+        if v == string:
+            return k
+    return False

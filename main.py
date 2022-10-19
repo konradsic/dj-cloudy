@@ -17,12 +17,13 @@ os.system("cls")
 
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"
-main_logger = logger.Logger("dj-cloudy-onready","main")
+main_logger = logger.Logger("DJ_Cloudy.on_ready","main")
 _ = logger.Logger("run_lavalink", "utils.run")
 _ = logger.Logger("AlreadyConnectedToVoice", "utils.errors")
-_ = logger.Logger("start-playback","music.core")
-_ = logger.Logger("on-wavelink-node-ready","cogs.vc_handle")
-_ = logger.Logger("autocomplete-play","cogs.play")
+_ = logger.Logger("MusicPlayer.start_playback","music.core")
+_ = logger.Logger("on_wavelink_node_ready","cogs.vc_handle")
+_ = logger.Logger("autocomplete_play","cogs.play")
+_ = logger.Logger("FiltersCog.choose_filter", "cogs.eq_and_filters")
 
 # getting token, logger and init() colorama
 with open("./config/token.txt", mode="r") as f:
@@ -33,9 +34,9 @@ main_logger.info("main", "Initializing...")
 # checking up on the rate limits
 r = requests.head(url="https://discord.com/api/v1")
 try:
-    main_logger.critical("Request-Check",f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
+    main_logger.critical("request_check",f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
 except:
-    main_logger.info("Request-Check", "No Rate Limit.")
+    main_logger.info("request_check", "No Rate Limit.")
 
 async def load_extension(ext):
     bot.current_ext_loading = ext
@@ -55,7 +56,7 @@ async def update_progressbar():
         leng = bot.ext_len
         total = 40
         perc = (cur_idx/leng)*total
-        print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}         ", end="\r")
+        print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*2.5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}         ", end="\r")
         await asyncio.sleep(0.1)
         i += 1
     print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*40}{Fore.RESET}{Style.RESET_ALL} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                                                                                     ", end="\n")
@@ -95,21 +96,21 @@ class DJ_Cloudy(commands.Bot):
         )
     
     async def on_ready(self):
-        main_logger.info("dj-cloudy-onready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
+        main_logger.info("DJ_Cloudy.on_ready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
         await load_extensions()
         while not bot.loaded:
             pass
-        main_logger.info("dj-cloudy-onready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
+        main_logger.info("DJ_Cloudy.on_ready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
         #main_logger.log("dj-cloudy-onready", "Bot is in those guilds: " + "".join(e.name + " " + str(e.owner) + "  " for e in bot.guilds))
 
     async def close(self):
         try:
-            main_logger.info("dj-cloudy-close", "Closing gateway...")
+            main_logger.info("DJ_Cloudy.close", "Closing gateway...")
             await super().close()
-            main_logger.warn("dj-cloudy-close", "Connection closed. Consider this not a warning but a important information")
+            main_logger.info("DJ_Cloudy.close", "Connection to Discord closed, bot shut down")
         except:
-            main_logger.error("dj-cloudy-close","Closing session failed")
+            main_logger.error("DJ_Cloudy.close","Closing session failed")
 
 bot = DJ_Cloudy()
 bot.loaded = False

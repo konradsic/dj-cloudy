@@ -63,7 +63,7 @@ class VC_Handler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node):
-        logging.info("on-wavelink-node-ready", f"Wavelink node `{node.identifier}` ready")
+        logging.info("on_wavelink_node_ready", f"Wavelink node `{node.identifier}` ready")
         self.node = node
         self.bot.node = node
         running_nodes.append(node)

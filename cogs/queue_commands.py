@@ -11,20 +11,7 @@ from utils import help_utils, logger
 from utils.colors import BASE_COLOR
 from utils.run import running_nodes
 from utils.buttons import PlayButtonsMenu
-
-def convert_to_double(val):
-    if val < 10:
-        return "0" + str(val)
-    return val
-
-def get_length(dur):
-    lm, ls = divmod(dur,60)
-    lh, lm = divmod(lm, 60)
-    ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
-    if lh >= 1:
-        lm = convert_to_double(lm)
-    ls = convert_to_double(ls)
-    return f"{str(lh) + ':' if lh != 0 else ''}{str(lm)}:{str(ls)}"
+from utils.base_utils import convert_to_double, get_length
 
 class QueueCommands(commands.GroupCog, name="queue"):
     def __init__(self, bot: commands.Bot) -> None:

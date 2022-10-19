@@ -21,7 +21,7 @@ class HelpCommand(commands.Cog):
         embed = discord.Embed(title="<:commands_button:1028377812777828502> Here you go! There are my commands", description="*<> - required, [] - optional*", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
         embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        for category in categories:
+        for i,category in enumerate(categories):
             result = ""
             for command in categories[category]:
                 try:

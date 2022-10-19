@@ -107,7 +107,7 @@ class MusicPlayer(wavelink.Player):
             message = f"(guild:`{interaction.guild.name}` channel:`{interaction.user.voice.channel.name}`)"
         except:
             message = "(No additional interaction info)"
-        logger.log("start-playback", f"Playing {self.queue.current_track.uri} {message}")
+        logger.info("MusicPlayer.start_playback", f"Playing {self.queue.current_track.uri} {message}")
         await self.play(self.queue.current_track)
 
     async def advance(self):
