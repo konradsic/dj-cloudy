@@ -1,20 +1,20 @@
 # 📋 DJ Cloudy changelog
-Welcome to DJ Cloudy's relase notes! Here is what you will find here
+Welcome to DJ Cloudy's release notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
-## 0.7.0 relase notes
+## 0.7.0 release notes
 This update bring seeking functionality (we are finally getting into advanced commands)
 - Added `/restart` command - reset player position
 - Added `/seek <position>` command - seek to given position
 - Small bugfixes + on the coding site we've moved some functions to utils
 
-## pre-0.7.0 relase notes
+## pre-0.7.0 release notes
 In 0.7.0 we point at seeking so you can seek wherever you like to.
 - Added `restart` command - seeking to position 0
 - Working on new button and seek command. Should update tomorrow (19.10.2022)
 
-## Relase history
+## Release history
 **0.6.1** Improved lyrics handler and paginator <br/>
 **0.6.0** Lyrics update: lyrics command <br/> 
 **0.5.1** Event on mentioning the bot <br/>
