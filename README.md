@@ -20,7 +20,7 @@ With many many commands you can make your server more engaging and open to peopl
 *1.* also available via the discord server
 
 ## 📝 Version related info
-The bot is currently in version `0.8.0-alpha` <br/>
+The bot is currently in version `0.8.0` <br/>
 Stable relase deadline: `End of November 2022` <br/>
 More version info can be found in `CHANGELOG.md`
 

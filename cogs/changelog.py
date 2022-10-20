@@ -22,6 +22,10 @@ class ChangelogCommand(commands.Cog):
                     fields.append([line[3:], ""])
                 else:
                     fields[-1][1] += line + "\n"
+        # small changes to the last field
+        _last_field = fields[-1][1].split("\n")
+        fields[-1][1] = "".join(f + "\n" for f in _last_field[:5]) + "**.......**\n" + "".join(f + "\n" for f in _last_field[-5:])
+        fields[-1][1] = fields[-1][1][:-2]
         embed = discord.Embed(
             title="Changelog - latest changes to the bot!", 
             description="This is the changelog. It shows latest changes to the bot. 2 newest are described longer than others to prevent file being too big",

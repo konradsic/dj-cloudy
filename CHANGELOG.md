@@ -3,16 +3,20 @@ Welcome to DJ Cloudy's release notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 0.8.0 release notes
+In this update we added a lot of new advanced music commands
+- Equalizer commands: choose,advanced,reset
+- Filter commands: choose,reset
+- Fixes some bugs and trying to figure out how playlists will work in 0.9.0
+
 ## 0.8.0-alpha release notes
 In update `0.8.0` we are pointing at equalizers and filters. The alpha relase successfully brings half of the updates that will covered: filters
 - Added filters group command
 - Added equalizers and filters cogs
 - Pre-defined equalizers cog, working on it...
 
-## 0.7.1 release notes
-This update made the position parameter in seek command not required. When no position is provider player will seek forward by 15s
-
 ## Release history
+**0.7.1** Make position parameter in seek command non-required, defaults to +15s <br/>
 **0.7.0** Seeking and restarting functionality + buttons <br/>
 **pre-0.7.0** Restart command, working on seeking <br.>
 **0.6.1** Improved lyrics handler and paginator <br/>
