@@ -19,18 +19,34 @@ class VC_Handler(commands.Cog):
         self.bot.loop.create_task(self.start_nodes())
         self.node = None
 
-    async def on_player_track_error(self, player):
+    async def on_player_track_error(self, player, *, additional_info: dict):
+        guild = additional_info.get('guild').id
+        track = additional_info.get('track').title
+        info = additional_info.get('info')
+        logging.warn("on_player_track_error", f"Guild: {guild} data=track:{track},info:{info}")
         await player.advance()
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, player, track, reason):
-        await self.on_player_track_error(player)
+        await self.on_player_track_error(player, additional_info={
+            "track": track,
+            "guild": player.guild,
+            "info": reason
+        })
     @commands.Cog.listener()
     async def on_wavelink_track_exception(self, player, track, error):
-        await self.on_player_track_error(player)
+        await self.on_player_track_error(player, additional_info={
+            "track": track,
+            "guild": player.guild,
+            "info": error
+        })
     @commands.Cog.listener()
     async def on_wavelink_track_stuck(self, player, track, treshold):
-        await self.on_player_track_error(player)
+        await self.on_player_track_error(player, additional_info={
+            "track": track,
+            "guild": player.guild,
+            "info": treshold
+        })
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

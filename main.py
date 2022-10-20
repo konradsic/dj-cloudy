@@ -1,19 +1,34 @@
-import discord
-from discord.ext import commands
-import requests, os, time
-from utils import logger
-import colorama
-from colorama import Fore, Back, Style
+"""
+DJ Cloudy
+==========
+A Discord bot that adds music functionality to your server.
+:copyright: 2022-present @konradsic, @ArgoMk3
+:license: MIT License, see license files for more details.
+"""
+## TODO: fix buttons not working
+## TODO: add equalizers
+## TODO: finish update 0.8.0 before end of the week
+#######################################################################
 import asyncio
-import threading
-
-# disabling logging
 import logging
+import os
+import threading
+import time
+
+import colorama
+import discord
+import requests
+from colorama import Back, Fore, Style
+from discord.ext import commands
+
+from utils import logger
+from utils.base_utils import hide_cursor, show_cursor, clearscreen
+
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-os.system("cls")
+clearscreen()
 
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"
@@ -85,12 +100,10 @@ async def load_extensions():
         await bot.tree.sync(guild=guild)
     main_logger.info("load_extensions", f"Extensions synced with {len(bot.guilds)} guilds")
     bot.loaded = True
-
-# main bot class, close() still does not work
 class DJ_Cloudy(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix = "$",
+            command_prefix = "dj$",
             intents = discord.Intents.all(),
             application_id = 1024303533685751868
         )
@@ -111,7 +124,9 @@ class DJ_Cloudy(commands.Bot):
             main_logger.info("DJ_Cloudy.close", "Connection to Discord closed, bot shut down")
         except:
             main_logger.error("DJ_Cloudy.close","Closing session failed")
+        show_cursor()
 
+hide_cursor()
 bot = DJ_Cloudy()
 bot.loaded = False
 bot.part_loaded = False

@@ -1,6 +1,9 @@
-from enum import Enum
-import discord
 import math
+import os
+import platform
+from enum import Enum
+
+import discord
 import wavelink
 
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
@@ -124,3 +127,16 @@ def string_to_filter(string):
         if v == string:
             return k
     return False
+
+def hide_cursor():
+    print('\033[?25l', end="")
+
+def show_cursor():
+    print('\033[?25h', end="")
+
+def clearscreen():
+    _platform = platform.system().lower()
+    if _platform == "windows":
+        os.system("cls")
+    elif _platform == "linux":
+        os.system("clear")
