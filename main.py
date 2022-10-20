@@ -5,7 +5,6 @@ A Discord bot that adds music functionality to your server.
 :copyright: 2022-present @konradsic, @ArgoMk3
 :license: MIT License, see license files for more details.
 """
-## TODO: fix buttons not working
 ## TODO: add equalizers
 ## TODO: finish update 0.8.0 before end of the week
 #######################################################################
@@ -38,7 +37,7 @@ _ = logger.Logger("AlreadyConnectedToVoice", "utils.errors")
 _ = logger.Logger("MusicPlayer.start_playback","music.core")
 _ = logger.Logger("on_wavelink_node_ready","cogs.vc_handle")
 _ = logger.Logger("autocomplete_play","cogs.play")
-_ = logger.Logger("FiltersCog.choose_filter", "cogs.eq_and_filters")
+_ = logger.Logger("EqualizersCog.choose_eq", "cogs.eq_and_filters")
 
 # getting token, logger and init() colorama
 with open("./config/token.txt", mode="r") as f:
@@ -72,7 +71,7 @@ async def update_progressbar():
         total = 40
         perc = (cur_idx/leng)*total
         print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*2.5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}         ", end="\r")
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.25)
         i += 1
     print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*40}{Fore.RESET}{Style.RESET_ALL} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                                                                                     ", end="\n")
 

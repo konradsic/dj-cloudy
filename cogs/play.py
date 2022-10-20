@@ -60,7 +60,9 @@ async def query_complete(
     current: str
 ) -> t.List[app_commands.Choice[str]]:
     query = current.strip("<>")
-    if not re.match(URL_REGEX, current):
+    if current == "":
+        query = "ytmsearch:Summer hits 2022"
+    elif not re.match(URL_REGEX, current):
         query = "ytmsearch:{}".format(current)
     try:
         if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
@@ -73,6 +75,7 @@ async def query_complete(
             for i,track in enumerate(tracks[:10])
         ]
     except Exception as e:
+        if e.__class__.__name__ == "LoadTrackError": return []
         logging.error("autocomplete_play", f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 

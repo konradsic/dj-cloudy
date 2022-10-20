@@ -69,12 +69,63 @@ class FiltersCog(commands.GroupCog, name="filters"):
         await interaction.response.send_message(embed=embed)
         logging.info("FilterCog.reset_filter", f"Filters reset in guild #{interaction.guild.id}")
 
-# class EqualizersCog(commands.GroupCog, name="equalizers"):
-#     def __init__(self, bot):
-#         self.bot = bot
-#         super().__init__()
+class EqualizersCog(commands.GroupCog, name="equalizers"):
+    def __init__(self, bot):
+        self.bot = bot
+        super().__init__()
+
+    @app_commands.command(name="choose", description="Choose an equalizer to apply it to the currently playing track")
+    @app_commands.describe(equalizer="Equalizer to apply")
+    @app_commands.choices(equalizer=[
+        Choice(name="piano", value="piano"),
+        Choice(name="metal", value="metal"),
+        Choice(name="flat", value="flat"),
+        Choice(name="boost", value="boost"),
+    ])
+    async def equalizer_choose_command(self, interaction: discord.Interaction, equalizer: str):
+        try:
+            if (player := self.bot.node.get_player(interaction.guild)) is None:
+                raise NoPlayerFound("There is no player connected in this guild")
+        except NoPlayerFound:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "failed" 
+        if not player.is_playing():
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "not playing"
+        _eq = getattr(wavelink.Equalizer, equalizer, None)
+        if _eq is None:
+            await interaction.response.send_message(embed=discord.Embed(description=f"<:x_mark:1028004871313563758> Something went wrong, please try again",color=BASE_COLOR), ephemeral=True)
+            return "failed"
+        filter = wavelink.Filter(equalizer=_eq())
+        await player.set_filter(filter)
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully applied equalizer `{equalizer}` to currently playing track",color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
+        logging.info("EqualizersCog.choose_eq", f"Applied eq '{equalizer}' in guild #{interaction.guild.id}")
+
+    @app_commands.command(name="reset", description="Reset applied equalizers. Similiar to /filters reset")
+    async def eq_reset_command(self, interaction: discord.Interaction):
+        try:
+            if (player := self.bot.node.get_player(interaction.guild)) is None:
+                raise NoPlayerFound("There is no player connected in this guild")
+        except NoPlayerFound:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "failed" 
+        if not player.is_playing():
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't reset equalizers when nothing is playing",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "not playing"
+        await player.set_filter(wavelink.Filter()) # empty filter for reseting
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Equalizers have been successfully reset",color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
+        logging.info("FilterCog.reset_filter", f"Filters reset in guild #{interaction.guild.id}")
 
 async def setup(bot):
     help_utils.register_command("filters choose", "Select a filter to enchance your music experience", "Music: Advanced commands", [("filter","Filter to apply",True)])
     help_utils.register_command("filters reset", "Reset applied filters", "Music: Advanced commands")
+    help_utils.register_command("equalizers choose", "Choose an equalizer to apply it to the currently playing track", "Music: Advanced commands", [("equalizer","Equalizer to apply",True)])
+    help_utils.register_command("equalizers reset", "Reset applied equalizers", "Music: Advanced commands")
     await bot.add_cog(FiltersCog(bot), guilds=bot.guilds)
+    await bot.add_cog(EqualizersCog(bot), guilds=bot.guilds)
