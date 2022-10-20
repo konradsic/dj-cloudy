@@ -8,7 +8,10 @@ from discord.ext import commands
 from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound
-from utils.base_utils import filter_to_string, string_to_filter
+from utils.base_utils import (
+    filter_to_string, string_to_filter,
+    AEQ_HZ_BANDS
+)
 from discord.app_commands import Choice
 from utils import logger
 
@@ -103,6 +106,15 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully applied equalizer `{equalizer}` to currently playing track",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
         logging.info("EqualizersCog.choose_eq", f"Applied eq '{equalizer}' in guild #{interaction.guild.id}")
+
+    @app_commands.command(name="advanced", description="Advanced, 15-band equalizer allows you to change values as you want. Have fun!")
+    @app_commands.describe(band="A hertz band you want to apply")
+    @app_commands.describe(gain="Gain of the band (float-like)")
+    @app_commands.choices(band=list([
+        Choice(name=str(gain_value), value=gain_value)
+    ] for gain_value in AEQ_HZ_BANDS))
+    async def equalizer_advanced_command(self, interaction: discord.Interaction, band: int, gain: float):
+        pass
 
     @app_commands.command(name="reset", description="Reset applied equalizers. Similiar to /filters reset")
     async def eq_reset_command(self, interaction: discord.Interaction):
