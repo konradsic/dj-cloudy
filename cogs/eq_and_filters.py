@@ -108,13 +108,39 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         logging.info("EqualizersCog.choose_eq", f"Applied eq '{equalizer}' in guild #{interaction.guild.id}")
 
     @app_commands.command(name="advanced", description="Advanced, 15-band equalizer allows you to change values as you want. Have fun!")
-    @app_commands.describe(band="A hertz band you want to apply")
-    @app_commands.describe(gain="Gain of the band (float-like)")
-    @app_commands.choices(band=list([
-        Choice(name=str(gain_value), value=gain_value)
-    ] for gain_value in AEQ_HZ_BANDS))
+    @app_commands.describe(band="A hertz band you want to apply the gain on")
+    @app_commands.describe(gain="A float-like gain (-10 to 10)")
+    @app_commands.choices(band=[
+        Choice(name=str(gain_value), value=gain_value) for gain_value in AEQ_HZ_BANDS
+    ])
     async def equalizer_advanced_command(self, interaction: discord.Interaction, band: int, gain: float):
-        pass
+        try:
+            if (player := self.bot.node.get_player(interaction.guild)) is None:
+                raise NoPlayerFound("There is no player connected in this guild")
+        except NoPlayerFound:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "failed" 
+        if not player.is_playing():
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "not playing"
+        
+        if gain < -2.5:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Gain must be between -2.5 and -10.0",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "failed"
+        elif gain > 10:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Gain must be between -2.5 and -10.0",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed)
+            return "failed"
+
+        band_idx = AEQ_HZ_BANDS.index(band)
+        player.eq_levels[band_idx] = gain/10
+        eq = wavelink.Filter(equalizer=wavelink.Equalizer(name="AEQ_ADVANCED_EQUALIZER", bands=[(i,g) for i,g in enumerate(player.eq_levels)]))
+        await player.set_filter(eq)
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Equalizer adjusted to a custom preset.", color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="reset", description="Reset applied equalizers. Similiar to /filters reset")
     async def eq_reset_command(self, interaction: discord.Interaction):
@@ -130,6 +156,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             await interaction.response.send_message(embed=embed)
             return "not playing"
         await player.set_filter(wavelink.Filter()) # empty filter for reseting
+        player.eq_levels = [0.] * 15
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Equalizers have been successfully reset",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
         logging.info("FilterCog.reset_filter", f"Filters reset in guild #{interaction.guild.id}")
@@ -138,6 +165,7 @@ async def setup(bot):
     help_utils.register_command("filters choose", "Select a filter to enchance your music experience", "Music: Advanced commands", [("filter","Filter to apply",True)])
     help_utils.register_command("filters reset", "Reset applied filters", "Music: Advanced commands")
     help_utils.register_command("equalizers choose", "Choose an equalizer to apply it to the currently playing track", "Music: Advanced commands", [("equalizer","Equalizer to apply",True)])
+    help_utils.register_command("equalizers advanced", "Advanced, 15-band equalizer allows you to change values as you want. Have fun!", "Music: Advanced commands", [("band", "A hertz band you want to apply the gain on", True),("gain", "A float-like gain",True)])
     help_utils.register_command("equalizers reset", "Reset applied equalizers", "Music: Advanced commands")
     await bot.add_cog(FiltersCog(bot), guilds=bot.guilds)
     await bot.add_cog(EqualizersCog(bot), guilds=bot.guilds)
