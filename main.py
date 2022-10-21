@@ -31,26 +31,28 @@ clearscreen()
 
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"
-main_logger = logger.Logger("DJ_Cloudy.on_ready","main")
-_ = logger.Logger("run_lavalink", "utils.run")
-_ = logger.Logger("AlreadyConnectedToVoice", "utils.errors")
-_ = logger.Logger("MusicPlayer.start_playback","music.core")
-_ = logger.Logger("on_wavelink_node_ready","cogs.vc_handle")
-_ = logger.Logger("autocomplete_play","cogs.play")
-_ = logger.Logger("EqualizersCog.choose_eq", "cogs.eq_and_filters")
+logger.register_cls("main.DJ_Cloudy")
+logger.register_func("load_extensions")
+main_logger = logger.Logger("main")
+_ = (logger.Logger("utils.run"),
+     logger.Logger("utils.errors"),
+     logger.Logger("music.core"),
+     logger.Logger("cogs.vc_handle"),
+     logger.Logger("cogs.play"),
+     logger.Logger("cogs.eq_and_filters"))
 
 # getting token, logger and init() colorama
 with open("./config/token.txt", mode="r") as f:
     TOKEN = f.read().strip("\n ")
 colorama.init(autoreset=True)
-main_logger.info("main", "Initializing...")
+main_logger.info("", "main", "Initializing...")
 
 # checking up on the rate limits
 r = requests.head(url="https://discord.com/api/v1")
 try:
-    main_logger.critical("request_check",f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
+    main_logger.critical("", "request_check",f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
 except:
-    main_logger.info("request_check", "No Rate Limit.")
+    main_logger.info("", "request_check", "No Rate Limit.")
 
 async def load_extension(ext):
     bot.current_ext_loading = ext
@@ -85,7 +87,7 @@ async def load_extensions():
         if cog.endswith('.py'):
             extensions.append("cogs." + cog[:-3])
     bot.ext_len = len(extensions)
-    main_logger.info("load_extensions",f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
+    main_logger.info("", "load_extensions",f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
     thread_loader = threading.Thread(target=asyncio.run, args=(update_progressbar(),))
     thread_loader.start()
     ext_loader = threading.Thread(target=asyncio.run, args=(extload(extensions),))
@@ -94,10 +96,10 @@ async def load_extensions():
     ext_loader.join()
     while not bot.part_loaded:
         pass
-    main_logger.info("load_extensions", "Extensions loaded successfully, syncing with guilds...")
+    main_logger.info("", "load_extensions", "Extensions loaded successfully, syncing with guilds...")
     for guild in list(bot.guilds):
         await bot.tree.sync(guild=guild)
-    main_logger.info("load_extensions", f"Extensions synced with {len(bot.guilds)} guilds")
+    main_logger.info("", "load_extensions", f"Extensions synced with {len(bot.guilds)} guilds")
     bot.loaded = True
 class DJ_Cloudy(commands.Bot):
     def __init__(self):
@@ -108,21 +110,21 @@ class DJ_Cloudy(commands.Bot):
         )
     
     async def on_ready(self):
-        main_logger.info("DJ_Cloudy.on_ready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
+        main_logger.info("DJ_Cloudy", "on_ready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
         await load_extensions()
         while not bot.loaded:
             pass
-        main_logger.info("DJ_Cloudy.on_ready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
+        main_logger.info("DJ_Cloudy", "on_ready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
         #main_logger.log("dj-cloudy-onready", "Bot is in those guilds: " + "".join(e.name + " " + str(e.owner) + "  " for e in bot.guilds))
 
     async def close(self):
         try:
-            main_logger.info("DJ_Cloudy.close", "Closing gateway...")
+            main_logger.info("DJ_Cloudy", "close", "Closing gateway...")
             await super().close()
-            main_logger.info("DJ_Cloudy.close", "Connection to Discord closed, bot shut down")
+            main_logger.info("DJ_Cloudy", "close", "Connection to Discord closed, bot shut down")
         except:
-            main_logger.error("DJ_Cloudy.close","Closing session failed")
+            main_logger.error("DJ_Cloudy", "close","Closing session failed")
         show_cursor()
 
 hide_cursor()

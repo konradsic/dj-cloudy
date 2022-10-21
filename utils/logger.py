@@ -6,9 +6,43 @@ init(autoreset=True)
 loggers = {}
 
 config = {
-    "longest_process_len": 0,
+    "longest_func_len": 0,
+    "longest_cls_len": 0,
     "logging-path": "bot-logs/test.txt"
 }
+
+log_colors = {
+    "DEBUG": Fore.BLUE,
+    "INFO": Fore.GREEN,
+    "WARN": Fore.YELLOW,
+    "ERROR": Fore.RED,
+    "CRITICAL": Fore.RED
+}
+
+def class_logger(cls):
+    def wrapper(params):
+        clen = len(cls.__module__ + "." + cls.__name__)
+        if clen > config["longest_cls_len"]:
+            config["longest_cls_len"] = len(clen)
+        functions = dir(cls)
+        for e in functions:
+            if not (e.startswith("__") and e.endswith("__")):
+                leng = len(e)
+                if leng > config["longest_func_len"]:
+                    config["longest_func_len"] = leng
+        return cls(params)
+    return wrapper
+
+def register_cls(cls):
+    leng = len(cls)
+    if leng > config["longest_cls_len"]:
+        config["longest_cls_len"] = leng
+
+def register_func(func):
+    leng = len(func)
+    if leng > config["longest_func_len"]:
+        config["longest_func_len"] = leng
+
 
 class Logger:
     """
@@ -18,12 +52,12 @@ class Logger:
     Logger is a class that provides logging at the next level.
     """
 
-    def __init__(self, longest_process_name: str="None", name: str=None):
-        if len(longest_process_name) > config["longest_process_len"]:
-            config["longest_process_len"] = len(longest_process_name)
+    def __init__(self, name: str=None, *, func_len: int=0, cls_len: int=0):
         if name:
             self.name = name
             loggers[self.name] = self
+        self.flen = func_len or 1
+        self.clen = (cls_len + len(self.name)) or 1
 
     def get(self, logger_name: str=None):
         if not logger_name:
@@ -37,129 +71,48 @@ class Logger:
 
         return logger
 
-    def log(self, process_name, message: str=None):
-        """
-        Prints in debugging format. 
-        ----------------------------------------------------------------
-        Use info(), warn(), error() or critical() if you want to log any other type
+    # logging part, yay
+    def _log(self, log_type, base, func, message):
+        if len(func) > config["longest_func_len"]:
+            config["longest_func_len"] = len(func)
+        color = log_colors[log_type]
+        len_process = config["longest_func_len"]
+        longest_logger_name = config["longest_cls_len"]
+        if self.flen > len_process:
+            len_process = self.flen
+        if self.clen > longest_logger_name:
+            longest_logger_name = self.clen
+        msg = ""
+        clsfmt = f"{self.name}{'.' + base if base else ''}"
+        if log_type == "CRITICAL":
+            msg = f"{Fore.RED}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{func}{' '*(len_process-len(func))}] {clsfmt}{' '*(longest_logger_name+1-len(clsfmt))} CRITICAL - {message}"
+        else:
+            msg = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} [{Fore.MAGENTA}{func}{' '*(len_process-len(func))}{Fore.WHITE}] {Fore.CYAN}{clsfmt}{' '*(longest_logger_name+1-len(clsfmt))} {color}{log_type}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} - {message}"
+        print(msg)
+
+        with open(config["logging-path"], mode="r+") as _: pass
+        with open(config["logging-path"], mode="r") as content_reader:
+            content = content_reader.read()
+        with open(config["logging-path"], mode="w") as writer:
+            writer.write(content+msg+"\n")
+        return True
+
+    def debug(self, base, func, message):
+        self._log("DEBUG", base, func, message)
         
-        Parameters:
-        ------------
-        `process_name`: str - name of the process
-        `message`: str - message you want to log
+    def info(self, base, func, message):
+        self._log("INFO", base, func, message)
 
-        """
-        longest_logger_name = longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
+    def warn(self, base, func, message):
+        self._log("WARN", base, func, message)
+    
+    def error(self, base, func, message):
+        self._log("ERROR", base, func, message)
+    
+    def critical(self, base, func, message):
+        self._log("CRITICAL", base, func, message)
 
-        color = Fore.BLUE
-        len_process = config["longest_process_len"]
-        
-        message = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {Style.RESET_ALL}[{Fore.MAGENTA}{process_name}{Fore.WHITE}{' '*(len_process-len(process_name))}] {Fore.CYAN}{self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} {Style.BRIGHT}{color}\033[1mDEBUG\033[0m{Style.RESET_ALL}{Fore.WHITE} -- {message}"
-
-        print(message)
-
-        with open(config["logging-path"], mode="r") as f:
-            content = f.read()
-        with open(config["logging-path"], mode="w") as file:
-            file.write(content + message + "\n")
-
-    def info(self, process_name, message: str=None):
-        """
-        Prints in informative context
-        ----------------------------------------------------------------
-        
-        Parameters:
-        ------------
-        `process_name`: str - name of the process
-        `message`: str - message you want to log
-
-        """
-        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
-        color = Fore.GREEN
-        len_process = config["longest_process_len"]
-        
-        message = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {Style.RESET_ALL}[{Fore.MAGENTA}{process_name}{Fore.WHITE}{' '*(len_process-len(process_name))}] {Fore.CYAN}{self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} {Style.BRIGHT}{color}\033[1mINFO\033[0m{Style.RESET_ALL}{Fore.WHITE}  -- {message}"
-
-        print(message)
-
-        with open(config["logging-path"], mode="r") as f:
-            content = f.read()
-        with open(config["logging-path"], mode="w") as f:
-            f.write(content + message + "\n")
-
-    def warn(self, process_name, message: str=None):
-        """
-        Prints a warning 
-        ----------------------------------------------------------------
-        
-        Parameters:
-        ------------
-        `process_name`: str - name of the process
-        `message`: str - message you want to log
-
-        """
-        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
-
-        color = Fore.YELLOW
-        len_process = config["longest_process_len"]
-        
-        message = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {Style.RESET_ALL}[{Fore.MAGENTA}{process_name}{Fore.WHITE}{' '*(len_process-len(process_name))}] {Fore.CYAN}{self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} {Style.BRIGHT}{color}\033[1mWARN\033[0m{Style.RESET_ALL}{Fore.WHITE}  -- {message}"
-
-        print(message)
-
-        with open(config["logging-path"], mode='r') as f:
-            content = f.read()
-        with open(config["logging-path"], mode="w") as f:
-            f.write(content + message + "\n")
-
-    def error(self, process_name, message: str=None):
-        """
-        Prints an error 
-        ----------------------------------------------------------------
-        
-        Parameters:
-        ------------
-        `process_name`: str - name of the process
-        `message`: str - message you want to log
-
-        """
-        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
-
-        color = Fore.RED
-        len_process = config["longest_process_len"]
-        
-        message = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {Style.RESET_ALL}[{Fore.MAGENTA}{process_name}{Fore.WHITE}{' '*(len_process-len(process_name))}] {Fore.CYAN}{self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} {Style.BRIGHT}{color}\033[1mERROR\033[0m{Style.RESET_ALL}{Fore.WHITE} -- {message}"
-
-        print(message)
-
-        with open(config["logging-path"], mode="r") as f:
-            content = f.read()
-        with open(config["logging-path"], mode="w") as f:
-            f.write(content + message + "\n")
-
-    def critical(self, process_name, message: str=None):
-        """
-        CRITICAL ERROR!
-        ----------------------------------------------------------------
-        
-        Parameters:
-        ------------
-        `process_name`: str - name of the process
-        `message`: str - message you want to log
-
-        """
-        longest_logger_name = len(max(list(loggers.keys()), key=lambda x: len(x)))
-
-        len_process = config["longest_process_len"]
-        
-        message = f"{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{process_name}{' '*(len_process-len(process_name))}] {self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} CRITICAL -- {message}"
-
-        print(message)
-
-        with open(config["logging-path"], mode="r") as f:
-            content = f.read()
-        with open(config["logging-path"], mode="w") as f:
-            f.write(content + message + "\n")
+#message = f"{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{process_name}{' '*(len_process-len(process_name))}] {self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} CRITICAL -- {message}"
 
 def print_logs(history):
     """
