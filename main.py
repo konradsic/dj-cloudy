@@ -5,9 +5,14 @@ A Discord bot that adds music functionality to your server.
 :copyright: 2022-present @konradsic, @ArgoMk3
 :license: MIT License, see license files for more details.
 """
-## TODO: add equalizers
-## TODO: finish update 0.8.0 before end of the week
+## TODO: Add playlist system, 0.9.0
 #######################################################################
+
+__version__ = "0.8.0"
+__author__ = "@konradsic"
+__license__ = "Licensed under the MIT License"
+__copyright__ = "Copyright 2022-present konradsic"
+
 import asyncio
 import logging
 import os
@@ -17,17 +22,21 @@ import time
 import colorama
 import discord
 import requests
+import wavelink
 from colorama import Back, Fore, Style
 from discord.ext import commands
 
 from utils import logger
-from utils.base_utils import hide_cursor, show_cursor, clearscreen
+from utils.base_utils import (clearscreen, hide_cursor, inittable, show_cursor,
+                              show_figlet)
 
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 clearscreen()
+font = show_figlet("DJ Cloudy")
+inittable(__version__, __author__, discord.__version__, wavelink.__version__, font)
 
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"

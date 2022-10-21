@@ -5,12 +5,30 @@ from enum import Enum
 
 import discord
 import wavelink
+import pyfiglet
+import colorama
 
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
 AEQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
 
 volume_guilds = {}
 registered_nodes = []
+
+def show_figlet(text, color1="#E50AF5", color2="#2CFBF7"):
+    colorama.init(autoreset=False)
+    font = pyfiglet.Figlet(font="larry3d", direction="left-to-right", justify=True, width=2000).renderText(text)
+    print(colorama.Fore.CYAN + font)
+    colorama.init(autoreset=True)
+    return font
+
+def inittable(bot_version, authors, dpy_version, wavelink_version, font_info):
+    fontlen = len(font_info.splitlines()[2])
+    print("=*"*(fontlen//2))
+    contents = [("Version", bot_version),("Authors", authors),("discord.py", dpy_version),("Wavelink", wavelink_version)]
+    longest_content = len(max(contents, key=lambda con: len(con[0]))[0])
+    padding = (fontlen//2)-longest_content
+    for content in contents:
+        print(f"{' '*padding}{' '*(longest_content-len(content[0]))}{content[0]} : {content[1]}")
 
 def change_volume(guild, val):
     volume_guilds[str(guild.id)] = val
