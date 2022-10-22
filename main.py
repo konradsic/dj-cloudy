@@ -48,7 +48,8 @@ _ = (logger.Logger(name="utils.run"),
      logger.Logger(name="music.core"),
      logger.Logger(name="cogs.vc_handle"),
      logger.Logger(name="cogs.play"),
-     logger.Logger(name="cogs.eq_and_filters"))
+     logger.Logger(name="cogs.eq_and_filters"),
+     logger.Logger(name="cogs.playlist-adapter"))
 
 # getting token, logger and init() colorama
 TOKEN = get_bot_token()
