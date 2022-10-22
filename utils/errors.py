@@ -7,13 +7,14 @@ log_instance = logger.Logger().get("utils.errors")
 class UnhandledBotException(Exception):
     def __init__(self,error_name=None, string=None):
         if string:
-            log_instance.error(error_name,string)
+            log_instance.error("", error_name,string)
         else:
-            log_instance.error(error_name, "Unhandled exception occured")
-    
+            log_instance.error("", error_name, "Unhandled exception occured")
+
+logger.register_func("AlreadyConnectedToVoice")
+logger.register_cls("utils.errors")
 
 # ERROR CLASSES
-class TestException(UnhandledBotException): pass
 class NotConnectedToVoice(UnhandledBotException):
     def __init__(self, string=None):
         super().__init__(error_name= self.__class__.__name__, string=string or "The bot/user is not connected to a voice channel")

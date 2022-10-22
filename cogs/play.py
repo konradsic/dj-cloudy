@@ -76,9 +76,10 @@ async def query_complete(
         ]
     except Exception as e:
         if e.__class__.__name__ == "LoadTrackError": return []
-        logging.error("autocomplete_play", f"Error: {e.__class__.__name__} - {str(e)}")
+        logging.error("", "autocomplete_play", f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 
+@logger.class_logger
 class PlayCommand(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
@@ -109,7 +110,7 @@ class PlayCommand(commands.Cog):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
                 await interaction.response.send_message(embed=embed)
                 return "failed"
-            logging.error("play_command", f"Exception occured -- {e.__class__.__name__}: {str(e)}")
+            logging.error("PlayCommand", "play_command", f"Exception occured -- {e.__class__.__name__}: {str(e)}")
 
     @app_commands.command(name="nowplaying", description="Get currently playing track info in a nice embed")
     @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")

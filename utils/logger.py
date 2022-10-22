@@ -20,17 +20,17 @@ log_colors = {
 }
 
 def class_logger(cls):
-    def wrapper(params):
+    def wrapper(*args, **kwargs):
         clen = len(cls.__module__ + "." + cls.__name__)
         if clen > config["longest_cls_len"]:
-            config["longest_cls_len"] = len(clen)
+            config["longest_cls_len"] = clen
         functions = dir(cls)
         for e in functions:
             if not (e.startswith("__") and e.endswith("__")):
                 leng = len(e)
                 if leng > config["longest_func_len"]:
                     config["longest_func_len"] = leng
-        return cls(params)
+        return cls(*args, **kwargs)
     return wrapper
 
 def register_cls(cls):
@@ -53,6 +53,7 @@ class Logger:
     """
 
     def __init__(self, name: str=None, *, func_len: int=0, cls_len: int=0):
+        self.name = "null"
         if name:
             self.name = name
             loggers[self.name] = self

@@ -17,6 +17,7 @@ from utils import logger
 
 logging = logger.Logger().get("cogs.eq_and_filters")
 
+@logger.class_logger
 class FiltersCog(commands.GroupCog, name="filters"):
     def __init__(self, bot):
         self.bot = bot
@@ -52,7 +53,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         await player.set_filter(filter_cls)
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully applied filter `{filter}` to currently playing track",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
-        logging.info("FilterCog.choose_filter", f"Applied filter '{filter}' in guild #{interaction.guild.id}")
+        logging.info("FilterCog", "choose_filter", f"Applied filter '{filter}' in guild #{interaction.guild.id}")
 
     @app_commands.command(name="reset", description="Reset applied filters")
     async def filters_reset_command(self, interaction: discord.Interaction):
@@ -70,8 +71,9 @@ class FiltersCog(commands.GroupCog, name="filters"):
         await player.set_filter(wavelink.Filter()) # empty filter for reseting
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Filters have been successfully reset",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
-        logging.info("FilterCog.reset_filter", f"Filters reset in guild #{interaction.guild.id}")
+        logging.info("FilterCog", "reset_filter", f"Filters reset in guild #{interaction.guild.id}")
 
+@logger.class_logger
 class EqualizersCog(commands.GroupCog, name="equalizers"):
     def __init__(self, bot):
         self.bot = bot
@@ -105,7 +107,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         await player.set_filter(filter)
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully applied equalizer `{equalizer}` to currently playing track",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
-        logging.info("EqualizersCog.choose_eq", f"Applied eq '{equalizer}' in guild #{interaction.guild.id}")
+        logging.info("EqualizersCog", "choose_equalizer", f"Applied eq '{equalizer}' in guild #{interaction.guild.id}")
 
     @app_commands.command(name="advanced", description="Advanced, 15-band equalizer allows you to change values as you want. Have fun!")
     @app_commands.describe(band="A hertz band you want to apply the gain on")
@@ -159,7 +161,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         player.eq_levels = [0.] * 15
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Equalizers have been successfully reset",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
-        logging.info("FilterCog.reset_filter", f"Filters reset in guild #{interaction.guild.id}")
+        logging.info("EqualizersCog", "reset_filter", f"Filters reset in guild #{interaction.guild.id}")
 
 async def setup(bot):
     help_utils.register_command("filters choose", "Select a filter to enchance your music experience", "Music: Advanced commands", [("filter","Filter to apply",True)])

@@ -12,6 +12,7 @@ from utils.run import running_nodes
 
 logging = logger.Logger().get("cogs.vc_handle")
 
+@logger.class_logger
 class VC_Handler(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
@@ -23,7 +24,7 @@ class VC_Handler(commands.Cog):
         guild = additional_info.get('guild').id
         track = additional_info.get('track').title
         info = additional_info.get('info')
-        logging.warn("on_player_track_error", f"Guild: {guild} data=track:{track},info:{info}")
+        logging.warn("VC_Handler", "on_player_track_error", f"Guild: {guild} data=track:{track},info:{info}")
         await player.advance()
 
     @commands.Cog.listener()
@@ -79,7 +80,7 @@ class VC_Handler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node):
-        logging.info("on_wavelink_node_ready", f"Wavelink node `{node.identifier}` ready")
+        logging.info("VC_Handler", "on_wavelink_node_ready", f"Wavelink node `{node.identifier}` ready")
         self.node = node
         self.bot.node = node
         running_nodes.append(node)
@@ -98,7 +99,6 @@ class VC_Handler(commands.Cog):
 
         for node in nodes.values():
             await wavelink.NodePool.create_node(bot=self.bot, **node, https=True)
-            #logs.log(INFO,"VC_Handler.start_nodes", f"Node `{node}` created")
 
     @app_commands.command(name="connect",description="Connects to your voice channel")
     async def connect_command(self, interaction: discord.Interaction):
@@ -109,7 +109,7 @@ class VC_Handler(commands.Cog):
             await interaction.response.send_message(embed=embed)
             player.bound_channel = interaction.channel
         except Exception as e:
-            logging.log("connect-command", f"Debug errors: {e.__class__.__name__} - {str(e)}")
+            logging.log("VC_Handler", "connect_command", f"Debug errors: {e.__class__.__name__} - {str(e)}")
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return

@@ -43,12 +43,12 @@ logger.config["logging-path"] = "bot-logs/bot.log"
 logger.register_cls("main.DJ_Cloudy")
 logger.register_func("load_extensions")
 main_logger = logger.Logger("main")
-_ = (logger.Logger("utils.run"),
-     logger.Logger("utils.errors"),
-     logger.Logger("music.core"),
-     logger.Logger("cogs.vc_handle"),
-     logger.Logger("cogs.play"),
-     logger.Logger("cogs.eq_and_filters"))
+_ = (logger.Logger(name="utils.run"),
+     logger.Logger(name="utils.errors"),
+     logger.Logger(name="music.core"),
+     logger.Logger(name="cogs.vc_handle"),
+     logger.Logger(name="cogs.play"),
+     logger.Logger(name="cogs.eq_and_filters"))
 
 # getting token, logger and init() colorama
 with open("./config/token.txt", mode="r") as f:
@@ -124,6 +124,7 @@ class DJ_Cloudy(commands.Bot):
         await load_extensions()
         while not bot.loaded:
             pass
+        clearscreen()
         main_logger.info("DJ_Cloudy", "on_ready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
         #main_logger.log("dj-cloudy-onready", "Bot is in those guilds: " + "".join(e.name + " " + str(e.owner) + "  " for e in bot.guilds))
 
@@ -141,4 +142,4 @@ bot = DJ_Cloudy()
 bot.loaded = False
 bot.part_loaded = False
 bot.last_restart = round(time.time())
-bot.run(TOKEN, log_handler=None) # we do not disable discord logging
+bot.run(TOKEN, log_handler=None) # we disable discord logging

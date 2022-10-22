@@ -16,7 +16,7 @@ registered_nodes = []
 
 def show_figlet(text, color1="#E50AF5", color2="#2CFBF7"):
     colorama.init(autoreset=False)
-    font = pyfiglet.Figlet(font="larry3d", direction="left-to-right", justify=True, width=2000).renderText(text)
+    font = pyfiglet.Figlet(font="larry3d", direction="left-to-right", justify=True, width=400).renderText(text)
     print(colorama.Fore.CYAN + font)
     colorama.init(autoreset=True)
     return font
