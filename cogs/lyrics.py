@@ -8,11 +8,12 @@ from discord import app_commands
 from discord.ext import commands
 from utils import help_utils
 from utils import lyrics_handler as lhandler
+from utils.base_utils import get_lyrics_token
+from utils.buttons import EmbedPaginator
 from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
-from utils.buttons import EmbedPaginator
-from utils.base_utils import get_lyrics_token
+
 
 class LyricsCommandHandler(commands.Cog):
     def __init__(self, bot):
@@ -26,7 +27,7 @@ class LyricsCommandHandler(commands.Cog):
                 playing = player.is_playing()
             except:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `noSong`: Nothing is playing and the `song` argument is also `None`",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
 
         client = lhandler.initialize_client(access_token=get_lyrics_token())
@@ -44,14 +45,14 @@ class LyricsCommandHandler(commands.Cog):
                 artist = queried_song.author
             except:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
 
         try:
             lyrics = lhandler.get_lyrics(client, artist, title)
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         # paginator yay
         # split for 35 lines each

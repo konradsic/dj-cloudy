@@ -109,9 +109,9 @@ class VC_Handler(commands.Cog):
             await interaction.response.send_message(embed=embed)
             player.bound_channel = interaction.channel
         except Exception as e:
-            logging.log("VC_Handler", "connect_command", f"Debug errors: {e.__class__.__name__} - {str(e)}")
+            logging.info("VC_Handler", "connect_command", f"Debug errors: {e.__class__.__name__} - {str(e)}")
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
             
 
@@ -122,7 +122,7 @@ class VC_Handler(commands.Cog):
 
             await player.disconnect()
             embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected", color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)

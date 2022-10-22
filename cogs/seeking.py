@@ -21,12 +21,12 @@ class SeekAndRestartCog(commands.Cog):
                     raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't restart when nothing is playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
 
         await player.seek(0) # restart
@@ -41,19 +41,19 @@ class SeekAndRestartCog(commands.Cog):
                     raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek when nothing is playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
 
         # check if user inputted correct position
         if position is None:
             if player.position+15 > player.queue.current_track.length:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 return "cannot seek forward"
             await player.seek(int((player.position+15)*1000))
             embed = discord.Embed(description="<:seek_button:1030534160844062790> Seeked forward by `15 seconds`", color=BASE_COLOR)
@@ -73,13 +73,13 @@ class SeekAndRestartCog(commands.Cog):
                 raise ValueError("Incorrect position format")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Invalid player position, use format [h:]m:s e.g `2:15` or `1:39:56`",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "incorrect position"
 
         seek_pos = ((h*3600)+(m*60)+s)*1000
         if not (0 <= int(seek_pos/1000) <= int(player.queue.current_track.length)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot seek: position out of bounds",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "incorrect position"
         try:
             await player.seek(seek_pos)
@@ -88,7 +88,7 @@ class SeekAndRestartCog(commands.Cog):
             return "success!"
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to seek, please try again",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "seek failed"
 
 async def setup(bot):

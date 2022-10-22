@@ -21,7 +21,7 @@ class RepeatCommands(commands.Cog):
     async def repeat_command(self, interaction: discord.Interaction, mode: str):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         player.queue.repeat.set_repeat(mode.upper()) # upper just in case...
         embed = discord.Embed(description=f"<:repeat_button:1030534158302330912> Repeat mode set to `{mode.upper()}`", color=BASE_COLOR)

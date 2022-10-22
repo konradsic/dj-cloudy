@@ -17,7 +17,7 @@ class PlayPauseCommands(commands.Cog):
                     raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         if player.is_paused():
@@ -36,12 +36,12 @@ class PlayPauseCommands(commands.Cog):
                     raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.is_paused():
             embed = discord.Embed(description=f"<:play_button:1028004869019279391> The played is already resumed",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "alr resumed"
         
         await player.set_pause(False)

@@ -23,12 +23,12 @@ class QueueCommands(commands.GroupCog, name="queue"):
         player = self.bot.node.get_player(interaction.guild)
         if player is None:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         if player.queue.tracks == []:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         history = player.queue.track_history
@@ -58,17 +58,17 @@ class QueueCommands(commands.GroupCog, name="queue"):
         player = self.bot.node.get_player(interaction.guild)
         if player is None:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         if player.queue.tracks == []:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         player.queue.shuffle()
         embed = discord.Embed(description=f"<:shuffle_button:1028926038153117727> Queue has been successfully shuffled",color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
@@ -91,15 +91,15 @@ class QueueCommands(commands.GroupCog, name="queue"):
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         elif not (1 <= index <= len(player.queue)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Index of the track is out of range",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         if (index-1) == player.queue.position:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> For now you cannot remove current playing track",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         del player.queue._queue[index-1]
         if (index-1) < player.queue.position:
@@ -118,11 +118,11 @@ class OtherQueueCommands(commands.Cog):
     async def queue_moveto_command(self, interaction: discord.Interaction, position: int):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         if not (1 <= position <= len(player.queue)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Position index is out of range",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         player.queue.position = position - 2 # same as in previous command
@@ -135,11 +135,11 @@ class OtherQueueCommands(commands.Cog):
     async def queue_skip_command(self, interaction: discord.Interaction):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         elif not player.queue.upcoming_tracks:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         # we are using stop function because then the advance function will be called (from the event) and next track will be played
@@ -151,11 +151,11 @@ class OtherQueueCommands(commands.Cog):
     async def queue_previous(self, interaction: discord.Interaction):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         elif not player.queue.track_history:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `previous` command could not be executed because there is nothing to play that is before this track",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         # setting player index to current-2 because

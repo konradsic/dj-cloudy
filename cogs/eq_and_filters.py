@@ -41,12 +41,12 @@ class FiltersCog(commands.GroupCog, name="filters"):
                     raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't apply filters when nothing is playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
         _filter = string_to_filter(filter)
         filter_cls = wavelink.Filter(**{filter.lower(): _filter()})
@@ -62,11 +62,11 @@ class FiltersCog(commands.GroupCog, name="filters"):
                 raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't reset filters when nothing is playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
         await player.set_filter(wavelink.Filter()) # empty filter for reseting
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Filters have been successfully reset",color=BASE_COLOR)
@@ -93,11 +93,11 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
                 raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
         _eq = getattr(wavelink.Equalizer, equalizer, None)
         if _eq is None:
@@ -121,20 +121,20 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
                 raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
         
         if gain < -2.5:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Gain must be between -2.5 and -10.0",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
         elif gain > 10:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Gain must be between -2.5 and -10.0",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         band_idx = AEQ_HZ_BANDS.index(band)
@@ -151,11 +151,11 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
                 raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't reset equalizers when nothing is playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
         await player.set_filter(wavelink.Filter()) # empty filter for reseting
         player.eq_levels = [0.] * 15

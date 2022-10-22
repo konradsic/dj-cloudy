@@ -81,7 +81,6 @@ async def query_complete(
 
 @logger.class_logger
 class PlayCommand(commands.Cog):
-
     def __init__(self, bot: commands.Bot) -> None:
         self.bot= bot
 
@@ -95,7 +94,7 @@ class PlayCommand(commands.Cog):
         except NoPlayerFound:
             if interaction.user.voice is None:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
@@ -108,7 +107,7 @@ class PlayCommand(commands.Cog):
         except Exception as e:
             if isinstance(e, NoTracksFound):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 return "failed"
             logging.error("PlayCommand", "play_command", f"Exception occured -- {e.__class__.__name__}: {str(e)}")
 
@@ -117,11 +116,11 @@ class PlayCommand(commands.Cog):
     async def nowplaying_command(self, interaction: discord.Interaction, hidden: bool=False):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         current = player.queue.current_track
