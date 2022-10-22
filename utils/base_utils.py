@@ -7,6 +7,7 @@ import discord
 import wavelink
 import pyfiglet
 import colorama
+import json
 
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
 AEQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
@@ -159,3 +160,15 @@ def clearscreen():
         os.system("cls")
     elif _platform == "linux":
         os.system("clear")
+
+def get_config():
+    with open("data/config.json", mode="r") as f:
+        config = json.load(f)
+
+    return config
+
+def get_bot_token():
+    return get_config()["bot"]["token"]
+
+def get_lyrics_token():
+    return get_config()["lyrics"]["genius-auth-token"]

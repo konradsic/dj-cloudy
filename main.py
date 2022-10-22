@@ -28,7 +28,7 @@ from discord.ext import commands
 
 from utils import logger
 from utils.base_utils import (clearscreen, hide_cursor, inittable, show_cursor,
-                              show_figlet)
+                              show_figlet, get_bot_token)
 
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
@@ -51,8 +51,7 @@ _ = (logger.Logger(name="utils.run"),
      logger.Logger(name="cogs.eq_and_filters"))
 
 # getting token, logger and init() colorama
-with open("./config/token.txt", mode="r") as f:
-    TOKEN = f.read().strip("\n ")
+TOKEN = get_bot_token()
 colorama.init(autoreset=True)
 main_logger.info("", "main", "Initializing...")
 

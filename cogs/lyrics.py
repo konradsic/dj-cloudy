@@ -12,6 +12,7 @@ from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
 from utils.buttons import EmbedPaginator
+from utils.base_utils import get_lyrics_token
 
 class LyricsCommandHandler(commands.Cog):
     def __init__(self, bot):
@@ -28,7 +29,7 @@ class LyricsCommandHandler(commands.Cog):
                 await interaction.response.send_message(embed=embed)
                 return
 
-        client = lhandler.initialize_client(access_token="G_9Jh1MKwT-fy2vwUyemY641bX8B-vxg2HAcaHaLk5Mke4-tf__8h-ZAyIdtK9Wc")
+        client = lhandler.initialize_client(access_token=get_lyrics_token())
         title, artist = None,None
         if not song: # we need to get current song
             title = player.queue.current_track.title

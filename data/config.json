@@ -1,0 +1,8 @@
+{
+    "bot": {
+        "token": "your token here"
+    },
+    "lyrics": {
+        "genius-auth-token": "your genius api auth token here"
+    }
+}
