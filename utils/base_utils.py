@@ -8,6 +8,7 @@ import wavelink
 import pyfiglet
 import colorama
 import json
+import uuid
 
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
 AEQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
@@ -162,7 +163,7 @@ def clearscreen():
         os.system("clear")
 
 def get_config():
-    with open("data/config.json", mode="r") as f:
+    with open("data/bot-config.json", mode="r") as f:
         config = json.load(f)
 
     return config
@@ -172,3 +173,29 @@ def get_bot_token():
 
 def get_lyrics_token():
     return get_config()["lyrics"]["genius-auth-token"]
+
+hex_encoder = {
+    0: "0", 1: "1", 2: "2", 3: "3", 4: "4",
+    5: "5", 6: "6", 7: "7" ,8: "8", 9: "9",
+    10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F",
+}
+
+def int_to_hex(integer):
+    res = ""
+    while integer > 16:
+        new_int, mod = divmod(integer,16)
+        res += str(hex_encoder[mod])
+        integer = new_int
+    return res.lower()
+
+def getid(label_to_encode):
+    generated = str(uuid.uuid5(uuid.NAMESPACE_URL, label_to_encode))
+    # remove hyphens and not-numeral characters
+    res = ""
+    for g in generated:
+        if g.isdigit():
+            res += str(g)
+    if len(g) < 15:
+        g += ('0' * (15-len(g)))
+    g = g[:15]
+    return int_to_hex(int(res))

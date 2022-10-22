@@ -36,3 +36,19 @@ class NoPlayerFound(UnhandledBotException):
 class NoVoiceChannel(UnhandledBotException): 
     def __init__(self, string=None):
         super().__init__(error_name = self.__class__.__name__, string = string or "No voice channel is available")
+
+class NoPlaylistFound(UnhandledBotException): 
+    def __init__(self, string=None):
+        super().__init__(error_name = self.__class__.__name__, string = string or "No playlist with given name was found")
+
+class PlaylistCreationError(UnhandledBotException): 
+    def __init__(self, string=None):
+        super().__init__(error_name = self.__class__.__name__, string = string or "Creating playlist {null} failed")
+
+class PlaylistGetError(UnhandledBotException): 
+    def __init__(self, string=None):
+        super().__init__(error_name = self.__class__.__name__, string = string or "Failed to get playlist (no further info)")
+
+class PlaylistRemoveError(UnhandledBotException): 
+    def __init__(self, string=None):
+        super().__init__(error_name = self.__class__.__name__, string = string or "Failed to delete playlist/song of playlist {null}")
