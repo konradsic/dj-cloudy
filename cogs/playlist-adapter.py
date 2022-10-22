@@ -167,7 +167,16 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.command(name="remove-playlist", description="Remove a playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove")
     async def playlist_remove_command(self, interaction: discord.Interaction, name_or_id: str):
-        pass
+        handler = playlist.PlaylistHandler(key=str(interaction.user.id))
+        try:
+            handler.remove_playlist(name_or_id)
+        except:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to remove the playlist. Check spelling and name then try again",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully removed playlist **{name_or_id}**",color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="play", description="Play your playlist!")
     @app_commands.describe(name_or_id="Name of the playlist you want to play")

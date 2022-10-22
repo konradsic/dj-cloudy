@@ -58,7 +58,7 @@ class PlaylistHandler:
                 json.dump(content,f)
             return self.data["playlists"]
         except:
-            PlaylistCreationError(f"Failed to create playlist {name}/tracks:{tracks}")
+            raise PlaylistCreationError(f"Failed to create playlist {name}/tracks:{tracks}")
 
     def add_to_playlist(self, playlist_name: str, song_url: str):
         try:
@@ -69,7 +69,7 @@ class PlaylistHandler:
                     break
         except: 
             # in case of an error we will raise PlaylistGetError
-            PlaylistCreationError(f"Failed to add items to playlist {playlist_name}/song:{song_url}")
+            raise PlaylistCreationError(f"Failed to add items to playlist {playlist_name}/song:{song_url}")
 
         with open("data/playlists.json", mode="r") as f:
             content = json.load(f)
@@ -85,7 +85,7 @@ class PlaylistHandler:
                     return playlist
         except: 
             # in case of an error we will raise PlaylistGetError
-            PlaylistGetError(f"Failed to get playlist #{name_or_id}")
+            raise PlaylistGetError(f"Failed to get playlist #{name_or_id}")
 
     def add_to_starred(self, song_url: str):
         self.data["starred-playlist"].append(song_url)
@@ -110,7 +110,9 @@ class PlaylistHandler:
                     return playlist
         except:
             # raise PlaylistRemoveError
-            PlaylistRemoveError(f"Failed to remove element {track_pos}, playlist #{playlist_name_or_id}")
+            raise PlaylistRemoveError(f"Failed to remove element {track_pos}, playlist #{playlist_name_or_id}")
+
+        raise PlaylistRemoveError(f"No data found for name/id:{playlist_name_or_id}, pos:{track_pos}")
 
     def remove_playlist(self, playlist_name_or_id: str):
         try:
@@ -125,7 +127,9 @@ class PlaylistHandler:
                         json.dump(content, f)
                     return self.data["playlists"]
         except:
-            PlaylistRemoveError(f"Failed to remove playlist #{playlist_name_or_id}")
+            raise PlaylistRemoveError(f"Failed to remove playlist #{playlist_name_or_id}")
+
+        raise PlaylistRemoveError(f"No data found for playlist {playlist_name_or_id}")
 
     def __getitem__(self, item):
         return self.data["playlists"][item]
@@ -142,10 +146,10 @@ async def get_playlists_for_user(user_id: str):
         user = PlaylistHandler(key=user_id)
         return user.playlists
     except:
-        PlaylistGetError(f"Failed to get playlists for user {user_id}")
+        raise PlaylistGetError(f"Failed to get playlists for user {user_id}")
 
 async def get_user(user_id: int):
     try:
         return PlaylistHandler(key=user_id)
     except: 
-        PlaylistGetError(f"Failed to get user {user_id}")
+        raise PlaylistGetError(f"Failed to get user {user_id}")
