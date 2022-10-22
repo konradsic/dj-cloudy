@@ -1,3 +1,4 @@
+from cgitb import handler
 import datetime
 import typing as t
 import re
@@ -75,8 +76,16 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         if playlists:
             playlist_res = ""
             for i, p in enumerate(playlists,1):
-                playlist_res += f"**{i}.** {p['name']} `#{p['id']}` *({len(p['tracks'])} songs)* `[notImplemented]`"
-        starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total duration `notImplemented`"
+                total_duration = 0
+                for track in p['tracks']:
+                    d = await self.bot.node.get_tracks(cls=wavelink.Track, query=track)
+                    total_duration += d[0].length
+                playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*"
+        starred_dur = 0
+        for t in user_data.data['starred-playlist']:
+            d = await self.bot.node.get_tracks(cls=wavelink.Track, query=t)
+            starred_dur += d[0].length
+        starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total duration `{get_length(starred_dur)}`\n"
         embed = discord.Embed(description="These are the user's playlists", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
         embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
         embed.add_field(name="Custom playlists", value=playlist_res, inline=False)
@@ -130,7 +139,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         try:
             handler.add_to_playlist(name_or_id, song)
         except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An erro occured while trying to add the song. Please try again",color=BASE_COLOR)
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to add the song. Please try again",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**song**]({song}) to the playlist",color=BASE_COLOR)
@@ -140,7 +149,20 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.describe(name_or_id="Name of the playlist you want to remove the song from")
     @app_commands.describe(index="Index of the song you want to remove (1-playlist len)")
     async def playlist_remove_song_command(self, interaction: discord.Interaction, name_or_id: str, index: int):
-        pass
+        handler = playlist.PlaylistHandler(key=str(interaction.user.id))
+        if index <= 0:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Index should be between 1 and playlist length",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        try:
+            handler.remove(name_or_id, index-1)
+        except:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to remove the song. Check if index is correct and the name or ID of the playlist",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully removed song at position `{index}` from playlist __{name_or_id}__",color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="remove-playlist", description="Remove a playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove")
