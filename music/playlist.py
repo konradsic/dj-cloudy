@@ -1,6 +1,5 @@
-## TODO: 1. Add functional playlist system
-##       2. Adapt it to the bot
-##       3. Make some /commands and relase 0.9.0 
+##TODO:  1. Adapt playlist system it to the bot
+##       2. Make some /commands and relase 0.9.0 
 
 import json
 from utils.base_utils import getid
