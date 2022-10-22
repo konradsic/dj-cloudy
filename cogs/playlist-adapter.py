@@ -11,7 +11,7 @@ from music import playlist
 from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.colors import BASE_COLOR
-from utils.errors import (PlaylistCreationError, PlaylistGetError,
+from utils.errors import (NoPlayerFound, PlaylistCreationError, PlaylistGetError,
                           PlaylistRemoveError)
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
@@ -182,7 +182,37 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.describe(name_or_id="Name of the playlist you want to play")
     @app_commands.describe(replace_queue="Wherever to replace queue with the playlist or just to append")
     async def playlist_play(self, interaction: discord.Interaction, name_or_id: str, replace_queue: bool=False):
-        pass
+        handler = playlist.PlaylistHandler(key=str(interaction.user.id))
+        try:
+            if (player := self.bot.node.get_player(interaction.guild)) is None:
+                raise NoPlayerFound("There is no player connected in this guild")
+        except NoPlayerFound:
+            if interaction.user.voice is None:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+            channel = interaction.user.voice.channel
+            player = await channel.connect(cls=MusicPlayer, self_deaf=True)
+            player.bound_channel = interaction.channel
+        # get tracks
+        res = []
+        for play in handler.playlists:
+            if play['name'] == name_or_id or play['id'] == name_or_id:
+                res = play
+
+        # adapt the playlist
+        if replace_queue:
+            # we need to replace the queue
+            player.queue.cleanup()
+            tracks = [await self.bot.node.get_tracks(cls=wavelink.Track, query=song) for song in res['tracks']]
+            player.queue.add(*tracks)
+            player.position = -1
+            await player.stop()
+            return
+        else:
+            tracks = [await self.bot.node.get_tracks(cls=wavelink.Track, query=song) for song in res['tracks']]
+            player.queue.add(*tracks)
+            return
 
 async def setup(bot):
     help_utils.register_command("playlists view", "View your or user's playlists", "Music: Playlist management", [("user", "View this user's playlists", False)])
