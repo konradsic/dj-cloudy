@@ -71,7 +71,7 @@ async def query_complete(
         if not tracks:
             return []
         return [
-            app_commands.Choice(name=f"{number_complete[i]}{track.title} ({get_length(track.duration)})", value=track.uri)
+            app_commands.Choice(name=f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.duration)}]", value=track.uri)
             for i,track in enumerate(tracks[:10])
         ]
     except Exception as e:

@@ -109,7 +109,7 @@ class VC_Handler(commands.Cog):
             await interaction.response.send_message(embed=embed)
             player.bound_channel = interaction.channel
         except Exception as e:
-            logging.info("VC_Handler", "connect_command", f"Debug errors: {e.__class__.__name__} - {str(e)}")
+            logging.warn("VC_Handler", "connect_command", f"Handling exception {e.__class__.__name__} - {str(e)}")
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
