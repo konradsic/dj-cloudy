@@ -1,4 +1,5 @@
 import datetime
+from utils.base_utils import BOLD_ON, BOLD_OFF
 
 from colorama import Fore, Style, init
 init(autoreset=True)
@@ -88,7 +89,7 @@ class Logger:
         if log_type == "CRITICAL":
             msg = f"{Fore.RED}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{func}{' '*(len_process-len(func))}] {clsfmt}{' '*(longest_logger_name+1-len(clsfmt))} CRITICAL - {message}"
         else:
-            msg = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} [{Fore.MAGENTA}{func}{' '*(len_process-len(func))}{Fore.WHITE}] {Fore.CYAN}{clsfmt}{' '*(longest_logger_name+1-len(clsfmt))} {color}{log_type}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} - {message}"
+            msg = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} [{Fore.MAGENTA}{func}{' '*(len_process-len(func))}{Fore.WHITE}] {Fore.CYAN}{clsfmt}{' '*(longest_logger_name+1-len(clsfmt))} {color}{BOLD_ON}{log_type}{BOLD_OFF}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} - {message}"
         print(msg)
 
         with open(config["logging-path"], mode="r+") as _: pass

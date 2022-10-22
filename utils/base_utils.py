@@ -13,6 +13,9 @@ import uuid
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
 AEQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
 
+BOLD_ON = "\033[1m"
+BOLD_OFF = "\033[0m"
+
 volume_guilds = {}
 registered_nodes = []
 
