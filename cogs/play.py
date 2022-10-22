@@ -76,7 +76,7 @@ async def query_complete(
         ]
     except Exception as e:
         if e.__class__.__name__ == "LoadTrackError": return []
-        logging.error("", "autocomplete_play", f"Error: {e.__class__.__name__} - {str(e)}")
+        logging.error("", "autocomplete_songurl", f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 
 @logger.class_logger

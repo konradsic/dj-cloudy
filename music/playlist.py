@@ -64,8 +64,8 @@ class PlaylistHandler:
         try:
             # find playlist
             for i,playlist in enumerate(self.data["playlists"]):
-                if playlist["name"] == playlist_name:
-                    self.data["playlists"][i].append(song_url)
+                if playlist["name"] == playlist_name or playlist["id"] == playlist_name:
+                    self.data["playlists"][i]['tracks'].append(song_url)
                     break
         except: 
             # in case of an error we will raise PlaylistGetError
@@ -131,7 +131,7 @@ class PlaylistHandler:
         return self.data["playlists"][item]
 
     def __str__(self):
-        return f"<class Playlist userID={self.key} playlists={self.playlists}>"
+        return f"<class PlaylistHandler userID={self.key} playlists={self.playlists}>"
 
     def __len__(self):
         return len(self.data["playlists"])
@@ -142,10 +142,10 @@ async def get_playlists_for_user(user_id: str):
         user = PlaylistHandler(key=user_id)
         return user.playlists
     except:
-        pass # TODO: raise an actual error
+        PlaylistGetError(f"Failed to get playlists for user {user_id}")
 
 async def get_user(user_id: int):
     try:
         return PlaylistHandler(key=user_id)
     except: 
-        pass # TODO: raise an actual error
+        PlaylistGetError(f"Failed to get user {user_id}")
