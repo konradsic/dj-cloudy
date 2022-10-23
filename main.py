@@ -25,6 +25,7 @@ import requests
 import wavelink
 from colorama import Back, Fore, Style
 from discord.ext import commands
+from discord import app_commands
 
 from utils import logger
 from utils.base_utils import (clearscreen, hide_cursor, inittable, show_cursor,
@@ -137,8 +138,9 @@ class DJ_Cloudy(commands.Bot):
             main_logger.error("DJ_Cloudy", "close","Closing session failed")
         show_cursor()
 
-hide_cursor()
+
 bot = DJ_Cloudy()
+hide_cursor()
 bot.loaded = False
 bot.part_loaded = False
 bot.last_restart = round(time.time())
