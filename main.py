@@ -128,12 +128,12 @@ class DJ_Cloudy(commands.Bot):
         main_logger.info("DJ_Cloudy", "on_ready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
         self.tree.add_command(app_commands.ContextMenu(name="View Playlists", callback=view_playlist_menu), guilds=self.guilds)
+        self.tree.add_command(app_commands.ContextMenu(name="View Starred Playlist", callback=view_starred_playlist_menu), guilds=self.guilds)
         await load_extensions()
         while not bot.loaded:
             pass
         clearscreen()
         main_logger.info("DJ_Cloudy", "on_ready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
-        #main_logger.log("dj-cloudy-onready", "Bot is in those guilds: " + "".join(e.name + " " + str(e.owner) + "  " for e in bot.guilds))
 
     async def close(self):
         try:
@@ -172,6 +172,25 @@ async def view_playlist_menu(interaction: discord.Interaction, user: discord.Mem
     embed.set_author(name=f"{user.name}'s playlists", icon_url=user.display_avatar.url)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+async def view_starred_playlist_menu(interaction: discord.Interaction, member: discord.Member):
+    handler = playlist.PlaylistHandler(key=str(member.id))
+    starred_playlist = handler.data['starred-playlist']
+    track_data = "No tracks in their :star: songs playlist"
+    total_duration = 0
+    if starred_playlist:
+        track_data = ""
+        for i, song in enumerate(starred_playlist,1):
+            cls_song = await bot.node.get_tracks(cls=wavelink.Track, query=song)
+            cls_song = cls_song[0]
+            total_duration += cls_song.duration
+            track_data += f'**{i}.** [{cls_song.title}]({cls_song.uri}) `[{get_length(cls_song.duration)}]`\n'
+    embed = discord.Embed(description="These are the user's starred/liked songs", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
+    embed.set_footer(text="Made by Konradoo#6938")
+    embed.set_thumbnail(url=bot.user.display_avatar.url)
+    embed.set_author(name=f"{member.name}'s starred songs", icon_url=member.display_avatar.url)
+    embed.add_field(name="Tracks", value=track_data, inline=False)
+    embed.add_field(name="Additional info", value=f"Total duration: `{get_length(total_duration)}`\nTotal tracks: **{len(starred_playlist)}**")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 hide_cursor()
 bot.loaded = False
