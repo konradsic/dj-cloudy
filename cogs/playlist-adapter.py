@@ -102,10 +102,19 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
+        limits = 25 # max playlists for user
+        if handler.data['credentials'] == 1:
+            limits = 100 # max playlists for moderators
+        elif handler.data['credentials'] == 2:
+            limits = 10**15 # "infinity", max playlists for admins
+        if len(handler.playlists) >= limits:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Playlist creation exceeds your current limits. Only moderators, admins and devs have higher limits. Contact us for more info",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
         try:
             handler.create_playlist(name)
         except PlaylistCreationError:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Bots cannot have playlists! Make sure to select a user next time",color=BASE_COLOR)
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to create playlist, please try again",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully created playlist **{name}**",color=BASE_COLOR)
