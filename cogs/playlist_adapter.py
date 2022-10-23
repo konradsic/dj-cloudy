@@ -18,7 +18,7 @@ from utils.regexes import URL_REGEX
 from utils.run import running_nodes
 from utils.base_utils import get_length
 
-logger_instance = logger.Logger().get("cogs.playlist-adapter")
+logger_instance = logger.Logger().get("cogs.playlist_adapter")
 
 number_complete = {
     0: "🥇 ",

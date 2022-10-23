@@ -14,6 +14,7 @@ __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
 
 import asyncio
+import datetime
 import logging
 import os
 import threading
@@ -24,12 +25,13 @@ import discord
 import requests
 import wavelink
 from colorama import Back, Fore, Style
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
 from utils import logger
-from utils.base_utils import (clearscreen, hide_cursor, inittable, show_cursor,
-                              show_figlet, get_bot_token)
+from utils.base_utils import (clearscreen, get_bot_token, get_length,
+                              hide_cursor, inittable, show_cursor, show_figlet)
+from utils.colors import BASE_COLOR
 
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
@@ -50,7 +52,10 @@ _ = (logger.Logger(name="utils.run"),
      logger.Logger(name="cogs.vc_handle"),
      logger.Logger(name="cogs.play"),
      logger.Logger(name="cogs.eq_and_filters"),
-     logger.Logger(name="cogs.playlist-adapter"))
+     logger.Logger(name="cogs.playlist_adapter"))
+
+# import modules using logger after setting it up
+from music import playlist
 
 # getting token, logger and init() colorama
 TOKEN = get_bot_token()
@@ -122,6 +127,7 @@ class DJ_Cloudy(commands.Bot):
     async def on_ready(self):
         main_logger.info("DJ_Cloudy", "on_ready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
+        self.tree.add_command(app_commands.ContextMenu(name="View Playlists", callback=view_playlist_menu), guilds=self.guilds)
         await load_extensions()
         while not bot.loaded:
             pass
@@ -140,6 +146,33 @@ class DJ_Cloudy(commands.Bot):
 
 
 bot = DJ_Cloudy()
+# haha idk how to do it in cogs so here :)
+
+async def view_playlist_menu(interaction: discord.Interaction, user: discord.Member):
+    handler = playlist.PlaylistHandler(key=str(user.id))
+    playlist_res = "This user does not have any custom playlists"
+    if handler.playlists:
+        playlist_res = ""
+        for i, p in enumerate(handler.playlists,1):
+            total_duration = 0
+            for track in p['tracks']:
+                d = await bot.node.get_tracks(cls=wavelink.Track, query=track)
+                total_duration += d[0].length
+            playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*\n"
+    starred_dur = 0
+    for t in handler.data['starred-playlist']:
+        d = await bot.node.get_tracks(cls=wavelink.Track, query=t)
+        starred_dur += d[0].length
+    starred_playlist_data = f"{len(handler.data['starred-playlist'])} total songs, total duration `{get_length(starred_dur)}`\n"
+    embed = discord.Embed(description="These are the user's playlists", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
+    embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
+    embed.add_field(name="Custom playlists", value=playlist_res, inline=False)
+    embed.set_footer(text="Made by Konradoo#6938")
+    embed.set_thumbnail(url=bot.user.display_avatar.url)
+    embed.set_author(name=f"{user.name}'s playlists", icon_url=user.display_avatar.url)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 hide_cursor()
 bot.loaded = False
 bot.part_loaded = False
