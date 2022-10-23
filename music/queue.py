@@ -12,6 +12,10 @@ class Queue:
         self.repeat: Repeat = Repeat()
     
     @property
+    def is_empty(self):
+        return not self._queue
+
+    @property
     def tracks(self):
         return [track.title for track in self._queue]
 

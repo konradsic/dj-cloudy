@@ -1,5 +1,6 @@
 from cgitb import handler
 import datetime
+from shutil import copy
 import typing as t
 import re
 
@@ -60,6 +61,34 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         self.bot = bot
         super().__init__()
 
+    @app_commands.command(name="view-playlist", description="View playlist's content (for your playlist or anybody else)")
+    @app_commands.describe(name_or_id="Name or id of the playlist")
+    @app_commands.describe(user="(optional) User to get the playlist from")
+    async def view_playlist_of_user_command(self, interaction: discord.Interaction, name_or_id: str, user: t.Union[discord.Member, None]=None):
+        if not user:
+            user = interaction.user
+        handler = playlist.PlaylistHandler(key=str(user.id))
+        # get the playlist
+        found = None
+        for play in handler.playlists:
+            if play['name'] == name_or_id or play['id'] == name_or_id:
+                found = play
+                break
+        if not found:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No playlist was found",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
+        tracks = [(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in found['tracks']]
+        embed = discord.Embed(description="Those are the tracks in user's playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+        embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+        embed.set_footer(text="Made by Konradoo#6938")
+        embed.set_author(name=f"{user.name}'s playlist: {found['name']}#{found['id']}", icon_url=user.display_avatar.url)
+        embed.add_field(name="Tracks", value=''.join(f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n" for i in range(len(tracks))), inline=False)
+        embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return True
+
     @app_commands.command(name="view", description="View your or user's playlists")
     @app_commands.describe(user="View this user's playlists")
     async def playlist_view_command(self, interaction: discord.Interaction, user: discord.Member=None):
@@ -80,7 +109,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 for track in p['tracks']:
                     d = await self.bot.node.get_tracks(cls=wavelink.Track, query=track)
                     total_duration += d[0].length
-                playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*"
+                playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*\n"
         starred_dur = 0
         for t in user_data.data['starred-playlist']:
             d = await self.bot.node.get_tracks(cls=wavelink.Track, query=t)
@@ -96,7 +125,8 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="create", description="Create a new playlist")
     @app_commands.describe(name="Name of the playlist")
-    async def playlist_create_command(self, interaction: discord.Interaction, name: str):
+    @app_commands.describe(copy_queue="Wherever to copy the queue to playlist or not")
+    async def playlist_create_command(self, interaction: discord.Interaction, name: str, copy_queue: bool=False):
         if len(name) > 30:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Playlist name should be less that 30 characters!",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -112,7 +142,21 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         try:
-            handler.create_playlist(name)
+            tracks = []
+            if copy_queue:
+                try:
+                    if (player := self.bot.node.get_player(interaction.guild)) is None:
+                        raise NoPlayerFound("There is no player connected in this guild")
+                except NoPlayerFound:
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel -> no queue -> no songs to copy",color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+                if player.queue.is_empty:
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue so there is nothing to copy",color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+                tracks = [song.uri for song in player.queue.get_tracks()]
+            handler.create_playlist(name, tracks)
         except PlaylistCreationError:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to create playlist, please try again",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
