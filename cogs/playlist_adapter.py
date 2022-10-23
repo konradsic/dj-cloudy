@@ -1,5 +1,6 @@
 from cgitb import handler
 import datetime
+from itertools import filterfalse
 from shutil import copy
 import typing as t
 import re
@@ -141,6 +142,10 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Playlist creation exceeds your current limits. Only moderators, admins and devs have higher limits. Contact us for more info",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+        if name.lower() == "starred":
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> 'starred' is a special playlist name that stands for your :star: songs. You can't use it for playlist creation",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
         try:
             tracks = []
             if copy_queue:
@@ -172,11 +177,15 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         # find the playlist
         found = None
+        starred = False
         for p in handler.playlists:
-            if p['name'] == name_or_id or p['id'] == name_or_id:
+            if p['name'].lower() == name_or_id.lower() or p['id'].lower() == name_or_id.lower():
                 found = p
                 break
-        if not found:
+        if name_or_id.lower() == "starred":
+            found = 'starred'
+            starred = True
+        if not found and not starred:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to get playlist with name/id `{name_or_id}`. Make sure that the name is a name of __your__ playlist",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return

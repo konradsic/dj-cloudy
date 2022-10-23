@@ -68,10 +68,11 @@ class PlaylistHandler:
             for i,playlist in enumerate(self.data["playlists"]):
                 if playlist["name"] == playlist_name or playlist["id"] == playlist_name:
                     self.data["playlists"][i]['tracks'].append(song_url)
-                    break
         except: 
             # in case of an error we will raise PlaylistGetError
             raise PlaylistCreationError(f"Failed to add items to playlist {playlist_name}/song:{song_url}")
+        if playlist_name.lower() == "starred":
+            self.data['starred-playlist'].append(song_url)
 
         with open("data/playlists.json", mode="r") as f:
             content = json.load(f)
@@ -103,13 +104,20 @@ class PlaylistHandler:
             for i,playlist in enumerate(self.data["playlists"]):
                 if playlist["name"] == playlist_name_or_id or playlist["id"] == playlist_name_or_id:
                     del self.data["playlists"][i]["tracks"][track_pos]
-                    print(self.data)
                     with open("data/playlists.json", mode="r") as f:
                         content = json.load(f)
                     content[self.key] = self.data
                     with open("data/playlists.json", mode="w") as f:
                         json.dump(content, f)
                     return playlist
+            if playlist_name_or_id.lower() == "starred":
+                del self.data['starred-playlist'][track_pos]
+                with open("data/playlists.json", mode="r") as f:
+                    content = json.load(f)
+                content[self.key] = self.data
+                with open("data/playlists.json", mode="w") as f:
+                    json.dump(content, f)
+                return self.data['starred-playlist']
         except:
             # raise PlaylistRemoveError
             raise PlaylistRemoveError(f"Failed to remove element {track_pos}, playlist #{playlist_name_or_id}")
