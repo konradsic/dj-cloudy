@@ -103,7 +103,7 @@ class PlayCommand(commands.Cog):
         query = query.strip("<>")
         tracks = await self.bot.node.get_tracks(cls=wavelink.Track, query=query)
         try:
-            await player.add_tracks(interaction, tracks)
+            await player.add_tracks(interaction, [tracks[0]])
         except Exception as e:
             if isinstance(e, NoTracksFound):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)

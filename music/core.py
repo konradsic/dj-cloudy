@@ -41,7 +41,7 @@ class MusicPlayer(wavelink.Player):
         if not tracks:
             raise NoTracksFound
 
-        self.queue.add(tracks[0])
+        self.queue.add(*tracks)
         track = tracks[0]
         if not self.is_playing():
             embed = discord.Embed(
@@ -121,3 +121,11 @@ class MusicPlayer(wavelink.Player):
             return False
         except IndexError:
             return False
+
+    async def play_first_track(self):
+        try:
+            track = self.queue.first_track
+            await self.play(track)
+            logger.info("MusicPlayer", "play_first_track", f"Playing first track in guild {self.guild.id}")
+        except Exception as e:
+            logger.error("MusicPlayer", "play_first_track", f"Failed to play first track in guild {self.guild.id} caused by {e.__class__.__name__}: {str(e)}")

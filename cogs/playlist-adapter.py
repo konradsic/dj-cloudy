@@ -51,7 +51,7 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
         ]
     except Exception as e:
         if e.__class__.__name__ == "LoadTrackError": return []
-        logger_instance.error("", "autocomplete_play", f"Error: {e.__class__.__name__} - {str(e)}")
+        logger_instance.error("", "song_autocomplete", f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 
 @logger.class_logger
@@ -204,14 +204,13 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         if replace_queue:
             # we need to replace the queue
             player.queue.cleanup()
-            tracks = [await self.bot.node.get_tracks(cls=wavelink.Track, query=song) for song in res['tracks']]
+            tracks = [list(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in res['tracks']]
             player.queue.add(*tracks)
-            player.position = -1
-            await player.stop()
+            await player.play_first_track()
             return
         else:
-            tracks = [await self.bot.node.get_tracks(cls=wavelink.Track, query=song) for song in res['tracks']]
-            player.queue.add(*tracks)
+            tracks = [list(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in res['tracks']]
+            await player.add_tracks(interaction, tracks)
             return
 
 async def setup(bot):
