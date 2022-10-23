@@ -2,7 +2,7 @@
 ##       2. Make some /commands and relase 0.9.0 
 
 import json
-from utils.base_utils import getid
+from utils.base_utils import getid, AUTHENTICATED_USERS
 from utils.errors import (
     PlaylistGetError,
     PlaylistCreationError,
@@ -13,6 +13,8 @@ class PlaylistHandler:
     def __init__(self, key: str):
         self.key = key
         self._load()
+        if str(key) in AUTHENTICATED_USERS:
+            self.set_credentials(2)
 
     @property
     def playlists(self):
