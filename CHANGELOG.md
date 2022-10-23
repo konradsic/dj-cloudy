@@ -3,19 +3,28 @@ Welcome to DJ Cloudy's release notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## pre-0.9.0 release notes
+In 0.9.0 we will add playlist functionality. What will it cover?
+- Creating playlist
+- Playlist creation limits: diffrent for moderators, admins and normal users
+- Starred songs playlists
+- 'Add to starred' button
+- Context menus covering showing playlists and starred playlist
+What we added:
+- Functional playlist system (buggy, thats why pre, not full!)
+- Buttons and context menus
+- Limitations
+We are working on it! Stay tuned.
+
 ## 0.8.0 release notes
 In this update we added a lot of new advanced music commands
 - Equalizer commands: choose,advanced,reset
 - Filter commands: choose,reset
 - Fixes some bugs and trying to figure out how playlists will work in 0.9.0
 
-## 0.8.0-alpha release notes
-In update `0.8.0` we are pointing at equalizers and filters. The alpha relase successfully brings half of the updates that will covered: filters
-- Added filters group command
-- Added equalizers and filters cogs
-- Pre-defined equalizers cog, working on it...
 
 ## Release history
+**0.8.0-alpha** Pre-defined equalizer cog and functional filters commands <br/>
 **0.7.1** Make position parameter in seek command non-required, defaults to +15s <br/>
 **0.7.0** Seeking and restarting functionality + buttons <br/>
 **pre-0.7.0** Restart command, working on seeking <br.>
@@ -40,4 +49,4 @@ In update `0.8.0` we are pointing at equalizers and filters. The alpha relase su
 **0.2.1** Player advance patch <br/>
 **0.2.0** Pause and resume commands <br/>
 **0.1.0** Everything is now embedded, complete new logger and many more <br/>
-**0.0.1** Initial update
+**0.0.1** Initial update -> 4 October 2022
