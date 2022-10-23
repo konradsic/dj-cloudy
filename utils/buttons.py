@@ -7,6 +7,7 @@ from discord.ui import View
 from .base_utils import change_volume, get_volume, RepeatMode
 from .run import running_nodes
 from .colors import BASE_COLOR
+from music import playlist
 
 class PlayButtonsMenu(View):
     def __init__(self, timeout: float=None, user: t.Optional[discord.Member] = None) -> None:
@@ -92,6 +93,21 @@ class PlayButtonsMenu(View):
         embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Track successfully restarted",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return True
+
+    @ui.button(emoji=":star:", style=discord.ButtonStyle.gray)
+    async def add_to_starred_button(self, interaction: discord.Interaction, button):
+        if not (player := running_nodes[0].get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        if not player.is_playing():
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot seek: nothing is currently playing",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        handler = playlist.PlaylistHandler(key=str(interaction.user.id))
+        handler.add_to_starred(player.queue.current_track.uri)
+        await interaction.response.send_message(embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
 
 class EmbedPaginator(View):
     def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:

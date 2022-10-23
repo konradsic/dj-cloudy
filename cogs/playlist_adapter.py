@@ -277,7 +277,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
 async def setup(bot):
     help_utils.register_command("playlists view", "View your or user's playlists", "Music: Playlist management", [("user", "View this user's playlists", False)])
-    help_utils.register_command("playlists create", "Create a new playlist", "Music: Playlist management", [("name", "Name of the playlist", True)])
+    help_utils.register_command("playlists create", "Create a new playlist", "Music: Playlist management", [("name", "Name of the playlist", True),("copy_queue","Wherever to copy the queue to playlist or not",False)])
     help_utils.register_command("playlists add-song", 
         "Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist", "Music: Playlist management", 
         [("name_or_id", "Name of the playlist you want to add the song to", True),("song", "Name of the song you want to add",True)])
@@ -286,4 +286,5 @@ async def setup(bot):
     help_utils.register_command("playlists play", "Play your playlist!", "Music: Playlist management", 
         [("name_or_id", "Name of the playlist you want to play", True), ("replace_queue", "Wherever to replace the queue with the playlist or just append", False)])
     help_utils.register_command("playlists remove-playlist", "Remove a playlist", "Music: Playlist management", [("name_or_id", "Name of the playlist you want to remove", True)])
+    help_utils.register_command("playlists view-playlist", "View playlist's content (for your playlist or anybody else)", "Music: Playlist management", [("name_or_id", "Name of the playlist", True),("user","(optional) User to get the playlist from",False)])
     await bot.add_cog(PlaylistGroupCog(bot), guilds=bot.guilds)
