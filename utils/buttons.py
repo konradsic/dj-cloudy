@@ -107,7 +107,7 @@ class PlayButtonsMenu(View):
 
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         handler.add_to_starred(player.queue.current_track.uri)
-        await interaction.response.send_message(embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
+        await interaction.response.send_message(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
 
 class EmbedPaginator(View):
     def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:

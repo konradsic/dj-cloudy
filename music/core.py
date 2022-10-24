@@ -61,7 +61,7 @@ class MusicPlayer(wavelink.Player):
             except: pass
             embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
             embed.add_field(name="Author", value=track.author)
-            embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
+            embed.add_field(name="Duration", value=f"`{str(lh) + ':' if int(lh) != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         if self.is_playing():
@@ -82,7 +82,7 @@ class MusicPlayer(wavelink.Player):
             except: pass
             embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
             embed.add_field(name="Author", value=track.author)
-            embed.add_field(name="Duration", value=f"`{lh + ':' if lh != 0 else ''}{lm}:{ls}`")
+            embed.add_field(name="Duration", value=f"`{str(lh) + ':' if int(lh) != 0 else ''}{lm}:{ls}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             # calculating estimated time to play this song
             current_pos = self.position
@@ -99,7 +99,7 @@ class MusicPlayer(wavelink.Player):
             durs = convert_to_double(durs)
             embed.add_field(name="Estimated time until playback", value=f"`{durh + ':' if durh != 0 else ''}{durm}:{durs}`")
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
-        await interaction.response.send_message(embed=embed, view=PlayButtonsMenu(user=interaction.user))
+        await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
 
         if not self.is_playing():
             await self.start_playback(interaction)

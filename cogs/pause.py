@@ -40,7 +40,7 @@ class PlayPauseCommands(commands.Cog):
             return "failed"
 
         if not player.is_paused():
-            embed = discord.Embed(description=f"<:play_button:1028004869019279391> The played is already resumed",color=BASE_COLOR)
+            embed = discord.Embed(description=f"<:play_button:1028004869019279391> The player is already resumed",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "alr resumed"
         

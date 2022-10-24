@@ -88,13 +88,14 @@ class PlayCommand(commands.Cog):
     @app_commands.describe(query="What song to play")
     @app_commands.autocomplete(query=query_complete)
     async def play_command(self, interaction: discord.Interaction, query: str):
+        await interaction.response.defer(ephemeral=True)
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except NoPlayerFound:
             if interaction.user.voice is None:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
@@ -102,8 +103,9 @@ class PlayCommand(commands.Cog):
 
         query = query.strip("<>")
         tracks = await self.bot.node.get_tracks(cls=wavelink.Track, query=query)
+        await player.add_tracks(interaction, [tracks[0]])
         try:
-            await player.add_tracks(interaction, [tracks[0]])
+            pass
         except Exception as e:
             if isinstance(e, NoTracksFound):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)

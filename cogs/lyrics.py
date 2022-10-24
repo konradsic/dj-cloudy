@@ -22,12 +22,13 @@ class LyricsCommandHandler(commands.Cog):
     @app_commands.command(name="lyrics", description="Get lyrics for current playing or input song")
     @app_commands.describe(song="Song you want lyrics for")
     async def lyrics_command(self, interaction: discord.Interaction, song: str = None):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         if not (player := self.bot.node.get_player(interaction.guild)) and (song is None):
             try:
                 playing = player.is_playing()
             except:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `noSong`: Nothing is playing and the `song` argument is also `None`",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
         client = lhandler.initialize_client(access_token=get_lyrics_token())
@@ -52,7 +53,7 @@ class LyricsCommandHandler(commands.Cog):
             lyrics = lhandler.get_lyrics(client, artist, title)
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         # paginator yay
         # split for 35 lines each
@@ -82,7 +83,7 @@ class LyricsCommandHandler(commands.Cog):
                 color=BASE_COLOR,
                 timestamp=datetime.datetime.utcnow()
             ).set_footer(text="Page {}/{}".format(i, len(lyric_groups))))
-        await interaction.response.send_message(embed=embeds[0], view=EmbedPaginator(embeds, 300, interaction.user))
+        await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 300, interaction.user))
 
 async def setup(bot):
     help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Miscellaneous", [("song","Song you want lyrics for", False)])

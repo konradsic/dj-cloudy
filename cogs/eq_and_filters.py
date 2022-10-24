@@ -31,7 +31,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         Choice(name="Tremolo", value="Tremolo"),
         Choice(name="Vibrato", value="Vibrato"),
         Choice(name="Rotation", value="Rotation"),
-        Choice(name="Distortion", value="Rotation"),
+        Choice(name="Distortion", value="Distortion"),
         Choice(name="Channel Mix", value="channel_mix"),
         Choice(name="Low Pass", value="low_pass"),
     ])
