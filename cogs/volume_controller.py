@@ -25,6 +25,11 @@ class VolumeController(commands.Cog):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+        if volume is not None:
+            if not (0 <= value <= 1000):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Volume value out of range!",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
 
         volume = base_utils.get_volume(interaction.guild)
         if value is None:

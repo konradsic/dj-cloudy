@@ -97,7 +97,7 @@ class MusicPlayer(wavelink.Player):
             if durh >= 1:
                 durm = convert_to_double(durm)
             durs = convert_to_double(durs)
-            embed.add_field(name="Estimated time until playback", value=f"`{durh + ':' if durh != 0 else ''}{durm}:{durs}`")
+            embed.add_field(name="Estimated time until playback", value=f"`{str(durh) + ':' if int(durh) != 0 else ''}{durm}:{durs}`")
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
 
