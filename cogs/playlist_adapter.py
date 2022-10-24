@@ -261,6 +261,9 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         for play in handler.playlists:
             if play['name'] == name_or_id or play['id'] == name_or_id:
                 res = play
+        if name_or_id.lower() == "starred":
+            res = handler.data['starred-playlist']
+            res = {'tracks': res}
 
         # adapt the playlist
         if replace_queue:

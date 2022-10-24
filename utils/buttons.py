@@ -94,7 +94,7 @@ class PlayButtonsMenu(View):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return True
 
-    @ui.button(emoji=":star:", style=discord.ButtonStyle.gray)
+    @ui.button(emoji="<:star_button:1033999611238551562>", style=discord.ButtonStyle.gray)
     async def add_to_starred_button(self, interaction: discord.Interaction, button):
         if not (player := running_nodes[0].get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
