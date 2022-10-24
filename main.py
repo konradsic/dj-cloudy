@@ -129,6 +129,7 @@ class DJ_Cloudy(commands.Bot):
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
         self.tree.add_command(app_commands.ContextMenu(name="View Playlists", callback=view_playlist_menu), guilds=self.guilds)
         self.tree.add_command(app_commands.ContextMenu(name="View Starred Playlist", callback=view_starred_playlist_menu), guilds=self.guilds)
+        self.tree.add_command(app_commands.ContextMenu(name="Copy Starred Playlist", callback=copy_user_playlist_menu), guilds=self.guilds)
         await load_extensions()
         while not bot.loaded:
             pass
@@ -191,6 +192,18 @@ async def view_starred_playlist_menu(interaction: discord.Interaction, member: d
     embed.add_field(name="Tracks", value=track_data, inline=False)
     embed.add_field(name="Additional info", value=f"Total duration: `{get_length(total_duration)}`\nTotal tracks: **{len(starred_playlist)}**")
     await interaction.response.send_message(embed=embed, ephemeral=True)
+
+async def copy_user_playlist_menu(interaction: discord.Interaction, member: discord.Member):
+    if str(interaction.user.id) == str(member.id):
+        await interaction.response.send_message(ephemeral=True, embed=discord.Embed(description="<:x_mark:1028004871313563758> You can't copy your playlist", color=BASE_COLOR))
+        return
+    handler = playlist.PlaylistHandler(key=str(member.id))
+    starred = handler.data['starred-playlist']
+    author_handler = playlist.PlaylistHandler(key=str(member.id))
+    author_starred = handler.data['starred-playlist']
+    for song in starred:
+        author_handler.add_to_starred(song)
+    await interaction.response.send_message(embed=discord.Embed(description=f"<:tick:1028004866662084659> Success, added {member.name}'s starred playlist to yours", color=BASE_COLOR),ephemeral=True)
 
 hide_cursor()
 bot.loaded = False
