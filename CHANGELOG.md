@@ -29,7 +29,7 @@ We are working on it! Stay tuned.
 **0.8.0-alpha** Pre-defined equalizer cog and functional filters commands <br/>
 **0.7.1** Make position parameter in seek command non-required, defaults to +15s <br/>
 **0.7.0** Seeking and restarting functionality + buttons <br/>
-**pre-0.7.0** Restart command, working on seeking <br.>
+**pre-0.7.0** Restart command, working on seeking <br/>
 **0.6.1** Improved lyrics handler and paginator <br/>
 **0.6.0** Lyrics update: lyrics command <br/> 
 **0.5.1** Event on mentioning the bot <br/>
