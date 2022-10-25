@@ -5,10 +5,10 @@ A Discord bot that adds music functionality to your server.
 :copyright: 2022-present @konradsic, @ArgoMk3
 :license: MIT License, see license files for more details.
 """
-## TODO: Add playlist system, 0.9.0
+## TODO: Fix bugs and test everything, add logger v3 and more
 #######################################################################
 
-__version__ = "0.8.0"
+__version__ = "0.9.1"
 __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
