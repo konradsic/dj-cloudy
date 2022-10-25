@@ -3,6 +3,12 @@ Welcome to DJ Cloudy's release notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 0.9.1 release notes
+In this update we redefined the term 'help'. You know what it means? Look below
+- Brand new help command
+- Split help command to categories
+*Hey! When you're here I want you to know that we will add more things like that before v1.0.0. Expect 0.9.2 to be a more dev-side update, but other will add something for the users!*
+
 ## 0.9.0 release notes
 In this update we implemented the playlist system. It contains:
 - Functional adding, viewing, removing and copying (copying only starred for now) playlists.
@@ -11,20 +17,8 @@ In this update we implemented the playlist system. It contains:
 - May be buggy
 - Planning the great opening in 1-2 weeks!
 
-## pre-0.9.0 release notes
-In 0.9.0 we will add playlist functionality. What will it cover?
-- Creating playlist
-- Playlist creation limits: diffrent for moderators, admins and normal users
-- Starred songs playlists
-- 'Add to starred' button
-- Context menus covering showing playlists and starred playlist
-What we added:
-- Functional playlist system (buggy, thats why pre, not full!)
-- Buttons and context menus
-- Limitations
-We are working on it! Stay tuned.
-
 ## Release history
+**pre-0.9.0** Playlist system + some playlist commands <br/>
 **0.8.0** Filters and Equalizers
 **0.8.0-alpha** Pre-defined equalizer cog and functional filters commands <br/>
 **0.7.1** Make position parameter in seek command non-required, defaults to +15s <br/>
