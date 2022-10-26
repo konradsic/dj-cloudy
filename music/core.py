@@ -22,7 +22,7 @@ def shorten_name(string):
         return string[:25] + "..."
     return string
 
-@log.LoggerApplication
+# @log.LoggerApplication
 class MusicPlayer(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

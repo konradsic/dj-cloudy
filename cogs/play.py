@@ -93,7 +93,7 @@ class PlayCommand(commands.Cog):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             if interaction.user.voice is None:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)

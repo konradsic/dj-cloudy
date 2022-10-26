@@ -245,11 +245,12 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.describe(name_or_id="Name of the playlist you want to play")
     @app_commands.describe(replace_queue="Wherever to replace queue with the playlist or just to append")
     async def playlist_play(self, interaction: discord.Interaction, name_or_id: str, replace_queue: bool=False):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             if interaction.user.voice is None:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
                 await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -272,10 +273,12 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             player.queue.cleanup()
             tracks = [list(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in res['tracks']]
             player.queue.add(*tracks)
+            self.logger.info(f"Playling playlist {name_or_id} @ {player.guild.id} (queue replaced)")
             await player.play_first_track()
             return
         else:
             tracks = [list(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in res['tracks']]
+            self.logger.info(f"Playling playlist {name_or_id} @ {player.guild.id} (songs added)")
             await player.add_tracks(interaction, tracks)
             return
 

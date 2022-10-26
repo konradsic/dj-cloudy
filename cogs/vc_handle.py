@@ -17,7 +17,10 @@ class VC_Handler(commands.Cog):
     def __init__(self, bot: commands.Bot, logger: logger.Logger) -> None:
         self.bot = bot
         self.logger = logger
-        self.bot.loop.create_task(self.start_nodes())
+        try:
+            self.bot.loop.create_task(self.start_nodes())
+        except:
+            pass # preinitialized cog -- commands.Bot does not a loop attr 
         self.node = None
 
     async def on_player_track_error(self, player, *, additional_info: dict):

@@ -38,7 +38,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
@@ -59,7 +59,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
@@ -91,7 +91,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
@@ -119,7 +119,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
@@ -149,7 +149,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 

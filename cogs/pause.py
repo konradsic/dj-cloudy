@@ -15,7 +15,7 @@ class PlayPauseCommands(commands.Cog):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
@@ -33,8 +33,8 @@ class PlayPauseCommands(commands.Cog):
     async def resume_command(self, interaction: discord.Interaction):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
-                    raise NoPlayerFound("There is no player connected in this guild")
-        except NoPlayerFound:
+                raise NoPlayerFound("There is no player connected in this guild")
+        except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"

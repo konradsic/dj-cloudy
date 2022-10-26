@@ -32,6 +32,7 @@ from utils import logger
 from utils.base_utils import (clearscreen, get_bot_token, get_length,
                               hide_cursor, inittable, show_cursor, show_figlet)
 from utils.colors import BASE_COLOR
+from utils import preimports
 
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
@@ -138,7 +139,7 @@ class DJ_Cloudy(commands.Bot):
         await load_extensions()
         while not bot.loaded:
             pass
-        clearscreen()
+        # clearscreen()
         self.logger.info(f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
 
     async def close(self):
