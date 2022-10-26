@@ -53,13 +53,14 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
         ]
     except Exception as e:
         if e.__class__.__name__ == "LoadTrackError": return []
-        logger_instance.error("", "song_autocomplete", f"Error: {e.__class__.__name__} - {str(e)}")
+        logger_instance.error(f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 
-@logger.class_logger
+@logger.LoggerApplication
 class PlaylistGroupCog(commands.GroupCog, name="playlists"):
-    def __init__(self, bot):
+    def __init__(self, bot, logger):
         self.bot = bot
+        self.logger = logger
         super().__init__()
 
     @app_commands.command(name="view-playlist", description="View playlist's content (for your playlist or anybody else)")

@@ -45,13 +45,6 @@ class HelpCommand(commands.Cog):
         embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         for command in categories[category]:
-            # try:
-            #     arguments = ""
-            #     for arg in command['arguments']:
-            #         arguments += f"<{arg}> " if command['arguments'][arg]['required'] else f"[{arg}] "
-            #     current = f"`/{command['name']} {arguments[:-1]}` - {command['description']}\n"
-            # except:
-            #     current = f"`/{command['name']}` - {command['description']}\n"
             arguments = ""
             syntax_arguments = ""
             try:

@@ -15,14 +15,14 @@ from utils.base_utils import convert_to_double
 from music.queue import Queue
 from utils.base_utils import RepeatMode
 
-logger = log.Logger().get("music.core")
+logger = log.Logger().get("music.core.MusicPlayer")
 
 def shorten_name(string):
     if len(string) > 25:
         return string[:25] + "..."
     return string
 
-@log.class_logger
+@log.LoggerApplication
 class MusicPlayer(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,12 +109,12 @@ class MusicPlayer(wavelink.Player):
             message = f"(guild:`{interaction.guild.name}` channel:`{interaction.user.voice.channel.name}`)"
         except:
             message = "(No additional interaction info)"
-        logger.info("MusicPlayer", "start_playback", f"Playing {self.queue.current_track.uri} {message}")
+        logger.info(f"Playing {self.queue.current_track.uri} {message}")
         await self.play(self.queue.current_track)
 
     async def advance(self):
         try:
-            logger.info("MusicPlayer", "advance",f"playing next track (repeat set to {self.queue.repeat.string_mode}, guild {self.guild.id})")
+            logger.info(f"playing next track (repeat set to {self.queue.repeat.string_mode}, guild {self.guild.id})")
             next_track = self.queue.get_next_track()
             await self.play(next_track)
         except QueueIsEmpty:
@@ -126,6 +126,6 @@ class MusicPlayer(wavelink.Player):
         try:
             track = self.queue.first_track
             await self.play(track)
-            logger.info("MusicPlayer", "play_first_track", f"Playing first track in guild {self.guild.id}")
+            logger.info(f"Playing first track in guild {self.guild.id}")
         except Exception as e:
-            logger.error("MusicPlayer", "play_first_track", f"Failed to play first track in guild {self.guild.id} caused by {e.__class__.__name__}: {str(e)}")
+            logger.error(f"Failed to play first track in guild {self.guild.id}; caused by {e.__class__.__name__}: {str(e)}")

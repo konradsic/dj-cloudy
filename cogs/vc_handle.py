@@ -12,11 +12,11 @@ from utils.run import running_nodes
 
 logging = logger.Logger().get("cogs.vc_handle")
 
-@logger.class_logger
+@logger.LoggerApplication
 class VC_Handler(commands.Cog):
-
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot: commands.Bot, logger: logger.Logger) -> None:
         self.bot = bot
+        self.logger = logger
         self.bot.loop.create_task(self.start_nodes())
         self.node = None
 
@@ -24,7 +24,7 @@ class VC_Handler(commands.Cog):
         guild = additional_info.get('guild').id
         track = additional_info.get('track').title
         info = additional_info.get('info')
-        logging.warn("VC_Handler", "on_player_track_error", f"Guild: {guild} data=track:{track},info:{info}")
+        self.logger.warn(f"Guild: {guild} data=track:{track},info:{info}")
         await player.advance()
 
     @commands.Cog.listener()
@@ -80,7 +80,7 @@ class VC_Handler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node):
-        logging.info("VC_Handler", "on_wavelink_node_ready", f"Wavelink node `{node.identifier}` ready")
+        self.logger.info(f"Wavelink node `{node.identifier}` ready")
         self.node = node
         self.bot.node = node
         running_nodes.append(node)
@@ -117,7 +117,7 @@ class VC_Handler(commands.Cog):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
-            logging.error("VC_Handler", "connect_command", f"Exception occured while connecting -- {e.__class__.__name__} - {str(e)}")
+            self.logger.error(f"Exception occured while connecting -- {e.__class__.__name__} - {str(e)}")
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> {e.__class__.__name__}: {str(e)}",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
