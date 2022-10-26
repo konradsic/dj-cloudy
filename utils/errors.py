@@ -2,53 +2,49 @@ import discord
 from discord.ext import commands
 from utils import logger
 
-log_instance = logger.Logger().get("utils.errors")
-
 class UnhandledBotException(Exception):
-    def __init__(self,error_name=None, string=None):
+    def __init__(self, logger: logger.Logger, string: str=None):
         if string:
-            log_instance.error("", error_name,string)
+            logger.error(string)
         else:
-            log_instance.error("", error_name, "Unhandled exception occured")
-
-logger.register_func("AlreadyConnectedToVoice")
-logger.register_cls("utils.errors")
+            logger.error("Unhandled exception occured")
 
 # ERROR CLASSES
+@logger.LoggerApplication
 class NotConnectedToVoice(UnhandledBotException):
-    def __init__(self, string=None):
-        super().__init__(error_name= self.__class__.__name__, string=string or "The bot/user is not connected to a voice channel")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string=string or "The bot/user is not connected to a voice channel")
 
 class AlreadyConnectedToVoice(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "The bot is already connected to a voice channel")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "The bot is already connected to a voice channel")
 class QueueIsEmpty(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "The queue is empty")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "The queue is empty")
 class NoTracksFound(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "No tracks were found")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "No tracks were found")
 
 class NoPlayerFound(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "No players available for this guild")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "No players available for this guild")
 
 class NoVoiceChannel(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "No voice channel is available")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "No voice channel is available")
 
 class NoPlaylistFound(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "No playlist with given name was found")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "No playlist with given name was found")
 
 class PlaylistCreationError(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "Creating playlist {null} failed")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, sstring = string or "Creating playlist {null} failed")
 
 class PlaylistGetError(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "Failed to get playlist (no further info)")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "Failed to get playlist (no further info)")
 
 class PlaylistRemoveError(UnhandledBotException): 
-    def __init__(self, string=None):
-        super().__init__(error_name = self.__class__.__name__, string = string or "Failed to delete playlist/song of playlist {null}")
+    def __init__(self, string=None, *, logger: logger.Logger):
+        super().__init__(logger=logger, string = string or "Failed to delete playlist/song of playlist {null}")

@@ -7,9 +7,8 @@ init(autoreset=True)
 loggers = {}
 
 config = {
-    "longest_func_len": 0,
     "longest_cls_len": 0,
-    "logging-path": "bot-logs/test.txt"
+    "logging-path": "bot-logs/bot.log"
 }
 
 log_colors = {
@@ -20,29 +19,24 @@ log_colors = {
     "CRITICAL": Fore.RED
 }
 
-def class_logger(cls):
+def remove_underscores(label):
+    if label.startswith("__") and label.endswith("__"):
+        return label[2:-2]
+    return label
+
+def LoggerApplication(cls):
     def wrapper(*args, **kwargs):
-        clen = len(cls.__module__ + "." + cls.__name__)
+        fullpath = remove_underscores(cls.__module__) + "." + cls.__name__
+        clen = len(fullpath)
         if clen > config["longest_cls_len"]:
             config["longest_cls_len"] = clen
-        functions = dir(cls)
-        for e in functions:
-            if not (e.startswith("__") and e.endswith("__")):
-                leng = len(e)
-                if leng > config["longest_func_len"]:
-                    config["longest_func_len"] = leng
-        return cls(*args, **kwargs)
+        return cls(*args, **kwargs, logger=Logger(name=fullpath))
     return wrapper
 
 def register_cls(cls):
     leng = len(cls)
     if leng > config["longest_cls_len"]:
         config["longest_cls_len"] = leng
-
-def register_func(func):
-    leng = len(func)
-    if leng > config["longest_func_len"]:
-        config["longest_func_len"] = leng
 
 
 class Logger:
@@ -53,13 +47,13 @@ class Logger:
     Logger is a class that provides logging at the next level.
     """
 
-    def __init__(self, name: str=None, *, func_len: int=0, cls_len: int=0):
+    def __init__(self, name: str=None):
         self.name = "null"
         if name:
             self.name = name
             loggers[self.name] = self
-        self.flen = func_len or 1
-        self.clen = (cls_len + len(self.name)) or 1
+        if len(self.name) > config["longest_cls_len"]:
+            config["longest_cls_len"] = len(self.name)
 
     def get(self, logger_name: str=None):
         if not logger_name:
@@ -67,29 +61,27 @@ class Logger:
         
         try:
             logger = loggers[logger_name]
-            self.name = logger.name
         except:
-            raise ValueError("No logger found with name '{}'".format(logger_name))
+            try:
+                self.name = logger_name
+                if len(self.name) > config["longest_cls_len"]:
+                    config["longest_cls_len"] = len(self.name)
+                loggers[self.name] = self
+                return self
+            except:
+                raise ValueError("No logger found with name '{}'".format(logger_name))
 
         return logger
 
     # logging part, yay
-    def _log(self, log_type, base, func, message):
-        if len(func) > config["longest_func_len"]:
-            config["longest_func_len"] = len(func)
+    def _log(self, log_type, message):
         color = log_colors[log_type]
-        len_process = config["longest_func_len"]
         longest_logger_name = config["longest_cls_len"]
-        if self.flen > len_process:
-            len_process = self.flen
-        if self.clen > longest_logger_name:
-            longest_logger_name = self.clen
         msg = ""
-        clsfmt = f"{self.name}{'.' + base if base else ''}"
         if log_type == "CRITICAL":
-            msg = f"{Fore.RED}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{func}{' '*(len_process-len(func))}] {clsfmt}{' '*(longest_logger_name+1-len(clsfmt))} CRITICAL - {message}"
+            msg = f"{Fore.RED}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {self.name}{' '*(longest_logger_name+1-len(self.name))}CRITICAL : {message}"
         else:
-            msg = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} [{Fore.MAGENTA}{func}{' '*(len_process-len(func))}{Fore.WHITE}] {Fore.CYAN}{clsfmt}{' '*(longest_logger_name+1-len(clsfmt))} {color}{BOLD_ON}{log_type}{BOLD_OFF}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} - {message}"
+            msg = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} {Fore.CYAN}{self.name}{' '*(longest_logger_name+1-len(self.name))}{color}{BOLD_ON}{log_type}{BOLD_OFF}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} : {message}"
         print(msg)
 
         with open(config["logging-path"], mode="r+") as _: pass
@@ -99,20 +91,20 @@ class Logger:
             writer.write(content+msg+"\n")
         return True
 
-    def debug(self, base, func, message):
-        self._log("DEBUG", base, func, message)
+    def debug(self, message):
+        self._log("DEBUG", message)
         
-    def info(self, base, func, message):
-        self._log("INFO", base, func, message)
+    def info(self, message):
+        self._log("INFO", message)
 
-    def warn(self, base, func, message):
-        self._log("WARN", base, func, message)
+    def warn(self, message):
+        self._log("WARN", message)
     
-    def error(self, base, func, message):
-        self._log("ERROR", base, func, message)
+    def error(self, message):
+        self._log("ERROR", message)
     
-    def critical(self, base, func, message):
-        self._log("CRITICAL", base, func, message)
+    def critical(self, message):
+        self._log("CRITICAL", message)
 
 #message = f"{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{process_name}{' '*(len_process-len(process_name))}] {self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} CRITICAL -- {message}"
 

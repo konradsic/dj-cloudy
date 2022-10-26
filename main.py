@@ -39,20 +39,22 @@ log.setLevel(logging.ERROR)
 
 clearscreen()
 font = show_figlet("DJ Cloudy")
-inittable(__version__, __author__, discord.__version__, wavelink.__version__, font)
+inittable(__version__, __author__, discord.__version__, wavelink.__version__, __copyright__, font)
 
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"
+# logger.register_cls("main.DJ_Cloudy")
+# logger.register_func("load_extensions")
+# main_logger = logger.Logger("main")
+# _ = (logger.Logger(name="utils.run"),
+#      logger.Logger(name="utils.errors"),
+#      logger.Logger(name="music.core"),
+#      logger.Logger(name="cogs.vc_handle"),
+#      logger.Logger(name="cogs.play"),
+#      logger.Logger(name="cogs.eq_and_filters"),
+#      logger.Logger(name="cogs.playlist_adapter"))
 logger.register_cls("main.DJ_Cloudy")
-logger.register_func("load_extensions")
 main_logger = logger.Logger("main")
-_ = (logger.Logger(name="utils.run"),
-     logger.Logger(name="utils.errors"),
-     logger.Logger(name="music.core"),
-     logger.Logger(name="cogs.vc_handle"),
-     logger.Logger(name="cogs.play"),
-     logger.Logger(name="cogs.eq_and_filters"),
-     logger.Logger(name="cogs.playlist_adapter"))
 
 # import modules using logger after setting it up
 from music import playlist
@@ -60,14 +62,14 @@ from music import playlist
 # getting token, logger and init() colorama
 TOKEN = get_bot_token()
 colorama.init(autoreset=True)
-main_logger.info("", "main", "Initializing...")
+main_logger.info("Initializing...")
 
 # checking up on the rate limits
 r = requests.head(url="https://discord.com/api/v1")
 try:
-    main_logger.critical("", "request_check",f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
+    main_logger.critical(f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
 except:
-    main_logger.info("", "request_check", "No Rate Limit.")
+    main_logger.info("No Rate Limit.")
 
 async def load_extension(ext):
     bot.current_ext_loading = ext
@@ -102,7 +104,7 @@ async def load_extensions():
         if cog.endswith('.py'):
             extensions.append("cogs." + cog[:-3])
     bot.ext_len = len(extensions)
-    main_logger.info("", "load_extensions",f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
+    main_logger.info(f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
     thread_loader = threading.Thread(target=asyncio.run, args=(update_progressbar(),))
     thread_loader.start()
     ext_loader = threading.Thread(target=asyncio.run, args=(extload(extensions),))
@@ -111,13 +113,16 @@ async def load_extensions():
     ext_loader.join()
     while not bot.part_loaded:
         pass
-    main_logger.info("", "load_extensions", "Extensions loaded successfully, syncing with guilds...")
+    main_logger.info("Extensions loaded successfully, syncing with guilds...")
     for guild in list(bot.guilds):
         await bot.tree.sync(guild=guild)
-    main_logger.info("", "load_extensions", f"Extensions synced with {len(bot.guilds)} guilds")
+    main_logger.info(f"Extensions synced with {len(bot.guilds)} guilds")
     bot.loaded = True
+
+@logger.LoggerApplication
 class DJ_Cloudy(commands.Bot):
-    def __init__(self):
+    def __init__(self, logger: logger.Logger):
+        self.logger = logger
         super().__init__(
             command_prefix = "dj$",
             intents = discord.Intents.all(),
@@ -125,7 +130,7 @@ class DJ_Cloudy(commands.Bot):
         )
     
     async def on_ready(self):
-        main_logger.info("DJ_Cloudy", "on_ready", f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
+        self.logger.info(f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
         self.tree.add_command(app_commands.ContextMenu(name="View Playlists", callback=view_playlist_menu), guilds=self.guilds)
         self.tree.add_command(app_commands.ContextMenu(name="View Starred Playlist", callback=view_starred_playlist_menu), guilds=self.guilds)
@@ -134,19 +139,19 @@ class DJ_Cloudy(commands.Bot):
         while not bot.loaded:
             pass
         clearscreen()
-        main_logger.info("DJ_Cloudy", "on_ready", f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
+        self.logger.info(f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
 
     async def close(self):
         try:
-            main_logger.info("DJ_Cloudy", "close", "Closing gateway...")
+            self.logger.info("Closing gateway...")
             await super().close()
-            main_logger.info("DJ_Cloudy", "close", "Connection to Discord closed, bot shut down")
+            self.logger.info("Connection to Discord closed, bot shut down")
         except:
-            main_logger.error("DJ_Cloudy", "close","Closing session failed")
+            self.logger.error("Closing session failed")
         show_cursor()
 
-
 bot = DJ_Cloudy()
+
 # haha idk how to do it in cogs so here :)
 
 async def view_playlist_menu(interaction: discord.Interaction, user: discord.Member):
