@@ -9,16 +9,19 @@ from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils.errors import NoPlayerFound
 from utils.base_utils import convert_to_double, double_to_int
+from utils import logger
 
+@logger.LoggerApplication
 class SeekAndRestartCog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, logger: logger.Logger):
         self.bot = bot
+        self.logger = logger
 
     @app_commands.command(name="restart", description="Restart current playing track (similiar to seek position:0)")
     async def restart_command(self, interaction: discord.Interaction):
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
-                    raise NoPlayerFound("There is no player connected in this guild")
+                raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -71,7 +74,8 @@ class SeekAndRestartCog(commands.Cog):
                 s = double_to_int(pos[1])
             else:
                 raise ValueError("Incorrect position format")
-        except:
+        except Exception as e:
+            self.logger.error(f"Failed to get position parameters caused by {e.__class__.__name__}: {str(e)}")
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Invalid player position, use format [h:]m:s e.g `2:15` or `1:39:56`",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "incorrect position"

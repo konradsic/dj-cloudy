@@ -6,4 +6,4 @@ def initialize_client(access_token):
 
 def get_lyrics(client, author, title):
     song = client.search_song(title=title, artist=author)
-    return song.lyrics
+    return song.lyrics, song.title

@@ -8,7 +8,7 @@ A Discord bot that adds music functionality to your server.
 ## TODO: Fix bugs and test everything, add logger v3 and more
 #######################################################################
 
-__version__ = "0.9.1"
+__version__ = "1.0.0-alpha"
 __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
@@ -44,16 +44,7 @@ inittable(__version__, __author__, discord.__version__, wavelink.__version__, __
 
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"
-# logger.register_cls("main.DJ_Cloudy")
-# logger.register_func("load_extensions")
-# main_logger = logger.Logger("main")
-# _ = (logger.Logger(name="utils.run"),
-#      logger.Logger(name="utils.errors"),
-#      logger.Logger(name="music.core"),
-#      logger.Logger(name="cogs.vc_handle"),
-#      logger.Logger(name="cogs.play"),
-#      logger.Logger(name="cogs.eq_and_filters"),
-#      logger.Logger(name="cogs.playlist_adapter"))
+logger.set_level(logger.LogLevels.DEBUG) # change whenever you want (DEBUG, INFO, WARN, ERROR, CRITICAL)
 logger.register_cls("main.DJ_Cloudy")
 main_logger = logger.Logger("main")
 
@@ -90,10 +81,10 @@ async def update_progressbar():
         leng = bot.ext_len
         total = 40
         perc = (cur_idx/leng)*total
-        print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*2.5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}         ", end="\r")
+        print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*2.5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}             ", end="\r")
         await asyncio.sleep(0.25)
         i += 1
-    print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*40}{Fore.RESET}{Style.RESET_ALL} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                                                                                     ", end="\n")
+    print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*40}{Fore.RESET}{Style.RESET_ALL} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                       ")
 
 # loading extensions
 async def load_extensions():
@@ -131,7 +122,7 @@ class DJ_Cloudy(commands.Bot):
         )
     
     async def on_ready(self):
-        self.logger.info(f"Connected to discord as `{self.user}`! Latency: {round(self.latency*1000)}ms")
+        self.logger.info(f"Connected to discord as {self.user}. Latency: {round(self.latency*1000)}ms")
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
         self.tree.add_command(app_commands.ContextMenu(name="View Playlists", callback=view_playlist_menu), guilds=self.guilds)
         self.tree.add_command(app_commands.ContextMenu(name="View Starred Playlist", callback=view_starred_playlist_menu), guilds=self.guilds)

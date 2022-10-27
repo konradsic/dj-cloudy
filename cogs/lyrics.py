@@ -50,7 +50,9 @@ class LyricsCommandHandler(commands.Cog):
                 return
 
         try:
-            lyrics = lhandler.get_lyrics(client, artist, title)
+            song = lhandler.get_lyrics(client, artist, title)
+            lyrics = song[0]
+            title = song[1]
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
@@ -64,6 +66,12 @@ class LyricsCommandHandler(commands.Cog):
                 lyrics[i] = line[len(f"{title} Lyrics"):]
             elif line.endswith("You might also likeEmbed"):
                 lyrics[i] = line[:-len("You might also likeEmbed")]
+            # after removing
+            if line.endswith("Embed"):
+                lyrics[i] = line[:-len("Embed")]
+            # just realised that it can also start with that sht
+            if line.startswith("You might also like"):
+                lyrics[i] = line[len("You might also like"):]
         if len(lyrics) <= 35:
             lyric_groups = [lyrics]
         else:
@@ -82,8 +90,8 @@ class LyricsCommandHandler(commands.Cog):
                 description="".join(e + "\n" for e in group),
                 color=BASE_COLOR,
                 timestamp=datetime.datetime.utcnow()
-            ).set_footer(text="Page {}/{}".format(i, len(lyric_groups))))
-        await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 300, interaction.user))
+            ).set_footer(text="Page {}/{}".format(i, len(lyric_groups))).set_thumbnail(url=self.bot.user.display_avatar.url))
+        await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 1000, interaction.user))
 
 async def setup(bot):
     help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Miscellaneous", [("song","Song you want lyrics for", False)])

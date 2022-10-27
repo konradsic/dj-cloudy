@@ -3,6 +3,21 @@ Welcome to DJ Cloudy's release notes! Here is what you will find here
 - Long description of 2 latest updates
 - Short description of all other updates
 
+## 1.0.0-alpha release notes
+Getting really close to `v1.0.0`. This is the alpha release - everything should work but we are making sure everything works properly and nothing is missing (from out list). Version 1.0.0-alpha is like a pre-release so it covers most of 1.0.0
+### What we've added
+- Customizable logging levels (set to warn - supress infos and debugs etc.)
+- Fixed lyrics text showing weird lines like "You might also like" or "Embed"
+- Fixed seeking - I don't know why but before seeking to less than one minute (for example `0:45`) caused an error. Now it's fixed
+### What bot covers - everything in 1.0.0
+- Basic commands such as play, pause, resume, connect, disconnect etc.
+- Playlist system - categorize, star and play your favorite tracks
+- Advanced commands - equalizers, filters, precise seeking and track restarting
+- Repeating tracks
+- Miscellaneous commands such as ping, botinfo or changelog
+- Cool help command
+- (dev) Advanced logging and understandable code structure
+
 ## 0.9.2 release notes
 This update is mainly dev-side including (third!) new logger. I personally think that this is the best one out of them, but 
 What we've added:
@@ -10,13 +25,8 @@ What we've added:
 - Fixed some small bugs and issues
 - We are approaching the end of fixing bugs and adding new features. Version v1.0.0 will come soon!
 
-## 0.9.1 release notes
-In this update we redefined the term 'help'. You know what it means? Look below
-- Brand new help command
-- Split help command to categories
-*Hey! When you're here I want you to know that we will add more things like that before v1.0.0. Expect 0.9.2 to be a more dev-side update, but other will add something for the users!*
-
 ## Release history
+**0.9.1** Brand new help command <br/>
 **0.9.0** Complete playlist system: commands, context menus and more <br/>
 **pre-0.9.0** Playlist system + some playlist commands <br/>
 **0.8.0** Filters and Equalizers <br/>

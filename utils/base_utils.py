@@ -124,7 +124,7 @@ def get_length(dur):
 
 def double_to_int(value):
     value = str(value)
-    if value.startswith("0"):
+    if value.startswith("0") and len(value) >= 2:
         return int(value[1:])
     return int(value)
 
