@@ -198,7 +198,9 @@ def getid(label_to_encode):
     for g in generated:
         if g.isdigit():
             res += str(g)
-    if len(g) < 15:
-        g += ('0' * (15-len(g)))
-    g = g[:15]
-    return int_to_hex(int(res))
+
+    res = int_to_hex(int(res))
+    if len(res) < 15:
+        res = ('0' * (15-len(res))) + res
+    res = res[:15]
+    return res

@@ -1,6 +1,4 @@
-## TODO:  1. Adapt playlist system it to the bot
-##        2. Make some /commands and relase 0.9.0 
-
+import time
 import json
 from utils.base_utils import getid, AUTHENTICATED_USERS
 from utils.errors import (
@@ -52,7 +50,7 @@ class PlaylistHandler:
 
     def create_playlist(self, name, tracks=[]):
         try:
-            self.data["playlists"].append({"name": name, "id": getid(name), "tracks": tracks})
+            self.data["playlists"].append({"name": name, "id": getid(f'{name};{time.time():.3f};{self.key}'), "tracks": tracks})
             with open("data/playlists.json", mode="r") as f:
                 content = json.load(f)
             content[self.key] = self.data

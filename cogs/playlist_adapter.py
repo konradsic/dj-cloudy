@@ -67,6 +67,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.describe(name_or_id="Name or id of the playlist")
     @app_commands.describe(user="(optional) User to get the playlist from")
     async def view_playlist_of_user_command(self, interaction: discord.Interaction, name_or_id: str, user: t.Union[discord.Member, None]=None):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         if not user:
             user = interaction.user
         handler = playlist.PlaylistHandler(key=str(user.id))
@@ -78,7 +79,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 break
         if not found:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No playlist was found",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         tracks = [(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in found['tracks']]
@@ -88,18 +89,19 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         embed.set_author(name=f"{user.name}'s playlist: {found['name']}#{found['id']}", icon_url=user.display_avatar.url)
         embed.add_field(name="Tracks", value=''.join(f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n" for i in range(len(tracks))), inline=False)
         embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=True)
         return True
 
     @app_commands.command(name="view", description="View your or user's playlists")
     @app_commands.describe(user="View this user's playlists")
     async def playlist_view_command(self, interaction: discord.Interaction, user: discord.Member=None):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         # get the user
         if user is None:
             user = interaction.user
         if user.bot:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Bots cannot have playlists! Make sure to select a user next time",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         user_data = playlist.PlaylistHandler(key=str(user.id))
         playlists = user_data.playlists
@@ -123,15 +125,16 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         embed.set_footer(text="Made by Konradoo#6938")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_author(name=f"{user.name}'s playlists", icon_url=user.display_avatar.url)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
     @app_commands.command(name="create", description="Create a new playlist")
     @app_commands.describe(name="Name of the playlist")
     @app_commands.describe(copy_queue="Wherever to copy the queue to playlist or not")
     async def playlist_create_command(self, interaction: discord.Interaction, name: str, copy_queue: bool=False):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         if len(name) > 30:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Playlist name should be less that 30 characters!",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         limits = 25 # max playlists for user
@@ -141,11 +144,11 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             limits = 10**15 # "infinity", max playlists for admins
         if len(handler.playlists) >= limits:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Playlist creation exceeds your current limits. Only moderators, admins and devs have higher limits. Contact us for more info",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if name.lower() == "starred":
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> 'starred' is a special playlist name that stands for your :star: songs. You can't use it for playlist creation",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             tracks = []
@@ -155,26 +158,27 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                         raise NoPlayerFound("There is no player connected in this guild")
                 except NoPlayerFound:
                     embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel -> no queue -> no songs to copy",color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 if player.queue.is_empty:
                     embed = discord.Embed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue so there is nothing to copy",color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 tracks = [song.uri for song in player.queue.get_tracks()]
             handler.create_playlist(name, tracks)
         except PlaylistCreationError:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to create playlist, please try again",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully created playlist **{name}**",color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="add-song", description="Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to add the song to")
     @app_commands.describe(song="Name of the song you want to add")
     @app_commands.autocomplete(song=song_url_autocomplete)
     async def playlist_add_song_command(self, interaction: discord.Interaction, name_or_id: str, song: str):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         # find the playlist
         found = None
@@ -188,7 +192,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             starred = True
         if not found and not starred:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to get playlist with name/id `{name_or_id}`. Make sure that the name is a name of __your__ playlist",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         limits = 75 # Maximum songs in a playlist
         if handler.data['credentials'] == 1:
@@ -197,49 +201,51 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             limits = 10**15 # "infinity"
         if len(handler.playlists) >= limits:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             handler.add_to_playlist(name_or_id, song)
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to add the song. Please try again",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**song**]({song}) to the playlist",color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="remove-song", description="Remove a song from your playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove the song from")
     @app_commands.describe(index="Index of the song you want to remove (1-playlist len)")
     async def playlist_remove_song_command(self, interaction: discord.Interaction, name_or_id: str, index: int):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         if index <= 0:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Index should be between 1 and playlist length",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             handler.remove(name_or_id, index-1)
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to remove the song. Check if index is correct and the name or ID of the playlist",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully removed song at position `{index}` from playlist __{name_or_id}__",color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="remove-playlist", description="Remove a playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove")
     async def playlist_remove_command(self, interaction: discord.Interaction, name_or_id: str):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         try:
             handler.remove_playlist(name_or_id)
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to remove the playlist. Check spelling and name then try again",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully removed playlist **{name_or_id}**",color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="play", description="Play your playlist!")
     @app_commands.describe(name_or_id="Name of the playlist you want to play")
@@ -253,7 +259,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         except:
             if interaction.user.voice is None:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
