@@ -5,7 +5,7 @@ A Discord bot that adds music functionality to your server.
 :copyright: 2022-present @konradsic, @ArgoMk3
 :license: MIT License, see license files for more details.
 """
-## TODO: Fix bugs and test everything, add logger v3 and more
+## TODO: Fix bugs and test everything and more
 #######################################################################
 
 __version__ = "1.0.0-alpha"
@@ -82,7 +82,7 @@ async def update_progressbar():
         total = 40
         perc = (cur_idx/leng)*total
         print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*2.5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}             ", end="\r")
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(0.15)
         i += 1
     print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*40}{Fore.RESET}{Style.RESET_ALL} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                       ")
 
@@ -147,6 +147,7 @@ bot = DJ_Cloudy()
 # haha idk how to do it in cogs so here :)
 
 async def view_playlist_menu(interaction: discord.Interaction, user: discord.Member):
+    await interaction.response.defer(ephemeral=True, thinking=True)
     handler = playlist.PlaylistHandler(key=str(user.id))
     playlist_res = "This user does not have any custom playlists"
     if handler.playlists:
@@ -168,9 +169,10 @@ async def view_playlist_menu(interaction: discord.Interaction, user: discord.Mem
     embed.set_footer(text="Made by Konradoo#6938")
     embed.set_thumbnail(url=bot.user.display_avatar.url)
     embed.set_author(name=f"{user.name}'s playlists", icon_url=user.display_avatar.url)
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 async def view_starred_playlist_menu(interaction: discord.Interaction, member: discord.Member):
+    await interaction.response.defer(ephemeral=True, thinking=True)
     handler = playlist.PlaylistHandler(key=str(member.id))
     starred_playlist = handler.data['starred-playlist']
     track_data = "No tracks in their :star: songs playlist"
@@ -188,9 +190,10 @@ async def view_starred_playlist_menu(interaction: discord.Interaction, member: d
     embed.set_author(name=f"{member.name}'s starred songs", icon_url=member.display_avatar.url)
     embed.add_field(name="Tracks", value=track_data, inline=False)
     embed.add_field(name="Additional info", value=f"Total duration: `{get_length(total_duration)}`\nTotal tracks: **{len(starred_playlist)}**")
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 async def copy_user_playlist_menu(interaction: discord.Interaction, member: discord.Member):
+    await interaction.response.defer(ephemeral=True, thinking=True)
     if str(interaction.user.id) == str(member.id):
         await interaction.response.send_message(ephemeral=True, embed=discord.Embed(description="<:x_mark:1028004871313563758> You can't copy your playlist", color=BASE_COLOR))
         return
@@ -200,7 +203,7 @@ async def copy_user_playlist_menu(interaction: discord.Interaction, member: disc
     author_starred = handler.data['starred-playlist']
     for song in starred:
         author_handler.add_to_starred(song)
-    await interaction.response.send_message(embed=discord.Embed(description=f"<:tick:1028004866662084659> Success, added {member.name}'s starred playlist to yours", color=BASE_COLOR),ephemeral=True)
+    await interaction.followup.send(embed=discord.Embed(description=f"<:tick:1028004866662084659> Success, added {member.name}'s starred playlist to yours", color=BASE_COLOR),ephemeral=True)
 
 hide_cursor()
 bot.loaded = False
