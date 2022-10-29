@@ -19,10 +19,7 @@ With many many commands you can make your server more engaging and open to peopl
 ---
 *1.* also available via the discord server (server is still not available)
 
-## 📝 Version related info
-The bot is currently in version `0.4.0` <br/>
-Stable relase deadline: `December 2022` <br/>
-More version info can be found in `CHANGELOG.md`
+> View website: https://konradsic.github.io/dj-cloudy
 
 ## 💻 Github related info
 This includes: contribution, Code of Conduct, issue and pull request template files
