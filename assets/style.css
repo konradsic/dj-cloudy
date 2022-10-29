@@ -34,10 +34,16 @@ body {
     background: #3B3B3B;
 }
 
-.flex {
+.flex-start {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+}
+
+.flex-mid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sticky {
@@ -98,4 +104,77 @@ ul.navbar-ul > a > span {
 ul.navbar-ul > a > span:hover {
     color: #1D1D1D;
     background-color :#DADADA;
+}
+
+.container {
+    width: 100vw;
+}
+
+.container-child {
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    padding-top: 50px;
+    font-weight: 20px;
+    padding: 25px 100px;
+}
+
+.big-text {
+    font-size: 50px;
+    font-weight: 600;
+    text-shadow: 5px 5px 2px #191919;
+}
+
+.gradient-button {
+    text-align: center;
+    transition: all 0.5s;
+    font-weight: 500;
+    font-size: 25px;
+    width: 250px;
+    height: 70px;
+    border-radius: 30px;
+    background-image: linear-gradient(to bottom right, #FF00FA, #10EEE2);
+    border: 0;
+}
+
+.gradient-button:hover {
+    box-shadow: 15px 15px 3px #191919;
+}
+
+.a-invite-but {
+    text-align: center;
+}
+
+/* All elements like a, div etc */
+a {
+    text-decoration: none;
+}
+
+.blur {
+    filter: blur(8px);
+    -webkit-filter: blur(8px);
+}
+
+.top-1 {
+    z-index: 5;
+}
+.top-2 {
+    z-index: 10;
+}
+.toppest {
+    z-index: 100;
+}
+
+/* CSS elements # */
+#first-elem-text {
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    top: 170px;
+}
+
+#first-child {
+    background-color: #292929;
+    height: 20vw;
+    flex-direction: column;
 }
