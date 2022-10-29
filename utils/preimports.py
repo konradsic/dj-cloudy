@@ -1,4 +1,4 @@
-from imp import init_builtin
+# preimport cogs to register loggers
 from cogs.eq_and_filters import EqualizersCog, FiltersCog
 from cogs.play import PlayCommand
 from cogs.playlist_adapter import PlaylistGroupCog
