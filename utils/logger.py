@@ -9,13 +9,13 @@ class LogLevels:
     INFO = 5
     WARN = 20
     ERROR = 50
-    CRITICAl = 1000 # highest
+    CRITICAL = 1000 # highest
 
 loggers = {}
 
 config = {
     "longest_cls_len": 0,
-    "logging-path": "bot-logs/bot.log",
+    "logging-path": "logs.log",
     "logging_level": LogLevels.INFO
 }
 
@@ -26,6 +26,12 @@ log_colors = {
     "ERROR": Fore.RED,
     "CRITICAL": Fore.RED
 }
+
+def preinit_logs():
+    try:
+        with open(config['logging-path'], 'r') as f: pass
+    except:
+        with open(config['logging-path'], 'w') as f: pass
 
 def set_level(level):
     try:
@@ -150,3 +156,5 @@ def print_logs(history):
         lines = file.readlines()[-history:]
         for line in lines:
             print(line.strip("\n"))
+
+preinit_logs()

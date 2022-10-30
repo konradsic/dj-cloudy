@@ -1,7 +1,4 @@
-from cgitb import handler
 import datetime
-from itertools import filterfalse
-from shutil import copy
 import typing as t
 import re
 
@@ -74,7 +71,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         # get the playlist
         found = None
         for play in handler.playlists:
-            if play['name'] == name_or_id or play['id'] == name_or_id:
+            if play['name'].lower() == name_or_id.lower() or play['id'].lower() == name_or_id.lower():
                 found = play
                 break
         if not found:
@@ -267,7 +264,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         # get tracks
         res = []
         for play in handler.playlists:
-            if play['name'] == name_or_id or play['id'] == name_or_id:
+            if play['name'].lower() == name_or_id.lower() or play['id'].lower() == name_or_id.lower():
                 res = play
         if name_or_id.lower() == "starred":
             res = handler.data['starred-playlist']

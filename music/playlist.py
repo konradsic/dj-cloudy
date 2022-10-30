@@ -64,7 +64,7 @@ class PlaylistHandler:
         try:
             # find playlist
             for i,playlist in enumerate(self.data["playlists"]):
-                if playlist["name"] == playlist_name or playlist["id"] == playlist_name:
+                if playlist["name"].lower() == playlist_name.lower() or playlist["id"].lower() == playlist_name.lower():
                     self.data["playlists"][i]['tracks'].append(song_url)
         except: 
             # in case of an error we will raise PlaylistGetError
@@ -82,7 +82,7 @@ class PlaylistHandler:
     def get_playlist(self, name_or_id: str):
         try:
             for playlist in self.data["playlists"]:
-                if playlist["name"] == name_or_id or playlist["id"] == name_or_id:
+                if playlist["name"].lower() == name_or_id.lower() or playlist["id"].lower() == name_or_id.lower():
                     return playlist
         except: 
             # in case of an error we will raise PlaylistGetError
@@ -100,7 +100,7 @@ class PlaylistHandler:
     def remove(self, playlist_name_or_id: str, track_pos: int):
         try:
             for i,playlist in enumerate(self.data["playlists"]):
-                if playlist["name"] == playlist_name_or_id or playlist["id"] == playlist_name_or_id:
+                if playlist["name"].lower() == playlist_name_or_id.lower() or playlist["id"].lower() == playlist_name_or_id.lower():
                     del self.data["playlists"][i]["tracks"][track_pos]
                     with open("data/playlists.json", mode="r") as f:
                         content = json.load(f)
@@ -126,7 +126,7 @@ class PlaylistHandler:
         try:
             # remove playlist
             for i,playlist in enumerate(self.data["playlists"]):
-                if playlist["name"] == playlist_name_or_id or playlist["id"] == playlist_name_or_id:
+                if playlist["name"].lower() == playlist_name_or_id.lower() or playlist["id"].lower() == playlist_name_or_id.lower():
                     del self.data["playlists"][i]
                     with open("data/playlists.json", mode="r") as f:
                         content = json.load(f)
