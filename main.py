@@ -30,7 +30,8 @@ from discord.ext import commands
 
 from utils import logger
 from utils.base_utils import (clearscreen, get_bot_token, get_length,
-                              hide_cursor, inittable, show_cursor, show_figlet)
+                              hide_cursor, inittable, show_cursor, 
+                              show_figlet, get_application_id)
 from utils.colors import BASE_COLOR
 from utils import preimports
 
@@ -53,6 +54,7 @@ from music import playlist
 
 # getting token, logger and init() colorama
 TOKEN = get_bot_token()
+app_id = get_application_id()
 colorama.init(autoreset=True)
 main_logger.info("Initializing...")
 
@@ -118,7 +120,7 @@ class DJ_Cloudy(commands.Bot):
         super().__init__(
             command_prefix = "dj$",
             intents = discord.Intents.all(),
-            application_id = 1024303533685751868
+            application_id = app_id
         )
     
     async def on_ready(self):

@@ -177,6 +177,9 @@ def get_bot_token():
 def get_lyrics_token():
     return get_config()["lyrics"]["genius-auth-token"]
 
+def get_application_id():
+    return get_config()["bot"]["application_id"]
+
 hex_encoder = {
     0: "0", 1: "1", 2: "2", 3: "3", 4: "4",
     5: "5", 6: "6", 7: "7" ,8: "8", 9: "9",

@@ -1,6 +1,7 @@
 {
     "bot": {
-        "token": "your token here"
+        "token": "your token here",
+        "application_id": "ID of your bot"
     },
     "lyrics": {
         "genius-auth-token": "your genius api auth token here"
