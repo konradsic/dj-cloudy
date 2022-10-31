@@ -15,7 +15,7 @@ loggers = {}
 
 config = {
     "longest_cls_len": 0,
-    "logging-path": "logs.log",
+    "logging-path": "bot-logd/bot.log",
     "logging_level": LogLevels.INFO
 }
 
