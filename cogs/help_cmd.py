@@ -33,18 +33,23 @@ class HelpCommand(commands.Cog):
                 embed.add_field(name=f"{category_name} - {len(category_items)}", value=f'Example: `{random.choice(category_items)["name"]}`', inline=True)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-
+        categories_lower = [c.lower() for c in categories.keys()]
         # check if the category exists
-        if category not in categories.keys():
+        if category.lower() not in categories_lower:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Category does not exist. Use `/help` to view all categories",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+        selected_category = {}
+        # get items for category
+        for ctg in categories.items():
+            if category.lower() == ctg[0].lower():
+                selected_category = ctg[1]
 
         # get the category
         embed = discord.Embed(title=f"<:commands_button:1028377812777828502> Help for category {category}", description="*<> - required, [] - optional*", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
         embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        for command in categories[category]:
+        for command in selected_category:
             arguments = ""
             syntax_arguments = ""
             try:
