@@ -148,10 +148,46 @@ class PlayCommand(commands.Cog):
         embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
         await interaction.response.send_message(embed=embed, ephemeral=hidden, view=PlayButtonsMenu(user=interaction.user))
 
+    @app_commands.command(name="grab", description="Grab currently playing song to your Direct Messages")
+    async def grab_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        if not (player := self.bot.node.get_player(interaction.guild)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if not player.is_playing():
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+
+        song = player.queue.current_track
+        embed = discord.Embed(
+            description="You wanted it, you got it!",
+            color = BASE_COLOR,
+            timestamp = datetime.datetime.utcnow()
+        )
+        embed.set_author(name="Song grabbed", icon_url=interaction.user.display_avatar.url)
+        embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+        embed.set_footer(text="https://github.com/konradsic/dj-cloudy")
+        embed.add_field(name="Song title", value=f"[{song.title}]({song.uri})", inline=False)
+        embed.add_field(name="Author / Artist", value=song.author)
+        embed.add_field(name="Duration", value=f"`{get_length(song.duration)}`")
+        embed.add_field(name="Channel", value=f"<#{interaction.channel.id}>")
+        embed.add_field(name="Guild", value=interaction.guild.name)
+
+        try:
+            await interaction.user.send(embed=embed)
+            await interaction.followup.send(embed=discord.Embed(description="<:tick:1028004866662084659> Grabbed to your DMs!", color=BASE_COLOR))
+        except:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to grab, make sure your DMs are open to everyone",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed)
+            return
+
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("play", "Plays music", "Music: Base commands", [("query","What song to play",True)])
     help_utils.register_command("nowplaying", "Get currently playing track info in a nice embed", "Music: Base commands", 
                                 [("hidden", "Wherever to hide the message or not (it will be visible only to you)", False)])
+    help_utils.register_command("grab", "Grab currently playing song to your Direct Messages", "Music: Base commands")
     await bot.add_cog(
         PlayCommand(bot),
         guilds =[discord.Object(id=g.id) for g in bot.guilds]
