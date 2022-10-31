@@ -13,11 +13,11 @@ With many many commands you can make your server more engaging and open to peopl
 ## 🔗 Links
 * [Invite me by clicking here](https://dsc.gg/dj-cloudy)
 * [Join our server](https://discord.gg/t6qPGdHypw)
-* [Discuss with others about latest announcements](https://github.com/konradsic/dj-cloudy/discussions) *1.*
-* [Report bugs, ask for help and request features](https://github.com/konradsic/dj-cloudy/issues) *1.*
+* [Discuss with others about latest announcements](https://github.com/konradsic/dj-cloudy/discussions) [^1]
+* [Report bugs, ask for help and request features](https://github.com/konradsic/dj-cloudy/issues) [^1]
 * [DJ Cloudy Website](https://djcloudy.com)
----
-*1.* also available via the discord server
+
+[^1]: Also available via Discord server
 
 ## 📝 Version related info
 The bot is currently in version `1.0.0-alpha` <br/>
