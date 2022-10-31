@@ -8,16 +8,20 @@ import wavelink
 import pyfiglet
 import colorama
 import json
+import requests
 import uuid
-
-AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
-AEQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
+from . import logger
 
 BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
 
+AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
+AEQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
+
 volume_guilds = {}
 registered_nodes = []
+
+logging = logger.Logger().get("utils.base_utils")
 
 def show_figlet(text, color1="#E50AF5", color2="#2CFBF7"):
     colorama.init(autoreset=False)
@@ -207,3 +211,30 @@ def getid(label_to_encode):
         res = ('0' * (15-len(res))) + res
     res = res[:15]
     return res
+
+def get_latest_github_release():
+    req = requests.get("https://raw.githubusercontent.com/konradsic/dj-cloudy/main/main.py").text.split("\n")
+    for line in req:
+        if line.startswith("__version__"):
+            return line.split("=")[-1].strip(" \"")
+
+def is_update_required():
+    """
+    Fetch latest release file from github and check if an necessary update is needed.
+    """
+    req = requests.get("https://raw.githubusercontent.com/konradsic/dj-cloudy/main/main.py").text.split("\n")
+    for line in req:
+        if line.startswith("REQUIRED_UPDATE"):
+            return bool(line.split("=")[-1].strip(" \""))
+    return False
+
+def check_for_updates(current_version):
+    logging.info("Checking for updates...")
+    latest = get_latest_github_release()
+    if str(latest) != str(current_version):
+        logging.warn(f"You are using version {current_version} however version {latest} is available. Visit https://github.com/konradsic/dj-cloudy to download the latest version")
+        if is_update_required():
+            logging.critical(f"Version {current_version} is deprecated - you need to download version {latest} from the link above to use this bot. Your current version may not handle latest required standarts for the bot to work - thats why you need to update it")
+            exit()
+    else:
+        logging.info(f"You are using the latest version -- {latest}")

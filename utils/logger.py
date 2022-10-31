@@ -1,5 +1,7 @@
 import datetime
-from utils.base_utils import BOLD_ON, BOLD_OFF
+
+BOLD_ON = "\033[1m"
+BOLD_OFF = "\033[0m"
 
 from colorama import Fore, Style, init
 init(autoreset=True)

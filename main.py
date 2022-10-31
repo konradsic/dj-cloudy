@@ -31,7 +31,7 @@ from discord.ext import commands
 from utils import logger
 from utils.base_utils import (clearscreen, get_bot_token, get_length,
                               hide_cursor, inittable, show_cursor, 
-                              show_figlet, get_application_id)
+                              show_figlet, get_application_id, check_for_updates)
 from utils.colors import BASE_COLOR
 from utils import preimports
 
@@ -64,6 +64,8 @@ try:
     main_logger.critical(f"Rate limit: {colorama.Fore.CYAN}{round(int(r.headers['Retry-After']) / 60, 2)}{colorama.Fore.RED} minutes left")
 except:
     main_logger.info("No Rate Limit.")
+
+check_for_updates(__version__)
 
 async def load_extension(ext):
     bot.current_ext_loading = ext
