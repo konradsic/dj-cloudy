@@ -1,7 +1,20 @@
 # 📋 DJ Cloudy changelog
-Welcome to DJ Cloudy's release notes! Here is what you will find here
-- Long description of 2 latest updates
-- Short description of all other updates
+Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
+
+## Version v1.0.0 release notes
+Yes, this update has finally come. We will document as many as we can in the Wiki section to make sure you understand how to use the bot. From now we will be giving a long description of __every__ release.
+### What we've added
+- Some improvements on the developers side
+    - Aesthetical changes to logger
+    - Checking for updates and version deprecation system - we want to ensure that you have the latest release that covers newest security standards to keep everything safe. You can always `git pull` or sync your fork to get those changes on your computer
+    - Fixed "Catching exceptions that do not inherit from `BaseException` is not allowed". It was caused by logger
+    - Auto setup of JSON files and more configuration overall
+- But there are also changes on the user interaction side!
+    - Case insensitive searching both for playlists and help categories
+    - Better help command
+    - Changes to `/changelog` command so it can handle new format explained above
+    - Added `/grab` command so you can grab your favorite tracks to DMs and save them there (if you really hate playlists tho)
+- Fixed (hopefully) all bugs
 
 ## 1.0.0-alpha release notes
 Getting really close to `v1.0.0`. This is the alpha release - everything should work but we are making sure everything works properly and nothing is missing (from out list). Version 1.0.0-alpha is like a pre-release so it covers most of 1.0.0
@@ -9,7 +22,7 @@ Getting really close to `v1.0.0`. This is the alpha release - everything should 
 - Customizable logging levels (set to warn - supress infos and debugs etc.)
 - Fixed lyrics text showing weird lines like "You might also like" or "Embed"
 - Fixed seeking - I don't know why but before seeking to less than one minute (for example `0:45`) caused an error. Now it's fixed
-### What bot covers - everything in 1.0.0
+### What bot covers - everything in 1.0.0 (should be)
 - Basic commands such as play, pause, resume, connect, disconnect etc.
 - Playlist system - categorize, star and play your favorite tracks
 - Advanced commands - equalizers, filters, precise seeking and track restarting

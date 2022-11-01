@@ -8,10 +8,12 @@ A Discord bot that adds music functionality to your server.
 ## TODO: Fix bugs and test everything and more
 #######################################################################
 
-__version__ = "1.0.0-alpha"
+__version__ = "1.0.0"
 __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
+
+REQUIRED_UPDATE = True
 
 import asyncio
 import datetime
@@ -31,7 +33,8 @@ from discord.ext import commands
 from utils import logger
 from utils.base_utils import (clearscreen, get_bot_token, get_length,
                               hide_cursor, inittable, show_cursor, 
-                              show_figlet, get_application_id, check_for_updates)
+                              show_figlet, get_application_id, check_for_updates,
+                              make_files)
 from utils.colors import BASE_COLOR
 from utils import preimports
 
@@ -66,6 +69,7 @@ except:
     main_logger.info("No Rate Limit.")
 
 check_for_updates(__version__)
+make_files()
 
 async def load_extension(ext):
     bot.current_ext_loading = ext
@@ -135,7 +139,8 @@ class DJ_Cloudy(commands.Bot):
         while not bot.loaded:
             pass
         # clearscreen()
-        self.logger.info(f"Loading extensions done (took {(time.time()-bot.last_restart)*1000:,.0f}ms)")
+        took = f'{(time.time()-bot.last_restart):,.1f}'.replace(",", " ")
+        self.logger.info(f"Loading extensions done (took {took}s)")
 
     async def close(self):
         try:
@@ -213,4 +218,4 @@ hide_cursor()
 bot.loaded = False
 bot.part_loaded = False
 bot.last_restart = round(time.time())
-bot.run(TOKEN, log_handler=None) # we disable discord logging
+bot.run(TOKEN, log_handler=None) # disable discord logging (log_handler=None)

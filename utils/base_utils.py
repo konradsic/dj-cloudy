@@ -182,7 +182,7 @@ def get_lyrics_token():
     return get_config()["lyrics"]["genius-auth-token"]
 
 def get_application_id():
-    return get_config()["bot"]["application_id"]
+    return int(get_config()["bot"]["application_id"])
 
 hex_encoder = {
     0: "0", 1: "1", 2: "2", 3: "3", 4: "4",
@@ -238,3 +238,15 @@ def check_for_updates(current_version):
             exit()
     else:
         logging.info(f"You are using the latest version -- {latest}")
+
+
+def make_files():
+    files = ["data/playlists.json", "data/settings.json"]
+    for file in files:
+        try:
+            with open(file, 'r') as f:
+                pass
+        except:
+            with open(file, 'w') as f:
+                f.write("{}")
+    return True
