@@ -27,7 +27,4 @@ More version info can be found in `CHANGELOG.md`
 This includes: contribution, Code of Conduct, issue and pull request template files <br/>
 All of that can be found [here](https://github.com/konradsic/dj-cloudy/tree/main/.github) (or in `dj-cloudy/.github`)
 
-
-*Please note that the relase date can change, features may not work and other things can unexceptedly crash. Make sure to visit the Issues section*
-
 Website credits: [**@ArgoMk3**](https://github.com/ArgoTeam)
