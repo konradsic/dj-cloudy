@@ -1,6 +1,9 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version v1.0.1 release notes
+In this version I've removed my friend from collaborators because he wasn't doing anything here. This update is really important - it fixes the volume bug. I'm really sorry that I didn't see that before. But hopefully DJ Cloudy is now both awesome and bug free.
+
 ## Version v1.0.0 release notes
 Yes, this update has finally come. We will document as many as we can in the Wiki section to make sure you understand how to use the bot. From now we will be giving a long description of __every__ release.
 ### What we've added
