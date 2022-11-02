@@ -1,0 +1,4 @@
+Options +FollowSymLinks
+RewriteEngine On
+RewriteRule index.html home [R=301,L]
+RewriteRule commands-and-features.html commands-and-features [R=301,L]

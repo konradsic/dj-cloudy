@@ -12,6 +12,17 @@
 
 body {
     background-color: #292929;
+    width: calc(100vw - 10px);
+}
+
+footer {
+    width: 100vw;
+    background-color: #333;
+    background-image: linear-gradient(to bottom right, #ed09f510, #00ddff10);
+    min-height: 200px;
+    display: block;
+    text-align: center;
+    padding: 50px 150px;
 }
 
 /* width */
@@ -33,6 +44,50 @@ body {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #3B3B3B;
+}
+
+.clearLink {
+    text-decoration: none;
+    color: white;
+}
+.clearLink:hover {
+    text-decoration: underline;
+    color: white;
+}
+
+.footer-section {
+    display: inline-block;
+    margin-left: 150px;
+}
+
+.footer-text {
+    font-weight: 700;
+    font-size: 20px;
+    color: #BBB;
+}
+
+.margin-small {
+    margin-bottom: 20px;
+}
+
+.hidden {
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateX(-50vw);
+    transition: all 1s;
+}
+
+@media(prefers-reduced-motion) {
+    .hidden {
+        opacity: 0;
+        transition: none;
+    }
+}
+
+.animated-show {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
 }
 
 .flex-start {
@@ -166,15 +221,6 @@ a {
 .toppest {
     z-index: 100;
 }
-
-.img-big {
-    width: 50%;
-    height: 100%;
-    text-align: left;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
 /* CSS elements # */
 #first-elem-text {
     width: 100%;
@@ -191,10 +237,12 @@ a {
 
 #second-child {
     background-color: #3A3A3A;
-    height: 30vw;
+    height: 50vh;
     flex-direction: column;
-    background-image: url("/img/dj-console.jpeg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-blend-mode: darken;
+}
+
+#third-child {
+    height: 50vh;
+    background-color: #343434;
+    background-image: linear-gradient(to bottom right, #222 30%, #444);
 }

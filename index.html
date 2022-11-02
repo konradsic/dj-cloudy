@@ -9,6 +9,7 @@
 		<link rel="icon" href="img/logo.png">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
 		<link href="assets/style.css" type="text/css" rel="stylesheet" />
+		<script defer src="assets/app.js"></script>	
 	</head>
 	<body>
 		<section class="upper flex-start sticky toppest">
@@ -17,7 +18,7 @@
 			<navbar class="nav-top flex-start toppest">
 				<ul class="navbar-ul toppest">
 					<a href="/"><span>Home</span></a>
-					<a href="/"><span>Commands</span></a>
+					<a href="/"><span>Features</span></a>
 					<a href="/"><span>Support Server</span></a>
 					<a href="/"><span>Other</span></a>
 				</ul>
@@ -25,17 +26,52 @@
 		</section>
 		<section class="container">
 			<div class="container-child flex-mid" id="first-child">
-				<div class="big-text top-2" id="first-elem-text">Your new favourite music bot</div>
+				<div class="big-text top-2 hidden" id="first-elem-text">Your new favourite music bot</div>
 				<br/>
 				<a href="https://dsc.gg/dj-cloudy" class="a-invite-but flex-mid top-2"><button class="gradient-button">Invite Now</button></a>
 			</div>
 			<br>
 			<div class="container-child flex-mid" id="second-child">
-				<div class="big-text top-1" style="font-size: 40px;">Listen to music at the highest level</div>
+				<div class="big-text top-1 hidden" style="font-size: 40px;">Listen to music at the highest level</div>
 				<br>
-				<span style="font-size: 25px; color:#939393;">With many commands such as filters, equalizers and playlist system you can <br>
+				<span style="font-size: 25px; color:#939393;" class="hidden">With many commands such as filters, equalizers and playlist system you can <br>
 					experience the best audio quality and perfect non-laggy playback.</span>
 			</div>
+
+			<div class="container-child flex-mid" id="third-child">
+				<div class="big-text top-1 hidden" style="font-size: 40px;">Search for anything you'd like</div>
+				<br>
+				<span style="font-size: 25px; color:#939393;" class="hidden">No need to know the right URL. 
+					Search for anything on platforms such as YouTube Music, SoundCloud and more. 
+					As a bonus you could select one from up to 10 search results
+				</span>
+			</div>
 		</section>
+
+		<footer>
+			<section class="footer-section" style="text-align: left;">
+				<span style="font-weight:600;font-size:30px; margin-bottom: 15px;">DJ Cloudy</span><br>
+				Coded, designed and built by <a class="clearLink" href="https://github.com/konradsic" target="_blank">@konradsic</a>
+			</section>
+
+			<section class="footer-section">
+				<span class="footer-text">BOT</span><br/>
+				<a href="/" class="clearLink margin-small">Commands &amp Features</a><br/>
+				<a href="/" class="clearLink margin-small">Invite</a><br/>
+			</section>
+
+			<section class="footer-section">
+				<span class="footer-text">OPEN SOURCE</span><br/>
+				<a href="/" class="clearLink margin-small">GitHub repository</a><br/>
+				<a href="/" class="clearLink margin-small">Changelog</a><br/>
+				<a href="/" class="clearLink margin-small">Contribute</a><br/>
+			</section>
+
+			<section class="footer-section">
+				<span class="footer-text">CONTACT</span><br/>
+				<a href="/" class="clearLink margin-small">Support server</a><br/>
+				<a href="/" class="clearLink margin-small">Discord</a><br/>
+			</section>
+		</footer>
 	</body>
 </html>
