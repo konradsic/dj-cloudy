@@ -81,6 +81,17 @@ class VC_Handler(commands.Cog):
                     player.paused_vc = False
         except: pass
 
+        # check if bot has been disconnected:
+        if str(member.id) == str(self.bot.user.id):
+            try:
+                if before.channel is None:
+                    return
+                player = self.node.get_player(member.guild)
+                await player.disconnect()
+                self.logger.info("Destroyed player at guild " + str(member.guild.id))
+            except Exception as e:
+                self.logger.error(f"at on_voice_state_update - {e.__class__.__name__}: {str(e)}")
+        
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node):
         self.logger.info(f"Wavelink node `{node.identifier}` ready")
