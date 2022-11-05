@@ -27,7 +27,7 @@ class VC_Handler(commands.Cog):
         guild = additional_info.get('guild').id
         track = additional_info.get('track').title
         info = additional_info.get('info')
-        self.logger.warn(f"Guild: {guild} data=track:{track},info:{info}")
+        self.logger.debug(f"Track {track} {info} #{guild} (calling player advance)")
         await player.advance()
 
     @commands.Cog.listener()
