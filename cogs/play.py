@@ -89,7 +89,7 @@ class PlayCommand(commands.Cog):
     @app_commands.describe(query="What song to play")
     @app_commands.autocomplete(query=query_complete)
     async def play_command(self, interaction: discord.Interaction, query: str):
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=False)
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")

@@ -248,7 +248,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.describe(name_or_id="Name of the playlist you want to play")
     @app_commands.describe(replace_queue="Wherever to replace queue with the playlist or just to append")
     async def playlist_play(self, interaction: discord.Interaction, name_or_id: str, replace_queue: bool=False):
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await interaction.response.defer(ephemeral=False, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:

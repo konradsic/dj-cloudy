@@ -1,6 +1,9 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version v1.0.2 release notes
+Sad fact: I've released 1.0.0 a few days ago and me and my friends are still encountering many bugs. Hopefully they are fixed before anyone notices ;) This update fixed kind of "forced disconnect" issue that kept player class registered/not disconnected and caused issues becuase it was actually not connected. It's fixed now and lets hope that it'll be the last bug here. *Marked as required update*
+
 ## Version v1.0.1 release notes
 In this version I've removed my friend from collaborators because he wasn't doing anything here. This update is really important - it fixes the volume bug. I'm really sorry that I didn't see that before. But hopefully DJ Cloudy is now both awesome and bug free.
 
