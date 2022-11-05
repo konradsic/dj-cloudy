@@ -36,7 +36,7 @@ from utils.base_utils import (clearscreen, get_bot_token, get_length,
                               show_figlet, get_application_id, check_for_updates,
                               make_files)
 from utils.colors import BASE_COLOR
-from utils import preimports
+from utils import preimports as _ # just import, not used
 
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
