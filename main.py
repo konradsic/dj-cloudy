@@ -5,7 +5,7 @@ A Discord bot that adds music functionality to your server.
 :copyright: 2022-present @konradsic, @ArgoMk3
 :license: MIT License, see license files for more details.
 """
-## TODO: Fix bugs and test everything and more
+## TODO: Make some feature proposals and implement them. Repeat.
 #######################################################################
 
 __version__ = "1.0.2"
