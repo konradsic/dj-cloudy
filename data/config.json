@@ -5,5 +5,11 @@
     },
     "lyrics": {
         "genius-auth-token": "your genius api auth token here"
+    },
+    "extensions": {
+        "spotify": {
+            "client_id": "your spotify app ID here",
+            "client_secret": "your spotify app access secret here"
+        }
     }
 }

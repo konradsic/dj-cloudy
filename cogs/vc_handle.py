@@ -6,9 +6,10 @@ from discord import app_commands
 from discord.ext import commands
 from music.core import MusicPlayer
 from utils import help_utils, logger
-from utils.base_utils import register_node
+from utils.base_utils import register_node, get_config
 from utils.colors import BASE_COLOR
 from utils.run import running_nodes
+from wavelink.ext import spotify
 
 logging = logger.Logger().get("cogs.vc_handle")
 
@@ -22,6 +23,13 @@ class VC_Handler(commands.Cog):
         except:
             pass # preinitialized cog -- commands.Bot does not a loop attr 
         self.node = None
+        self._load_spotify_config()
+
+    def _load_spotify_config(self) -> None:
+        config = get_config()
+        spotify_conf = config["extensions"]["spotify"]
+        client, token = spotify_conf["client_id"], spotify_conf["client_secret"]
+        self.spotify_config = {"client": client, "token": token}
 
     async def on_player_track_error(self, player, *, additional_info: dict):
         guild = additional_info.get('guild').id
@@ -110,9 +118,13 @@ class VC_Handler(commands.Cog):
                 "password": "dj-cloudy@Lava1Host",
             }
         }
-
+        spotify_config = self.spotify_config
         for node in nodes.values():
-            await wavelink.NodePool.create_node(bot=self.bot, **node, https=True)
+            try:
+                await wavelink.NodePool.create_node(bot=self.bot, **node, spotify_client=spotify.SpotifyClient(client_id=spotify_config["client"], client_secret=spotify_config["token"]), https=True)
+            except:
+                self.logger.warn(f"Node {node} cannot authorise with spotify, it will not handle spotify requests")
+                await wavelink.NodePool.create_node(bot=self.bot, **node, https=True)
 
     @app_commands.command(name="connect",description="Connects to your voice channel")
     async def connect_command(self, interaction: discord.Interaction):

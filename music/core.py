@@ -11,7 +11,7 @@ from utils.buttons import PlayButtonsMenu
 from utils.colors import BASE_COLOR
 from utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
                           NoTracksFound, NoVoiceChannel, QueueIsEmpty)
-from utils.base_utils import convert_to_double
+from utils.base_utils import convert_to_double, get_length
 from music.queue import Queue
 from utils.base_utils import RepeatMode
 
@@ -42,6 +42,13 @@ class MusicPlayer(wavelink.Player):
             raise NoTracksFound
 
         self.queue.add(*tracks)
+        if len(tracks) >= 2:
+            total_duration = get_length(sum([t.duration for t in tracks]))
+            embed = discord.Embed(title="<:play_button:1028004869019279391> Queue extended", description=f"You extended th queue by **{len(tracks)} tracks** of duration `{total_duration}`")
+            embed.add_field(name="Requested by", value=interaction.user.mention)
+            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            await interaction.followup.send(embed=embed)
+            return
         track = tracks[0]
         if not self.is_playing():
             embed = discord.Embed(

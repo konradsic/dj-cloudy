@@ -4,6 +4,7 @@ from cogs.play import PlayCommand
 from cogs.playlist_adapter import PlaylistGroupCog
 from cogs.vc_handle import VC_Handler
 from cogs.seeking import SeekAndRestartCog
+from cogs.spotify import SpotifyExtensionCog
 
 from discord.ext.commands import Bot
 
@@ -14,5 +15,6 @@ preinitialized_cogs = (
     PlayCommand(Bot),
     PlaylistGroupCog(Bot),
     VC_Handler(Bot),
-    SeekAndRestartCog(Bot)
+    SeekAndRestartCog(Bot),
+    SpotifyExtensionCog(Bot)
 )
