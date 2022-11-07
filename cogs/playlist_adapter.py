@@ -13,6 +13,7 @@ from utils.colors import BASE_COLOR
 from utils.errors import (NoPlayerFound, PlaylistCreationError, PlaylistGetError,
                           PlaylistRemoveError)
 from utils.regexes import URL_REGEX
+from utils.buttons import EmbedPaginator
 from utils.run import running_nodes
 from utils.base_utils import get_length
 
@@ -74,19 +75,40 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             if play['name'].lower() == name_or_id.lower() or play['id'].lower() == name_or_id.lower():
                 found = play
                 break
+        
         if not found:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No playlist was found",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         tracks = [(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in found['tracks']]
-        embed = discord.Embed(description="Those are the tracks in user's playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
-        embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text="Made by Konradoo#6938")
-        embed.set_author(name=f"{user.name}'s playlist: {found['name']}#{found['id']}", icon_url=user.display_avatar.url)
-        embed.add_field(name="Tracks", value=''.join(f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n" for i in range(len(tracks))), inline=False)
-        embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        fields = [
+            f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n"
+            for i in range(len(tracks))
+        ]
+        num_fields = len(fields)//6
+        if len(fields)%num_fields != 0:
+            num_fields += 1
+        per_page = len(fields)//(num_fields-1)
+        res_fields = []
+        for _ in range(num_fields):
+            res_fields.append([])
+            for _ in range(per_page):
+                try:
+                    res_fields[-1].append(fields[0])
+                    del fields[0]
+                except:
+                    break
+        embeds = []
+        for i, field in enumerate(res_fields, start=1):
+            embed = discord.Embed(description="Those are the tracks in user's playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+            embed.set_footer(text="Made by Konradoo#6938")
+            embed.set_author(name=f"{user.name}'s playlist: {found['name']}#{found['id']}", icon_url=user.display_avatar.url)
+            embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
+            embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+            embeds.append(embed)
+        await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user), ephemeral=True)
         return True
 
     @app_commands.command(name="view", description="View your or user's playlists")
