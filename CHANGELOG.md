@@ -1,6 +1,10 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version v1.1.0
+This update fixes bugs from 1.1.0-alpha update. Basically it adds Spotify extensions to the bot. Read about v1.1.0-alpha to learn more.
+
+
 ## Version v1.1.0-alpha
 Version 1.1.0 brings spotify functionality - now you can play Spotify tracks and playlists. Sad part - loading large playlists is slow (about 15-60 seconds). I will try to make it faster in the future but for now it will stay. **Developers** note that you need a spotify application to do that. We also added a queue paginator in case of you appending milions of tracks to the queue
 
