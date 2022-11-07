@@ -126,7 +126,7 @@ class EmbedPaginator(View):
             self.children[0].disabled = False
             self.children[-1].disabled = True
         else:
-            for i in self.children: i.disabled = True
+            for i in self.children: i.disabled = False
 
     async def get_page(self, page):
         return [page]

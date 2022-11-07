@@ -44,10 +44,12 @@ class MusicPlayer(wavelink.Player):
         self.queue.add(*tracks)
         if len(tracks) >= 2:
             total_duration = get_length(sum([t.duration for t in tracks]))
-            embed = discord.Embed(title="<:play_button:1028004869019279391> Queue extended", description=f"You extended th queue by **{len(tracks)} tracks** of duration `{total_duration}`")
+            embed = discord.Embed(title="<:play_button:1028004869019279391> Queue extended", description=f"You extended the queue by **{len(tracks)} tracks** of duration `{total_duration}`", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             await interaction.followup.send(embed=embed)
+            if not self.is_playing():
+                await self.start_playback(interaction)
             return
         track = tracks[0]
         if not self.is_playing():

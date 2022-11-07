@@ -30,10 +30,10 @@ def show_figlet(text, color1="#E50AF5", color2="#2CFBF7"):
     colorama.init(autoreset=True)
     return font
 
-def inittable(bot_version, authors, dpy_version, wavelink_version, copy, font_info):
+def inittable(bot_version, authors, python_version, dpy_version, wavelink_version, copy, font_info):
     fontlen = len(font_info.splitlines()[2])
     print("=*"*(fontlen//2))
-    contents = [("Version", bot_version),("Authors", authors),("discord.py", dpy_version),("Wavelink", wavelink_version), ("Copyright", copy)]
+    contents = [("Version", bot_version),("Authors", authors),("Python", python_version),("discord.py", dpy_version),("Wavelink", wavelink_version), ("Copyright", copy)]
     longest_content = len(max(contents, key=lambda con: len(con[0]))[0])
     padding = (fontlen//2)-longest_content
     for content in contents:

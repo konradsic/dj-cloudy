@@ -8,12 +8,12 @@ A Discord bot that adds music functionality to your server.
 ## TODO: Make some feature proposals and implement them. Repeat.
 #######################################################################
 
-__version__ = "1.0.2"
+__version__ = "1.1.0"
 __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
 
-REQUIRED_UPDATE = True
+REQUIRED_UPDATE = False
 
 import asyncio
 import datetime
@@ -37,6 +37,7 @@ from utils.base_utils import (clearscreen, get_bot_token, get_length,
                               make_files)
 from utils.colors import BASE_COLOR
 from utils import preimports as _ # just import, not used
+import platform
 
 logging.basicConfig(level=logging.ERROR)
 log = logging.getLogger('werkzeug')
@@ -44,7 +45,7 @@ log.setLevel(logging.ERROR)
 
 clearscreen()
 font = show_figlet("DJ Cloudy")
-inittable(__version__, __author__, discord.__version__, wavelink.__version__, __copyright__, font)
+inittable(__version__, __author__, platform.python_version(), discord.__version__, wavelink.__version__, __copyright__, font)
 
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"

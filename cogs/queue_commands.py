@@ -10,12 +10,15 @@ from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.colors import BASE_COLOR
 from utils.run import running_nodes
-from utils.buttons import PlayButtonsMenu
+from utils.buttons import PlayButtonsMenu, EmbedPaginator
 from utils.base_utils import convert_to_double, get_length
+from utils import logger
 
+@logger.LoggerApplication
 class QueueCommands(commands.GroupCog, name="queue"):
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot: commands.Bot, logger) -> None:
         self.bot = bot
+        self.logger = logger
         super().__init__()
 
     @app_commands.command(name="view", description="View the queue in  a nice embed")
@@ -30,28 +33,64 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+        if len(player.queue) <= 6:
+            history = player.queue.track_history
+            upcoming = player.queue.upcoming_tracks
+            current = player.queue.current_track
+            length = sum([t.duration for t in player.queue.get_tracks()])
+            length = get_length(length)
 
+            embed = discord.Embed(title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
+            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+            if history:
+                history_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(history, 1)]
+                history_field = "".join(e + "\n" for e in history_field)
+                embed.add_field(name="Before tracks", value=history_field, inline=False)
+            if current:
+                embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri}) [{get_length(current.duration)}]")
+            if upcoming:
+                upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
+                upcoming_field = "".join(e + "\n" for e in upcoming_field)
+                embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
+            embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`", inline=False)
+            await interaction.response.send_message(embed=embed, view=PlayButtonsMenu(user=interaction.user))
+            return
+        
         history = player.queue.track_history
         upcoming = player.queue.upcoming_tracks
         current = player.queue.current_track
         length = sum([t.duration for t in player.queue.get_tracks()])
         length = get_length(length)
-
-        embed = discord.Embed(title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
-        embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
-        embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        if history:
-            history_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(history, 1)]
-            history_field = "".join(e + "\n" for e in history_field)
-            embed.add_field(name="Before tracks", value=history_field, inline=False)
-        if current:
-            embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri}) [{get_length(current.duration)}]")
-        if upcoming:
-            upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
-            upcoming_field = "".join(e + "\n" for e in upcoming_field)
-            embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
-        embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`", inline=False)
-        await interaction.response.send_message(embed=embed, view=PlayButtonsMenu(user=interaction.user))
+        fields = [
+            f"**{i}.** [{t.title}]({t.uri}) `[{get_length(t.duration)}]`{' **now playing**' if t == current else ''}\n"
+            for i,t in enumerate(history + [current] + upcoming, start=1)
+        ]
+        num_fields = len(fields)//6
+        if len(fields)%num_fields != 0:
+            num_fields += 1
+        per_page = len(fields)//(num_fields-1)
+        res_fields = []
+        for _ in range(num_fields):
+            res_fields.append([])
+            for _ in range(per_page):
+                try:
+                    res_fields[-1].append(fields[0])
+                    del fields[0]
+                except:
+                    break
+        embeds = []
+        for i, field in enumerate(res_fields, start=1):
+            embeds.append(discord.Embed(
+                title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", 
+                timestamp=datetime.datetime.utcnow(), 
+                color=BASE_COLOR
+            ))
+            embeds[-1].set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
+            embeds[-1].add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
+            embeds[-1].add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`", inline=False)
+        await interaction.response.send_message(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user))
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction):

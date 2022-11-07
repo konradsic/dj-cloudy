@@ -1,6 +1,9 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version v1.1.0-alpha
+Version 1.1.0 brings spotify functionality - now you can play Spotify tracks and playlists. Sad part - loading large playlists is slow (about 15-60 seconds). I will try to make it faster in the future but for now it will stay. **Developers** note that you need a spotify application to do that. We also added a queue paginator in case of you appending milions of tracks to the queue
+
 ## Version v1.0.2 release notes
 Sad fact: I've released 1.0.0 a few days ago and me and my friends are still encountering many bugs. Hopefully they are fixed before anyone notices ;) This update fixed kind of "forced disconnect" issue that kept player class registered/not disconnected and caused issues becuase it was actually not connected. It's fixed now and lets hope that it'll be the last bug here. *Marked as required update*
 
