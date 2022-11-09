@@ -199,19 +199,19 @@ Users are lazy. They __do not have time__ to type commands such as `skip`, `paus
 ## #12 - Lyrics
 
 
-## #12 - Lavalink server info, small utility commands
+## #13 - Lavalink server info, small utility commands
 
 
-## #13 - Playlist manager, playlist system
+## #14 - Playlist manager, playlist system
 
 
-## #14 - Spotify extension
+## #15 - Spotify extension
 
 
-## #15 - Configuration command, settings for guilds and users, etc.
+## #16 - Configuration command, settings for guilds and users, etc.
 
 
-## #16 - Plugins
+## #17 - Plugins
 
 ###### Please contribute to this repository and/or file if you have any ideas, You can also submit them via issues or pull requests. It should be added here.
 
