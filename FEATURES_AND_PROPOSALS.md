@@ -185,13 +185,81 @@ Users are lazy. They __do not have time__ to type commands such as `skip`, `paus
 
 
 ## #8 - Repeating tracks
+Repeating is one of the essential functions of the bot. It allows users to select between three types[^3] of repeat modes to change what is going to happen after the track ends.
 
+**Changing the repeat mode will affect `async MusicPlayer.advance`, `async event on_track_end`, `async event on_track_error` and `async event on_track_stuck`**, 
+here is how it will work:
+* Class to represent repeat mode 
+```py
+class RepeatMode:
+	REPEAT_NONE = 0
+	REPEAT_CURRENT_TRACK = 1
+	REPEAT_QUEUE = 2
+```
+* A class that handles repeating
+```py
+class Repeat:
+	def __init__(self):
+		self.mode = RepeatMode.REPEAT_NONE
+# functions/properties for additional functionality
+	@propetty
+	def string_mode(self): ...
+
+	def set_repeat_mode(self, mode): ... 
+```
+* Applying it to the queue
+```py
+# music/queue.py
+class Queue:
+	def __init__(...):
+		...
+		self.repeat = Repeat()
+		# all functionality of repeating is handled by Repeat class
+```
+* Changing events and player advance: checking for repeat mode and offsetting player's position. Then calling the actual advanced and everything works perfectly
+
+*Implemented in 0.5.0, fixed in a few further updates*
 
 ## #9 - Accessible bot configuration
+#### Why? Configuration... Do I need it? 
+The answer is simple - yes. Config files are essential if the bot is open source and many people are using it. Here it is explained how it works.
+
+**Basic config file structure**
+```json
+{
+	"bot": {
+		"token": "ababababa.xyz.hello",
+		"application_id": 00000000000000
+	},
+	"extensions": {
+		"spotify": {
+			"app_id": "aeae272727", 
+			"token": "secret pssst"
+		}
+	},
+	"logger": {
+		"level": "INFO", 
+		"logs_file": "./somedir/somefile.log"
+	}
+}
+```
+As you can see It's easy to read and almost everyone knows how to edit it. It is really simple to configure it and add new fields.
+
+*Implemented in 1.0.0 without logger param*
 
 
 ## #10 - EQ and Filters
+Fun part - messing with music :) Equalizers (EQs) and filters can make you mess with their functionality for days! Especially with advanced EQ allowing you to configure your own presets.
 
+**What it adds and how it works**
+* Filters - Roations, Low Pass, Channel Mix, etc. [^4]
+* EQ - choose from flat, metal, piano and boost
+* Advanced EQ: 15 band equalizer
+* Reset EQ and filter commands
+
+[**Learn more**](https://wavelink.readthedocs.io/en/latest/wavelink.html#wavelink.Filter)
+
+*Added in 0.8.0*
 
 ## #11 - Track restarting and seeking
 
@@ -219,3 +287,7 @@ Users are lazy. They __do not have time__ to type commands such as `skip`, `paus
 [^1]: Lavalink repo: https://github.com/freyacodes/Lavalink
 
 [^2]: Embed Paginator - A tool that you can use to view multiple embeds with arrows to navigate between them. Code reference: [**here**](https://github.com/konradsic/dj-cloudy/blob/main/utils/buttons.py#L112)
+
+[^3]: Three types of repeating: NONE, CUREENT_TRACK, QUEUE. None means no repeat, current track - repeat only current track and queue - repeat whole queue, all tracks in it.
+
+[^4]: All filters available using `/filters choose` command (implemented)
