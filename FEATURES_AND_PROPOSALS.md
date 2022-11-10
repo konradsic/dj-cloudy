@@ -229,7 +229,7 @@ The answer is simple - yes. Config files are essential if the bot is open source
 {
 	"bot": {
 		"token": "ababababa.xyz.hello",
-		"application_id": 00000000000000
+		"application_id": 1234567890
 	},
 	"extensions": {
 		"spotify": {
