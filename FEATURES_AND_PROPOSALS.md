@@ -262,7 +262,38 @@ Fun part - messing with music :) Equalizers (EQs) and filters can make you mess 
 *Added in 0.8.0*
 
 ## #11 - Track restarting and seeking
+### Idea
+Don't want to listen to this specific moment in the track? Use seeking or restart the track completly.
 
+**What "seeking" and "restarting" means:**
+* Seeking means setting the player's position to given time (like `1:35`, `0:23` or `2:58:45`) and then playing the track from that moment
+* Restarting - Literally seeking to the beginning of current track. Like seek to `0:00`
+
+### Commmands
+* `/seek` - (no arguments) seek forward by 15s (only if no arguments provided). *Also, add a new setting for users: `defaultSeekAmount` to specify how much to seek (in seconds) and `seekForward` - when user uses this command with no parameters should the player seek forward or backwards.*
+* `/seek [position:time]` - (passed optional position parameter) Seeks to given position in format (`time`) **[h:]m:s** [^5]
+* `/restart` - No arguments at all to this command, equal to `/seek 0:00` where `0:00` is the "position" argument/parameter.
+
+### Implementation
+Use `async player.seek` [**docs**](https://wavelink.readthedocs.io/en/latest/wavelink.html#wavelink.Player.seek)
+
+Examples of seeking using things explained above
+```py
+# seek command
+# lets say that user passed a position argument
+# we also need to decode the position to seconds first
+
+player = ... # get the player
+await player.seek(position)
+```
+
+Track restarting
+```py
+player = ... # you know...
+await player.seek(0) # yay restart the track
+```
+
+*Implemented in 0.7.0, made position param in seeking not required in 0.7.1*
 
 ## #12 - Lyrics
 
@@ -291,3 +322,5 @@ Fun part - messing with music :) Equalizers (EQs) and filters can make you mess 
 [^3]: Three types of repeating: NONE, CUREENT_TRACK, QUEUE. None means no repeat, current track - repeat only current track and queue - repeat whole queue, all tracks in it.
 
 [^4]: All filters available using `/filters choose` command (implemented)
+
+[^5]: Format in regex: text in `[]` means it is optional, `0-9`,`a-z` etc. specifies a numerical/letter range e.g. 0-9 means any number from 0 to 9.
