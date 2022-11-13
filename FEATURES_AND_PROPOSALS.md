@@ -295,6 +295,14 @@ await player.seek(0) # yay restart the track
 
 *Implemented in 0.7.0, made position param in seeking not required in 0.7.1*
 
+##### Fun fact
+During testing a "bug" was discovered: 
+you can enter a negative position and go over 60s and 60m limit and player will seek sucessfully **only** when after all it calculates a positive position. 
+What do I mean? 
+You can literally type `/seek -2:130`. 
+This will convert to *-2\*60+1\*130 = -120+130 = 10* so it will seek to position `0:10`. 
+Funny, right? 
+
 ## #12 - Lyrics
 
 
