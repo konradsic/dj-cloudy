@@ -21,7 +21,7 @@ Steps to reproduce the behavior:
 **Expected behavior**
 What you expected for the bot to send.
 
-**Do you use latest features / readed last change log and know what changes**
+**Do you use latest features / readed last change log and know what changed**
 Make sure that you understood latest updates and input data you entered is compatible with latest standards
 
 **Additional context**
