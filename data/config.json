@@ -11,5 +11,9 @@
             "client_id": "your spotify app ID here",
             "client_secret": "your spotify app access secret here"
         }
+    },
+    "logger": {
+        "level": "DEBUG",
+        "save_file": "/bot-logs/bot.log"
     }
 }
