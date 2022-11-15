@@ -34,7 +34,7 @@ from utils import logger
 from utils.base_utils import (clearscreen, get_bot_token, get_length,
                               hide_cursor, inittable, show_cursor, 
                               show_figlet, get_application_id, check_for_updates,
-                              make_files)
+                              make_files, load_logger_config)
 from utils.colors import BASE_COLOR
 from utils import preimports as _ # just import, not used
 import platform
@@ -61,6 +61,12 @@ TOKEN = get_bot_token()
 app_id = get_application_id()
 colorama.init(autoreset=True)
 main_logger.info("Initializing...")
+
+config_logs = load_logger_config()
+logger.config["logging-path"] = config_logs[1]
+logger.set_level(config_logs[0])
+logger.preinit_logs()
+main_logger.info("Loaded logger config successfully, changes were applied")
 
 # checking up on the rate limits
 r = requests.head(url="https://discord.com/api/v1")
