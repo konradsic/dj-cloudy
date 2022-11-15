@@ -225,7 +225,10 @@ def is_update_required():
     req = requests.get("https://raw.githubusercontent.com/konradsic/dj-cloudy/main/main.py").text.split("\n")
     for line in req:
         if line.startswith("REQUIRED_UPDATE"):
-            return bool(line.split("=")[-1].strip(" \""))
+            required = line.split("=")[-1].strip(" \"")
+            if required == "True":
+                return True
+            return False
     return False
 
 def check_for_updates(current_version):
