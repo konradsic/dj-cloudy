@@ -304,7 +304,23 @@ This will convert to *-2\*60+1\*130 = -120+130 = 10* so it will seek to position
 Funny, right? 
 
 ## #12 - Lyrics
+#### The problem
+Well - You can play songs, but you cannot read the lyrics for now... 
 
+Let's say that you are making a karaoke channel where people can sing what is playing right now. But they don't know the lyrics. 
+So they type `/lyrics` but nothing shows. They are a gry at the owner that he made such a bad VC without this one command and leave the server.
+Actually this is our (developers) fault...
+
+#### Solution
+Genius provides a lyrics API and there is even a Python API wrapper for it.
+The `lyricsgenius` python module is easy to use and it provides essential features. 
+We can simply call some functions and paginate [^2] the lyrics so people can view them **without** errors about embed characters limit.
+
+The command should also support getting lyrics for currently playing song.
+
+Lyrics genius token and app id should be fully cinfigurable in data/config.json
+
+*Added in 0.6.0 on October 17, 2022*
 
 ## #13 - Lavalink server info, small utility commands
 
