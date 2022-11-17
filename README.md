@@ -8,7 +8,7 @@ With many many commands you can make your server more engaging and open to peopl
  **Featured commands:**
 * `/play <query>` plays music in your voice channel
 * `/help` get embedded help in one place at any time
-* `/nowplaying` get currently playing track info in a nice embed
+* `/filters choose` change how the music plays using specific effects. 
 
 ## 🔗 Links
 * [Invite me by clicking here](https://dsc.gg/dj-cloudy)
@@ -26,3 +26,5 @@ More version info can be found in `CHANGELOG.md`
 ## 💻 Github related info
 This includes: contribution, Code of Conduct, issue and pull request template files <br/>
 All of that can be found [here](https://github.com/konradsic/dj-cloudy/tree/main/.github) (or in `dj-cloudy/.github`)
+
+⚠️ Warning: We are not responsible for any ear injuries caused by changing volume, applying filters and equalizers. Stay safe!
