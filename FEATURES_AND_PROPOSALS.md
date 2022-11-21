@@ -323,6 +323,18 @@ Lyrics genius token and app id should be fully cinfigurable in data/config.json
 *Added in 0.6.0 on October 17, 2022*
 
 ## #13 - Lavalink server info, small utility commands
+This feature is *optional*, it does not add anything really to the bot, no new functionality.
+
+#### Lavalink server info
+This command:
+- Shows lavalink server informations: port, IP and other things
+- Shows connected players and nodes
+- Uses a simple authentication system so not all users can see server name
+
+#### Small utility commands
+Commands such as:
+- `/ping` : Show latency and uptime of the bot
+- More ideas coming soon! 
 
 
 ## #14 - Playlist manager, playlist system
