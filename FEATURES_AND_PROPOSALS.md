@@ -379,6 +379,21 @@ Playing playlists is similiar to the play command, it just appends multiple trac
 *Added in 0.9.0, improved in later versions (without the section above)*
 
 ## #15 - Spotify extension
+The problem about this bot __was__ that you can only play music from YT Music, SoundCloud but not Spotify. Not for long - this update will add spotify tracks and playlists functionality.
+
+##### Idea and implementation
+Use wavelink's spotify EXT to handle spotify API calls. Make a command called `/spotify <query>` where query is a spotify link to a playlist or track.
+
+**Implementation: [(Spotify extension - Wavelink)](https://wavelink.readthedocs.io/en/latest/exts/spotify.html)**
+```py
+# search for tracks:
+track = await spotify.SpotifyTrack.search(query="SPOTIFY_TRACK_URL_OR_ID", return_first=True) # get first, not playlist
+
+# search for playlist:
+playlist = await spotify.SpotifyTrack.search(query="SPOTIFY_ALBUM_URL_OR_ID")
+```
+
+Idea is really simple, implementation is also easy. The problem is that wavelink returns a track of type `YouTubeTrack` so it is a little bit messed up.
 
 
 ## #16 - Configuration command, settings for guilds and users, etc.
