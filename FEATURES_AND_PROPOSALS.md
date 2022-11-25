@@ -338,7 +338,45 @@ Commands such as:
 
 
 ## #14 - Playlist manager, playlist system
+You can already play music, add multiple tracks to the queue, **but** you still can't save the queue or create a list of favourite the tracks
 
+Good news, we came with an idea for that.
+
+#### Playlist system: idea
+Playlist system consists of:
+* Viewing your/others playlists
+* Viewing contents of playlists
+* Adding song to (your) playlists
+* Playing playlists
+* Starred playlist for additional functionality and ease of access
+* Context menus:
+	* View user's playlist (right-click on user -> Apps -> View playlists)
+	* View user's starred playlists (right-click on user -> Apps -> View starred playlist)
+	* Copy user's starred playlist to yours (right-click on user -> Apps -> Copy starred playlist)
+
+#### The code part
+Create a class `PlaylistHandler` (name may vary, it does not affect anything) - it will have all essential functions to create app commands and handle playlists.
+`_load` function is private and used on init. It loads saved user, copies parameters and playlists to this class. 
+
+Searching for a playlist:
+```py
+# lets say we are in a function called "get_playlist(self, name_or_id)" in class "PlaylistHandler"
+
+for playlist in self.data["playlists"]:
+	# case insensitive -> using .lower()
+	if playlist["name"].lower() == name_or_id.lower() or playlist["id"].lower() == name_or_id.lower():
+		return playlist
+```
+
+Playing playlists is similiar to the play command, it just appends multiple tracks
+
+#### Ideas and proposals for future playlist system expansions
+* Play only **one** track from playlist
+* Replace track [i] with other track
+* Remove element [i] from playlist
+* More coming soon!
+
+*Added in 0.9.0, improved in later versions (without the section above)*
 
 ## #15 - Spotify extension
 
