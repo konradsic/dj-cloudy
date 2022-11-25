@@ -395,6 +395,7 @@ playlist = await spotify.SpotifyTrack.search(query="SPOTIFY_ALBUM_URL_OR_ID")
 
 Idea is really simple, implementation is also easy. The problem is that wavelink returns a track of type `YouTubeTrack` so it is a little bit messed up.
 
+*Added in 1.1.0*
 
 ## #16 - Configuration command, settings for guilds and users, etc.
 
