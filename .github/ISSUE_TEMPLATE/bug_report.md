@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 # Bug report
-**Describe the bug**
+**Bug description**
 A clear and concise description of what the bug is eg. "After several tries the `/play` command is not working. I think it's a bug"
 
 **Steps to Reproduce**
