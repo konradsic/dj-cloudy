@@ -9,14 +9,14 @@ assignees: ''
 ---
 
 # Help wanted
-**What is the problem? What you don't understand?**
+**What is the problem?**
 Clearly describe the feature that needs to be explained to you eg. "I really don't understand the `/queue shuffle` command. What it does?"
 
 **Steps to get into the place that requires explanation**
-How did you get to this moment?
+How to get to this moment?
 * I used the command `/...`
 * I disconnected from voice and...
 * I...
 
-**Add screenshots, links etc.**
+**Screenshots, links etc.**
 Anything that can help people explain it to you
