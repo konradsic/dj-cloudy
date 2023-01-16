@@ -8,7 +8,7 @@ A Discord bot that adds music functionality to your server.
 ## TODO: Make some feature proposals and implement them. Repeat.
 #######################################################################
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
