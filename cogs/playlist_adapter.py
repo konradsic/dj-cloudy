@@ -218,18 +218,29 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             limits = 500
         elif handler.data['credentials'] == 2:
             limits = 10**15 # "infinity"
-        if len(handler.playlists) >= limits:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed, ephemeral=True)
+        if not starred:
+            if len(handler.playlists[found]) >= limits:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins",color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+
+            try:
+                handler.add_to_playlist(name_or_id, song)
+            except:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to add the song. Please try again",color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+            embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**song**]({song}) to the playlist",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed)
             return
-        try:
-            handler.add_to_playlist(name_or_id, song)
-        except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to add the song. Please try again",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed, ephemeral=True)
+        added = handler.add_to_starred(song)
+        if not added:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> This song was already in the playlist so it has been removed.",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed)
             return
-        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**song**]({song}) to the playlist",color=BASE_COLOR)
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**song**]({song}) to the starred playlist",color=BASE_COLOR)
         await interaction.followup.send(embed=embed)
+        return
 
     @app_commands.command(name="remove-song", description="Remove a song from your playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove the song from")
@@ -307,6 +318,24 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             await player.add_tracks(interaction, tracks)
             return
 
+    @app_commands.command(name="rename", description="Rename playlist to given name")
+    @app_commands.describe(name_or_id="Name or ID of playlist you want to rename")
+    @app_commands.describe(new_name="New name of the playlist you want to rename")
+    async def rename_playlist_command(self, interaction: discord.Interaction, name_or_id: str, new_name: str):
+        await interaction.response.defer(ephemeral=False, thinking=True)
+        handler = playlist.PlaylistHandler(key=str(interaction.user.id))
+
+        try:
+            res = handler.rename_playlist(name_or_id, new_name)
+            embed = discord.Embed(description=f"<:tick:1028004866662084659> Playlist renamed from `{name_or_id}` to `{new_name}`",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed)
+            return
+        except Exception as e:
+            self.logger.error(f"Renaming playlist error -- {e.__class__.__name__}: {str(e)}")
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Unhandled exception occured while trying to rename playlist. Make sure that the name/id is correct.",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+
 async def setup(bot):
     help_utils.register_command("playlists view", "View your or user's playlists", "Music: Playlist management", [("user", "View this user's playlists", False)])
     help_utils.register_command("playlists create", "Create a new playlist", "Music: Playlist management", [("name", "Name of the playlist", True),("copy_queue","Wherever to copy the queue to playlist or not",False)])
@@ -319,4 +348,6 @@ async def setup(bot):
         [("name_or_id", "Name of the playlist you want to play", True), ("replace_queue", "Wherever to replace the queue with the playlist or just append", False)])
     help_utils.register_command("playlists remove-playlist", "Remove a playlist", "Music: Playlist management", [("name_or_id", "Name of the playlist you want to remove", True)])
     help_utils.register_command("playlists view-playlist", "View playlist's content (for your playlist or anybody else)", "Music: Playlist management", [("name_or_id", "Name of the playlist", True),("user","(optional) User to get the playlist from",False)])
+    help_utils.register_command("playlist rename", "Rename playlist to given name", "Music: Playlist management", 
+        [("name_or_id", "Name or ID of playlist you want to rename", True), ("new_name","New name of the playlist you want to rename",True)])
     await bot.add_cog(PlaylistGroupCog(bot), guilds=bot.guilds)

@@ -13,7 +13,8 @@ loggers = [
     logger.Logger().get("utils.errors.NoPlaylistFound"),
     logger.Logger().get("utils.errors.PlaylistCreationError"),
     logger.Logger().get("utils.errors.PlaylistGetError"),
-    logger.Logger().get("utils.errors.PlaylistRemoveError")
+    logger.Logger().get("utils.errors.PlaylistRemoveError"),
+    logger.Logger().get("utils.errors.NoPlaylistFound")
 ]
 
 class UnhandledBotException(Exception):
@@ -63,3 +64,7 @@ class PlaylistGetError(UnhandledBotException):
 class PlaylistRemoveError(UnhandledBotException): 
     def __init__(self, string=None, *, logger: logger.Logger=loggers[9]):
         super().__init__(logger=logger, string = string or "Failed to delete playlist/song of playlist {null}")
+
+class NoPlaylistFound(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[10]):
+        super().__init__(logger=logger, string = string or "Playlist not found")

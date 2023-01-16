@@ -1,6 +1,9 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version v1.1.2
+This version brings some QoL (Quality of Life) functionality. First of all - playlist renaming system has been added. If you're bored of your old playlist name just rename it. To do so use the `/playlist rename command`. Second change is now the "star" button in the song controls toggles between adding and removing song from starred playlist. For example: you click first time - checking... no, this song is not in the starred playlist, so the bot adds it. Second click - checking... yes, song is in the playlist, bot removes it.
+
 ## Version v1.1.1
 Wow! Three "ones" in this update. This update added more configurable logger so you can create an entry (in your config file) called `logger` and add `level` 
 so you can change what informations are visible in the console (everything is written to log save file, saving data ignores this parameter). 

@@ -4,7 +4,8 @@ from utils.base_utils import getid, AUTHENTICATED_USERS
 from utils.errors import (
     PlaylistGetError,
     PlaylistCreationError,
-    PlaylistRemoveError
+    PlaylistRemoveError,
+    NoPlaylistFound
 )
 
 class PlaylistHandler:
@@ -89,6 +90,20 @@ class PlaylistHandler:
             raise PlaylistGetError(f"Failed to get playlist #{name_or_id}")
 
     def add_to_starred(self, song_url: str):
+        # it toggles :)
+        if song_url in self.data["starred-playlist"]:
+            # if it is - toggle remove
+            # find index of this song
+            for i,name in enumerate(self.data["starred-playlist"]):
+                if name == song_url:
+                    del self.data["starred-playlist"][i]
+                    with open("data/playlists.json", mode="r") as f:
+                        content = json.load(f)
+                    content[self.key] = self.data
+                    with open("data/playlists.json", mode="w") as f:
+                        json.dump(content, f)
+                    break
+            return False
         self.data["starred-playlist"].append(song_url)
         with open("data/playlists.json", mode="r") as f:
             content = json.load(f)
@@ -138,6 +153,22 @@ class PlaylistHandler:
             raise PlaylistRemoveError(f"Failed to remove playlist #{playlist_name_or_id}")
 
         raise PlaylistRemoveError(f"No data found for playlist {playlist_name_or_id}")
+
+    def rename_playlist(self, playlist_name_or_id: str, new_name: str):
+        # rename <playlist_name_or_id> to <new_name>
+        # find the playlist:
+        lower_name_id = playlist_name_or_id.lower()
+        for i,playlist in enumerate(self.data["playlists"]):
+            if lower_name_id == playlist["id"].lower() or lower_name_id == playlist["name"].lower():
+                self.data["playlists"][i]["name"] = new_name
+                with open("data/playlists.json", mode="r") as f:
+                    content = json.load(f)
+                content[self.key] = self.data
+                with open("data/playlists.json", mode="w") as f:
+                    json.dump(content, f)
+                return True
+        
+        raise NoPlaylistFound(f"Playlist with name/id {playlist_name_or_id} was not found and cannot be renamed (user: {self.key})")
 
     def __getitem__(self, item):
         return self.data["playlists"][item]

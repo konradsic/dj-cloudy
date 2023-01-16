@@ -101,13 +101,16 @@ class PlayButtonsMenu(View):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         if not player.is_playing():
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot seek: nothing is currently playing",color=BASE_COLOR)
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
-        handler.add_to_starred(player.queue.current_track.uri)
-        await interaction.response.send_message(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
+        resp = handler.add_to_starred(player.queue.current_track.uri)
+        if resp:
+            await interaction.response.send_message(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
+            return
+        await interaction.response.send_message(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Un-starred current playing song", color=BASE_COLOR))
 
 class EmbedPaginator(View):
     def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:
