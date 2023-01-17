@@ -28,5 +28,8 @@ data/bot-config.json
 # playlists
 data/playlists.json
 
+# settings
+data/settings.json
+
 # releases
 releases
