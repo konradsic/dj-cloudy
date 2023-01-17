@@ -1,0 +1,32 @@
+# Lavalink file
+Lavalink.jar
+
+# logs
+*.log
+logs
+bot-logs
+
+# pycache
+*.pyc
+
+# tests
+tests
+
+# .vscode editor files
+.vscode
+
+# templates
+template.*
+
+# emoji packs and images
+emoji-pack
+img
+
+# bot token and genius auth token - configs
+data/bot-config.json
+
+# playlists
+data/playlists.json
+
+# releases
+releases
