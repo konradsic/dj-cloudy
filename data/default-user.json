@@ -1,0 +1,10 @@
+{
+    "defaultSeekAmount": {
+        "value": 15,
+        "type": "int"
+    },
+    "seekForward": {
+        "value": true,
+        "type": "bool"
+    }
+}

@@ -20,6 +20,15 @@ class PlaylistHandler:
         return self.data["playlists"]
 
     def _load(self):
+        # create FILE playlists.json if not exists
+        try:
+            with open("data/playlists.json", mode="r") as f:
+                _ = json.load(f)
+        except:
+            with open("data/playlists.json", mode="w") as f:
+                f.write("{}")
+
+        # load user profile
         with open("data/playlists.json", mode="r") as f:
             data = json.load(f)
         try:

@@ -10,11 +10,17 @@ loggers = [
     logger.Logger().get("utils.errors.NoTracksFound"),
     logger.Logger().get("utils.errors.NoPlayerFound"),
     logger.Logger().get("utils.errors.NoVoiceChannel"),
+
     logger.Logger().get("utils.errors.NoPlaylistFound"),
     logger.Logger().get("utils.errors.PlaylistCreationError"),
     logger.Logger().get("utils.errors.PlaylistGetError"),
     logger.Logger().get("utils.errors.PlaylistRemoveError"),
-    logger.Logger().get("utils.errors.NoPlaylistFound")
+    logger.Logger().get("utils.errors.NoPlaylistFound"),
+
+    logger.Logger().get("utils.errors.DefaultProfileNotFound"),
+    logger.Logger().get("utils.errors.KeyDoesNotExist"),
+    logger.Logger().get("utils.errors.IncorrectValueType"),
+    logger.Logger().get("utils.errors.UserNotFound")
 ]
 
 class UnhandledBotException(Exception):
@@ -68,3 +74,20 @@ class PlaylistRemoveError(UnhandledBotException):
 class NoPlaylistFound(UnhandledBotException): 
     def __init__(self, string=None, *, logger: logger.Logger=loggers[10]):
         super().__init__(logger=logger, string = string or "Playlist not found")
+
+# config errors
+class DefaultProfileNotFound(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[11]):
+        super().__init__(logger=logger, string = string or "Default profile for given value was not found (check data folder for default profiles)")
+
+class KeyDoesNotExist(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[12]):
+        super().__init__(logger=logger, string = string or "Configuration key does not exist.")
+
+class IncorrectValueType(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[13]):
+        super().__init__(logger=logger, string = string or "Incorrect value type")
+
+class UserNotFound(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[14]):
+        super().__init__(logger=logger, string = string or "Configuration for given user was not found")

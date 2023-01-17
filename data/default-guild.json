@@ -1,0 +1,10 @@
+{
+    "maxVolume": {
+        "value": 1000,
+        "type": "int"
+    },
+    "djRole": {
+        "value": null,
+        "type": "role"
+    }
+}
