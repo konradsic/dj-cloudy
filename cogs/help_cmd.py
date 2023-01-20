@@ -24,7 +24,7 @@ class HelpCommand(commands.Cog):
         if category is None:
             embed = discord.Embed(
                 title="<:commands_button:1028377812777828502> Help command - Categories", 
-                description="Here you can view all categories and some best commands that belong to these categories (only1 is shown as an example but there are more!). Use `/help [categroy]` to view a specific category with detailed description", 
+                description="Here you can view all categories and some best commands that belong to these categories (only 1 is shown as an example but there are more!). Use `/help [categroy]` to view a specific category with detailed description", 
                 color=BASE_COLOR
             )
             embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")

@@ -348,6 +348,6 @@ async def setup(bot):
         [("name_or_id", "Name of the playlist you want to play", True), ("replace_queue", "Wherever to replace the queue with the playlist or just append", False)])
     help_utils.register_command("playlists remove-playlist", "Remove a playlist", "Music: Playlist management", [("name_or_id", "Name of the playlist you want to remove", True)])
     help_utils.register_command("playlists view-playlist", "View playlist's content (for your playlist or anybody else)", "Music: Playlist management", [("name_or_id", "Name of the playlist", True),("user","(optional) User to get the playlist from",False)])
-    help_utils.register_command("playlist rename", "Rename playlist to given name", "Music: Playlist management", 
+    help_utils.register_command("playlists rename", "Rename playlist to given name", "Music: Playlist management", 
         [("name_or_id", "Name or ID of playlist you want to rename", True), ("new_name","New name of the playlist you want to rename",True)])
     await bot.add_cog(PlaylistGroupCog(bot), guilds=bot.guilds)

@@ -5,13 +5,20 @@ from utils.errors import (
     KeyDoesNotExist,
     IncorrectValueType,
     UserNotFound,
+    AuthFailed
 )
+
+def get_class_from_value(value):
+    valType = str(type(value))
+    valType = valType[len("<class '"):][:-2]
+    return str(valType)  #string
 
 class ConfigurationHandler:
     def __init__(self, id: str, user: bool=True):
         self.id = id
         self.is_user = user
         self._load()
+        self.update_profile()
 
     def _load(self):
         # create FILE settings.json if not exists
@@ -21,6 +28,7 @@ class ConfigurationHandler:
         except:
             with open("data/settings.json", mode="w") as f:
                 profile = {"users": {}, "guilds": {}}
+                json.dump(profile,f)
 
         profile = self.get_default_profile_for("user" if self.is_user else "guild")
 
@@ -31,6 +39,11 @@ class ConfigurationHandler:
             self.data = content["users" if self.is_user else "guilds"][self.id]
         except:
             self.data = profile
+        try:
+            self.save()
+        except:
+            with open("data/settings.json", mode="w") as f:
+                json.dump({"users": {}, "guilds": {}},f)
         self.save()
 
     def save(self):
@@ -55,14 +68,65 @@ class ConfigurationHandler:
             raise DefaultProfileNotFound(f"Profile \"{what}\" was not found. Available profiles are in data folder, named <default-*.json>")
 
     def config_set(self, key, value):
-        pass
+        try:
+            current = self.data[key]
+        except:
+            raise KeyDoesNotExist(f"Key \"{key}\" does not exist")
+        valType = get_class_from_value(value)
+        if valType == "discord.role.Role":
+            valType = "role"
+        if valType not in ["int", "str", "bool", "role"]:
+            raise IncorrectValueType(f"{valType} is not a correct value type")
+        if valType != current["type"]:
+            raise IncorrectValueType(f"{valType} does not match type for key {key} (expected {current['type']})")
+
+        # correct data type - lets overwrite data
+        self.data[key]["value"] = value
+        self.save()
+        return self.data["key"] # new value
+        
 
     def update_profile(self):
-        pass
+        typeProfile = "user" if self.is_user else "guild"
+        fileName = f"data/default-{typeProfile}.json"
+        with open(fileName, mode="r") as f:
+            data = json.load(f)
+
+        # iterate over elements, add missing
+        for key,val in data.items():
+            try:
+                _key = self.data[key]
+            except KeyError:
+                self.data[key] = val
+
+        # save
+        self.save()
+        return True # profile updated with new values!
 
     def restore_default_vaule(self, key):
-        pass
+        # restore default of given value
+        typeProfile = "user" if self.is_user else "guild"
+        fileName = f"default-{typeProfile}.json"
+        with open(fileName, mode="r") as f:
+            data = json.load(f)
+        
+        try:
+            self.data[key] = data[key]
+        except KeyError:
+            raise KeyDoesNotExist(f"Attempted to reset value for \"{key}\" but it does not exist")
+        return True
+        
 
-    def reset_to_default(self):
+    def reset_to_default(self, sure: bool=False):
         # in addition to self.restore_default_value this function resets EVERYTHING to default
-        pass
+        if not sure:
+            raise AuthFailed("To reset profile please confirm you want to do that by setting `sure` to True")
+
+        typeProfile = "user" if self.is_user else "guild"
+        fileName = f"default-{typeProfile}.json"
+        with open(fileName, mode="r") as f:
+            data = json.load(f)
+        
+        self.data = data
+        self.save()
+        return True

@@ -6,6 +6,7 @@ from cogs.vc_handle import VC_Handler
 from cogs.seeking import SeekAndRestartCog
 from cogs.spotify import SpotifyExtensionCog
 from cogs.queue_commands import QueueCommands
+from cogs.config_commands import ConfigCog
 
 from discord.ext.commands import Bot
 
@@ -19,4 +20,5 @@ preinitialized_cogs = (
     SeekAndRestartCog(Bot),
     SpotifyExtensionCog(Bot),
     QueueCommands(Bot),
+    ConfigCog(Bot)
 )

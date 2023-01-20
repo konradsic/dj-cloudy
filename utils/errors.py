@@ -20,7 +20,8 @@ loggers = [
     logger.Logger().get("utils.errors.DefaultProfileNotFound"),
     logger.Logger().get("utils.errors.KeyDoesNotExist"),
     logger.Logger().get("utils.errors.IncorrectValueType"),
-    logger.Logger().get("utils.errors.UserNotFound")
+    logger.Logger().get("utils.errors.UserNotFound"),
+    logger.Logger().get("utils.errors.AuthFailed")
 ]
 
 class UnhandledBotException(Exception):
@@ -91,3 +92,7 @@ class IncorrectValueType(UnhandledBotException):
 class UserNotFound(UnhandledBotException): 
     def __init__(self, string=None, *, logger: logger.Logger=loggers[14]):
         super().__init__(logger=logger, string = string or "Configuration for given user was not found")
+
+class AuthFailed(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[15]):
+        super().__init__(logger=logger, string = string or "Authentication failed, aborting...")

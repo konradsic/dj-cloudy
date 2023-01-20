@@ -21,7 +21,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         self.logger = logger
         super().__init__()
 
-    @app_commands.command(name="view", description="View the queue in  a nice embed")
+    @app_commands.command(name="view", description="View the queue in a nice embed")
     async def queue_view_subcommand(self, interaction: discord.Interaction):
         player = self.bot.node.get_player(interaction.guild)
         if player is None:
