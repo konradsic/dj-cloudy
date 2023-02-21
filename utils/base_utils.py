@@ -218,26 +218,33 @@ def get_latest_github_release():
         if line.startswith("__version__"):
             return line.split("=")[-1].strip(" \"")
 
-def is_update_required():
+def is_update_required(current_version, min_version):
     """
-    Fetch latest release file from github and check if an necessary update is needed.
+    (new) Check if version is higher or equal to min_version, else throw error
     """
-    req = requests.get("https://raw.githubusercontent.com/konradsic/dj-cloudy/main/main.py").text.split("\n")
-    for line in req:
-        if line.startswith("REQUIRED_UPDATE"):
-            required = line.split("=")[-1].strip(" \"")
-            if required == "True":
-                return True
-            return False
+    current_version = tuple(current_version.split("-")[1].split(".")) # tuple
+    min_version = tuple(min_version.split("."))        # tuple
+    
+    # from highest to lowest
+    if current_version[0] < min_version[0]:
+        return True
+    if current_version[1] < min_version[1]:
+        return True
+    if current_version[2] < min_version[2]:
+        return True
+    # for example, current = (1,0,5) min = (1,0,0) 
+    # first - equal so continue, second - equal so continue, third - larger so no update required
+    # second example - current = (1,0,0) min = (1,0,5)
+    # on third it will return True, so update is required
     return False
 
-def check_for_updates(current_version):
+def check_for_updates(current_version, min_version):
     logging.info("Checking for updates...")
     latest = get_latest_github_release()
     if str(latest) != str(current_version):
         logging.warn(f"You are using version {current_version} however version {latest} is available. Visit https://github.com/konradsic/dj-cloudy to download the latest version")
-        if is_update_required():
-            logging.critical(f"Version {current_version} is deprecated - you need to download version {latest} from the link above to use this bot. Your current version may not handle latest required standarts for the bot to work - thats why you need to update it")
+        if is_update_required(current_version, min_version):
+            logging.critical(f"Version {current_version} may not handle latest support for liblaries, audio or other features so it's marked as deprecated. Please upgrade your version atleast to v.{min_version}")
             exit()
     else:
         logging.info(f"You are using the latest version -- {latest}")

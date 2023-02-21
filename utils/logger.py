@@ -33,7 +33,10 @@ def preinit_logs():
     try:
         with open(config['logging-path'], 'r') as f: pass
     except:
-        with open(config['logging-path'], 'w') as f: pass
+        try:
+            with open(config['logging-path'], 'w') as f: pass
+        except:
+            print("[CRITICAL] Directory you are trying to create the log file does not exist. Please create a directory for the log file.")
 
 def set_level(level):
     try:

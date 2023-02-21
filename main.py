@@ -13,7 +13,7 @@ __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
 
-REQUIRED_UPDATE = False
+MIN_REQ_VERSION = "1.0.2"
 
 import asyncio
 import datetime
@@ -75,7 +75,7 @@ try:
 except:
     main_logger.info("No Rate Limit.")
 
-check_for_updates(__version__)
+check_for_updates(__version__, MIN_REQ_VERSION)
 make_files()
 
 async def load_extension(ext):
