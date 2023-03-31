@@ -1,97 +1,217 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>DJ Cloudy - Enchanted music experience on Discord</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="DJ Cloudy is a discord bot that provides music playback on discord at the next level. Easy to use and reliable" />
-		<meta name="keywords" content="discord bot, discord, bot, music, musicbot, playback, dj, djcloudy, bestbot" />
-		<meta charset="UTF-8" />
-		<link rel="icon" href="img/logo.png">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
-		<link href="assets/style.css" type="text/css" rel="stylesheet" />
-		<script defer src="assets/app.js"></script>	
-	</head>
-	<body>
-		<section class="upper flex-start sticky toppest">
-			<img src="img/logo.png" alt="DJ Cloudy Logo" class="upper-img toppest" />
-			<div class="title toppest">DJ Cloudy</div>
-			<navbar class="nav-top flex-start toppest">
-				<ul class="navbar-ul toppest">
-					<a href="/dj-cloudy"><span>Home</span></a>
-					<a href="/dj-cloudy"><span>Features</span></a>
-					<a href="/dj-cloudy"><span>Support Server</span></a>
-					<a href="/dj-cloudy"><span>Other</span></a>
-				</ul>
-			</navbar>
-		</section>
-		<section class="container">
-			<div class="container-child flex-mid" id="first-child">
-				<div class="big-text top-2 hidden" id="first-elem-text">Your new favourite music bot</div>
-				<br/>
-				<a href="https://dsc.gg/dj-cloudy" class="a-invite-but flex-mid top-2"><button class="gradient-button">Invite Now</button></a>
-			</div>
-			<br>
-			<div class="container-child flex-mid" id="second-child">
-				<div class="big-text top-1 hidden" style="font-size: 40px;">Listen to music at the highest level</div>
-				<br>
-				<span style="font-size: 25px; color:#939393;" class="hidden">With many commands such as filters, equalizers and playlist system you can <br>
-					experience the best audio quality and perfect non-laggy playback.</span>
-			</div>
+<html lang="en">
+<head>
+    <title>DJ Cloudy</title>
+    <meta name="description" content="DJ Cloudy is a discord bot that provides music playback on discord at the next level. Easy to use and reliable" />
+    <meta name="keywords" content="discord bot, discord, bot, music, musicbot, playback, dj, djcloudy, bestbot" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-			<div class="container-child flex-mid" id="third-child">
-				<div class="big-text top-1 hidden" style="font-size: 40px;">Search for anything you'd like</div>
-				<br>
-				<span style="font-size: 25px; color:#939393;" class="hidden">No need to know the right URL. 
-					Just type name of the track what you're looking for and play it!
-					As a bonus you could select one from up to 10 search results.
-					<br><i style="font-size: 25px; color:#939393;" class="hidden">Unfortunately we can currently handle non-url searches only from YouTube Music but you can also put the URL from SoundCloud and other platforms.</i>
-				</span>
-			</div>
+    <link rel="stylesheet" href="./assets/style.css" type="text/css" />
+    <link rel="icon" type="image/png" href="./img/logo.png" />
+</head>
 
-			<div class="container-child flex-mid" id="fourth-child">
-				<div class="big-text top-1 hidden" style="font-size: 40px;">
-					Featured commands
-				</div>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar sticky flex">
+        <div class="left-nav flex">
+            <img src="./img/logo.png" alt="logo" />
+            <a href="#">DJ Cloudy</a>
+        </div>
+        <div class="right-nav flex">
+            <ul>
+                <li type="normal"><a href="#">Home</a></li>
+                <li type="normal"><a href="#features-section">Features</a></li>
+                <li type="normal"><a href="./docs/index.html">Docs</a></li>
+                <li type="special">
+                    <a href="https://dsc.gg/dj-cloudy" target="_blank">
+                        <img src="./img/discord.svg" style="filter: invert(100%);" class="dc-img"/>
+                        Invite
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Page content -->
+    <div class="container">
+        <section class="container-section" id="upper-section">
+            <span class="big-text">The <span class="gradient-text big-text">ultimate</span><br> music experience<br> on Discord</span><br>
+            <span style="font-weight: 300; font-size: 30px;">The <span class="gradient-text" style="font-size: 30px;">best</span> choice for a discord music bot.<br>
+                Providing high quality music with a variety of commands to <span class="gradient-text" style="font-size: 30px;">amplify</span> your music experience.</span>
+            <br>
+            <div class="invite-btn top-margin">
+                <a href="https://dsc.gg/dj-cloudy" target="_blank">
+                    <img src="./img/discord.svg" style="filter: invert(100%);" class="dc-img"/>
+                    Add to your server
+                </a>
+            </div>
+            <div class="features-btn top-margin">
+                <a href="#features-section">
+                    Discover features
+                </a>
+            </div>
+        </section>
 
-				<div class="commands-box flex-mid" style="margin-top: 20px;">
-					<span class="codeblock hidden">/play</span>
-					<span class="codeblock hidden">/help</span>
-					<span class="codeblock hidden">/lyrics</span>
-					<span class="codeblock hidden">/skip</span>
-					<span class="codeblock hidden">/seek</span>
-				</div>
-				<div class="commands-box flex-mid" style="margin-top: 5px;">
-					<span class="codeblock hidden">/filters choose</span>
-					<span class="codeblock hidden">/playlists play</span>
-					<span class="codeblock hidden">/playlists view</span>
-				</div>
-			</div>
-		</section>
+        <section class="container-section flex" id="features-section" 
+         style="padding-right: 0; padding-left: 0;">
+            <div class="top-features-section"><span class="gradient-underline">Discover features of DJ Cloudy</span></div><br>
+            <hr>
+            <div class="features-sections">
+                <div class="feature-pack flex">
+                    <section class="feature" id="vc-left">
+                        <!-- Discord VC -->
+                        <div class="discord-vc">
+                            <div class="discord-channel">
+                                <img src="./img/vc_icon.png" />
+                                <span class="channel-text">Music</span>
+                            </div>
+                            <div class="voice-users">
+                                <div class="vc-user" id="dj-cloudy">
+                                    <img src="./img/logo.png" id="dj-cloudy-img"/>
+                                    DJ Cloudy
+                                </div>
+                                <div class="vc-user friend" id="amongus-user">
+                                    <img src="./img/amongus-user-icon.jpg" />
+                                    Gamer1234
+                                </div>
+                                <div class="vc-user friend" id="cool-user">
+                                    <img src="./img/cool-user-icon.jpeg" />
+                                    CoolUser
+                                </div>
+                                <div class="vc-user friend" id="doggo-user">
+                                    <img src="./img/doggo-user-icon.jpg" />
+                                    SweetDoggo
+                                </div>
+                                <div class="vc-user hidden" id="you">
+                                    <img src="./img/pokemon-user-icon.jpg" />
+                                    You
+                                </div>
+                            </div>
+                        </div>
+                        <div class="leave-btn hidden">
+                            Disconnect
+                        </div>
 
-		<footer>
-			<section class="footer-section" style="text-align: left;">
-				<span style="font-weight:600;font-size:30px; margin-bottom: 15px;">DJ Cloudy</span><br>
-				Coded, designed and built by <a class="clearLink" href="https://github.com/konradsic" target="_blank">@konradsic</a>
-			</section>
+                        <div class="gradient-box-look">
+                            <span style="font-weight:600">Look!</span><br>
+                            Your friends are listening to music with DJ Cloudy.
+                            <br> Click the music channel to join them.<br>
+                            <div class="confirmation-box" id="got-it">Got it!</div>
+                        </div>
+                    </section>
+                    <section class="feature" id="vc-right">
+                        <div class="feature-title">Hop on the VC and listen to music. From anywhere.</div>
+                        <br>
+                        No matter if you're travelling, playing games or working.
+                        DJ Cloudy is (almost) always available on Discord.                        
+                        Just <code>/connect</code> or <code>/play</code> and listen to high-quality music.
+                        <div class="feature-title" style="margin-top: 50px;">Create parties, no matter what size, or listen alone</div><br>
+                        DJ Cloudy is the perfect choice if you want to host a party on Discord, listen to music with friends or
+                        create a music event even in large servers.
+                        You can always listen alone with all permissions and a variety of commands.<br>
+                        <a href="#" class="link-gradient" style="font-weight:500;">Learn more.</a>
+                    </section>
+                </div>
+                <div class="feature-pack darkerbg-features flex">
+                    <section class="feature">
+                        <br>
+                        <div class="feature-title">Create playlists with songs of your liking</div>
+                        <br>
+                        One of the best features of the bot is <span class="gradient-text" style="font-weight:500;">The DJ Cloudy Playlist System&trade;</span>. 
+                        With use of commands that the system adds you can easily manage, view and play your favourite songs.
+                        No more manually adding 50 songs to the queue. 
+                        Just create a playlist with a good name that you will remember like "My favourite songs", add songs and there you go - now you just need to use one command to extend the queue by your songs.
+                        <br>
+                        <div class="feature-title" style="margin: 20px;">Save your favourite songs with just <span class="gradient-underline" style="font-size:35px; font-weight:600;">one click</span></div>
+                        <br>
+                        Another feature of the Playlist System is the starred playlist. It's a special playlist,
+                        where "starred" songs go. To star a song just use the command <code>/nowplaying</code>. You will see a star below the embed.
+                        The "Add to starred" button is also visible when adding a song to the queue. 
+                    </section>
+                    <section class="feature">
+                        <img src="./img/playlists-view-screenshot.png" id="playlist-left-img" />
+                        <img src="./img/playlists-view-content-screenshot.png" id="playlist-right-img"/>
+                    </section>
+                </div>
+                <div class="feature-pack flex flex-column">
+                    <div class="ribbon-space flex">
+                        <div class="coming-soon-ribbon">COMING SOON</div>
+                    </div>
+                    <div class="feature-container flex">
+                        <section class="feature">
+                            <div class="img-unavailable flex" id="cfg-img-left">Preview unavailable</div>
+                            <div class="img-unavailable flex" id="cfg-img-right">Preview unavailable</div>
+                        </section>
+                        <section class="feature">
+                            <div class="feature-title" style="margin: 20px;">Configure the bot right for your needs</div>
+                            With many customization options for both users and guilds you can make DJ Cloudy match your needs. 
+                            Configure things such as seeking, DJ roles, song filter and more!
+                        </section>
+                    </div>
+                </div>
+                <div class="feature-pack darkerbg-features flex" id="last-feature">
+                    <section class="feature">
+                        <br>
+                        <div class="feature-title" style="margin-top: 20px;">Manage the queue with ease</div>
+                        <br>
+                        Queue management was never that easy. With a lot of simple commands and built-in features you can view the queue, skip, delete etc. with just one command.
+                        <br>Look how easy and intuitive the commands are: 
+                        <code>/queue cleanup</code>, <code>/queue remove [index]</code>, <code>/queue shuffle</code>, <code>/queue view</code>, <code>/skip</code>, <code>/skipto [pos]</code>
+                        <br><a href="#" class="link-gradient" style="font-weight: 500;">Learn more</a>
+                    </section>
+                    <section class="feature">
+                        <img src="./img/queue-view-screenshot.png" class="queue-img" id="left-q" />
+                        <img src="./img/queue-remove-screenshot.png" class="queue-img" id="right-q" />
+                    </section>
+                </div>
+                <div class="feature-pack flex final-invite">
+                    ...and many more!<br>
+                    <div class="invite-btn btn-block" id="big-invite">
+                        <img src="./img/discord.svg" style="filter: invert(100%);" class="dc-img"/>
+                        What are you waiting for? Invite now!</div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <footer class="flex">
+        <div class="info-footer">
+            <img src="./img/logo.png" />
+            <div><span>DJ Cloudy</span><br>
+                Built, designed and fully maintained by 
+                <a class="link-gradient" href="https://github.com/konradsic/" target="_blank">@konradsic</a>
+                <br><span style="font-weight: 300; color: #666; font-size: 20px;">&copy Copyright 2022-present konradsic</span>
+            </div>
+        </div>
+        <div class="right-footer flex">
+            <div class="footer-section">
+                <span>BOT</span>
+                <ul type="none">
+                    <li><a href="https://dsc.gg/dj-cloudy" target="_blank">Invite</a></li>
+                    <li><a href="./index.html#features-section">Features</a></li>
+                    <li><a href="#">Docs</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <span>OPEN SOURCE</span>
+                <ul type="none">
+                    <li><a href="https://github.com/konradsic/dj-cloudy" target="_blank">GitHub repo</a></li>
+                    <li><a href="https://github.com/konradsic/dj-cloudy/blob/main/.github/CODE_OF_CONDUCT.md" target="_blank">Code of Conduct</a></li>
+                    <li><a href="https://github.com/konradsic/dj-cloudy/issues" target="_blank">Found a bug?</a></li>
+                    <li><a href="https://github.com/konradsic/dj-cloudy/blob/main/.github/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+                    <li><a href="https://github.com/konradsic/dj-cloudy/blob/main/LICENSE" target="_blank">License</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <span>CONTACT</span>
+                <ul type="none">
+                    <li><a href="https://discord.gg/t6qPGdHypw" target="_blank">Support server</a></li>
+                    <li><a href="https://discord.com/users/958029521565679646" target="_blank">Discord profile</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 
-			<section class="footer-section">
-				<span class="footer-text">BOT</span><br/>
-				<a href="/dj-cloudy" class="clearLink margin-small">Commands &amp Features</a><br/>
-				<a href="https://dsc.gg/dj-cloudy" class="clearLink margin-small">Invite</a><br/>
-			</section>
-
-			<section class="footer-section">
-				<span class="footer-text">OPEN SOURCE</span><br/>
-				<a href="https://github.com/konradsic/dj-cloudy" class="clearLink margin-small">GitHub repository</a><br/>
-				<a href="https://github.com/konradsic/dj-cloudy/blob/main/CHANGELOG.md" class="clearLink margin-small">Changelog</a><br/>
-				<a href="https://github.com/konradsic/dj-cloudy/blob/main/.github/CONTRIBUTING.md" class="clearLink margin-small">Contribute</a><br/>
-			</section>
-
-			<section class="footer-section">
-				<span class="footer-text">CONTACT</span><br/>
-				<a href="https://discord.gg/t6qPGdHypw," class="clearLink margin-small">Support server</a><br/>
-				<a href="https://discord.com/users/958029521565679646" class="clearLink margin-small">Discord profile</a><br/>
-			</section>
-		</footer>
-	</body>
+    <script async src="./assets/script.js"></script>
+</body>
 </html>
