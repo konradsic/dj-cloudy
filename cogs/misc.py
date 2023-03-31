@@ -27,7 +27,7 @@ class MiscCommands(commands.Cog):
             embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.add_field(name="Why you should choose me?", value="- I am all free\n- Advanced music functions such as equalizers\n- Playlist system so you can save your favourite songs\n- Easy to use")
-            embed.add_field(name="Links", value="[**Invite me!**](https://discord.com/api/oauth2/authorize?client_id=1024303533685751868&permissions=962676125504&scope=bot%20applications.commands)\n[*Join Our Discord Server*](https://discord.gg/t6qPGdHypw)\n[GitHub Project: Report bugs, see code and more](https://github.com/konradsic/dj-cloudy)")
+            embed.add_field(name="Links", value="[**Invite me!**](https://dsc.gg/dj-cloudy)\n[*Join Our Discord Server*](https://discord.gg/t6qPGdHypw)\n[GitHub Project: Report bugs, see code and more](https://github.com/konradsic/dj-cloudy)")
             await message.channel.send(embed=embed)
 
     @app_commands.command(name="ping",description="Returns latency and uptime of the bot")
@@ -62,7 +62,8 @@ class MiscCommands(commands.Cog):
         embed = discord.Embed(title="Bot informations", description="Informations gathered are below",color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
         embed.add_field(name="Nodes data", value=node_data, inline=False)
         embed.add_field(name="Players data", value=players_data, inline=False)
-        embed.add_field(name="Bot informations", value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nCreated by: [Konradoo](https://github.com/konradsic) (bot), [ArgoMk3](https://github.com/ArgoTeam) (web)\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
+        embed.add_field(name="Bot informations", 
+            value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nCreated by: [Konradoo](https://github.com/konradsic)\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_footer(text=f"Requested by {interaction.user} | Licensed under the MIT License")
         await interaction.response.send_message(embed=embed, ephemeral=True)

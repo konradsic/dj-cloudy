@@ -24,6 +24,8 @@ img
 
 # bot token and genius auth token - configs
 data/bot-config.json
+data/*-config.json 
+# ^ all other configs
 
 # playlists
 data/playlists.json

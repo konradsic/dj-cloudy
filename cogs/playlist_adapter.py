@@ -1,23 +1,32 @@
 import datetime
-import typing as t
 import re
+import time
+import typing as t
 
 import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
+
 from music import playlist
 from music.core import MusicPlayer
 from utils import help_utils, logger
-from utils.colors import BASE_COLOR
-from utils.errors import (NoPlayerFound, PlaylistCreationError, PlaylistGetError,
-                          PlaylistRemoveError)
-from utils.regexes import URL_REGEX
-from utils.buttons import EmbedPaginator
-from utils.run import running_nodes
 from utils.base_utils import get_length
+from utils.buttons import EmbedPaginator
+from utils.colors import BASE_COLOR
+from utils.errors import (NoPlayerFound, PlaylistCreationError,
+                          PlaylistGetError, PlaylistRemoveError)
+from utils.regexes import URL_REGEX
+from utils.run import running_nodes
 
 logger_instance = logger.Logger().get("cogs.playlist_adapter")
+
+def limit_string_to(string: str, limit: int) -> str:
+    # we add [...] if its larger than limit-4 
+    # (4 for safety reasons)
+    if len(string) >= limit-1:
+        string = string[:(limit-4)] + "..."
+    return string
 
 number_complete = {
     0: "🥇 ",
@@ -36,7 +45,7 @@ number_complete = {
 async def song_url_autocomplete(interaction: discord.Interaction, current: str) -> t.List[app_commands.Choice]:
     query = current.strip("<>")
     if current == "":
-        query = "ytmsearch:Summer hits 2022"
+        query = "ytmsearch:Best music"
     elif not re.match(URL_REGEX, current):
         query = "ytmsearch:{}".format(current)
     try:
@@ -46,7 +55,10 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
         if not tracks:
             return []
         return [
-            app_commands.Choice(name=f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.duration)}]", value=track.uri)
+            app_commands.Choice(
+                name=limit_string_to(
+                    f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.duration)}]",
+                    100), value=track.uri)
             for i,track in enumerate(tracks[:10])
         ]
     except Exception as e:
@@ -80,8 +92,20 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No playlist was found",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        
-        tracks = [(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in found['tracks']]
+        tracks = []
+        start = time.time()
+        for song in found['tracks']:
+            # to prevent errors we infinite request over the track if it fails, 
+            # otherwise we break out of the loop
+            while True:
+                query = await self.bot.node.get_tracks(cls=wavelink.Track, query=song)
+                if not query:
+                    self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")
+                    continue
+                tracks.append(query[0])
+                break
+        took_time = time.time() - start
+        self.logger.info(f"Loaded {len(found['tracks'])} tracks in ~{took_time:.2f}s")
         fields = [
             f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n"
             for i in range(len(tracks))
@@ -125,18 +149,43 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         user_data = playlist.PlaylistHandler(key=str(user.id))
         playlists = user_data.playlists
         playlist_res = "No playlists for this user. Create a playlist with `/playlist create <name>`!"
+        
+        total_tracks = 0
+        start = time.time()
         if playlists:
             playlist_res = ""
             for i, p in enumerate(playlists,1):
                 total_duration = 0
                 for track in p['tracks']:
-                    d = await self.bot.node.get_tracks(cls=wavelink.Track, query=track)
-                    total_duration += d[0].length
+                    while True:
+                        d = await self.bot.node.get_tracks(cls=wavelink.Track, query=track)
+                        if not d:
+                            self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
+                            continue
+                        total_duration += d[0].length
+                        total_tracks += 1
+                        break
                 playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*\n"
+                
+        took_time = time.time() - start
+        self.logger.info(f"Loaded {total_tracks} tracks in ~{took_time:.2f}s")
+        
+        total_tracks = 0
         starred_dur = 0
+        start = time.time()
+        
         for t in user_data.data['starred-playlist']:
-            d = await self.bot.node.get_tracks(cls=wavelink.Track, query=t)
-            starred_dur += d[0].length
+            while True:
+                d = await self.bot.node.get_tracks(cls=wavelink.Track, query=t)
+                if not d:
+                    self.logger.error(f"Failed to fetch song \"{t}\" (request failed)")
+                    continue
+                starred_dur += d[0].length
+                total_tracks += 1
+                break
+        took_time = time.time() - start
+        self.logger.info(f"Loaded starred playlist ({total_tracks} songs) in ~{took_time:.2f}s")
+        
         starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total duration `{get_length(starred_dur)}`\n"
         embed = discord.Embed(description="These are the user's playlists", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
         embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
@@ -295,26 +344,60 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
             player.bound_channel = interaction.channel
         # get tracks
-        res = []
+        res = {}
         for play in handler.playlists:
             if play['name'].lower() == name_or_id.lower() or play['id'].lower() == name_or_id.lower():
                 res = play
         if name_or_id.lower() == "starred":
             res = handler.data['starred-playlist']
             res = {'tracks': res}
-
+        self.logger.debug(res)
+        if not res:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No playlist with name \"{name_or_id}\" was found. Perhaps you misspelled it?",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
         # adapt the playlist
         if replace_queue:
             # we need to replace the queue
             player.queue.cleanup()
-            tracks = [list(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in res['tracks']]
+            
+            tracks = []
+            start = time.time()
+            for song in res['tracks']:
+                # to prevent errors we infinite request over the track if it fails, 
+                # otherwise we break out of the loop
+                while True:
+                    query = await self.bot.node.get_tracks(cls=wavelink.Track, query=song)
+                    if not query:
+                        self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")
+                        continue
+                    tracks.append(query[0])
+                    break
+            took_time = time.time() - start
+            
+            self.logger.info(f"Loaded {len(res['tracks'])} tracks in ~{took_time:.2f}s")
             player.queue.add(*tracks)
-            self.logger.info(f"Playling playlist {name_or_id} @ {player.guild.id} (queue replaced)")
+            self.logger.info(f"Playling playlist {name_or_id} at {player.guild.id} (queue replaced)")
             await player.play_first_track()
             return
         else:
-            tracks = [list(await self.bot.node.get_tracks(cls=wavelink.Track, query=song))[0] for song in res['tracks']]
-            self.logger.info(f"Playling playlist {name_or_id} @ {player.guild.id} (songs added)")
+            tracks = []
+            start = time.time()
+            for song in res['tracks']:
+                # to prevent errors we infinite request over the track if it fails, 
+                # otherwise we break out of the loop
+                while True:
+                    query = await self.bot.node.get_tracks(cls=wavelink.Track, query=song)
+                    if not query:
+                        self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")
+                        continue
+                    tracks.append(query[0])
+                    break
+            took_time = time.time() - start
+            
+            self.logger.info(f"Loaded {len(res['tracks'])} tracks in ~{took_time:.2f}s")
+            
+            self.logger.info(f"Playling playlist {name_or_id} at {player.guild.id} (songs added)")
             await player.add_tracks(interaction, tracks)
             return
 

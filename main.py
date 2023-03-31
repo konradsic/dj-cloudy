@@ -36,7 +36,7 @@ from utils.base_utils import (clearscreen, get_bot_token, get_length,
                               show_figlet, get_application_id, check_for_updates,
                               make_files, load_logger_config)
 from utils.colors import BASE_COLOR
-from utils import preimports as _ # just import, not used
+from utils import preimports as _ # just import, not used, preimports are used to pre-define loggers for cogs and other classes.
 import platform
 
 logging.basicConfig(level=logging.ERROR)
@@ -159,6 +159,10 @@ class DJ_Cloudy(commands.Bot):
         show_cursor()
 
 bot = DJ_Cloudy()
+
+@bot.tree.error
+async def on_error(interaction, error):
+    main_logger.error(f"Command [{interaction.command.name}] failed, because of {error.__class__.__name__}: {str(error)}")
 
 # haha idk how to do it in cogs so here :)
 
