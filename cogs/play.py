@@ -13,7 +13,7 @@ from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound, NoTracksFound
 from utils.regexes import URL_REGEX
 from utils.run import running_nodes
-from utils.base_utils import progressbar_emojis, get_length
+from utils.base_utils import progressbar_emojis, get_length, limit_string_to
 from utils.buttons import PlayButtonsMenu
 
 logging = logger.Logger().get("cogs.play")
@@ -61,19 +61,24 @@ async def query_complete(
 ) -> t.List[app_commands.Choice[str]]:
     query = current.strip("<>")
     if current == "":
-        query = "ytmsearch:Summer hits 2022"
+        query = "ytsearch:Summer hits 2022"
     elif not re.match(URL_REGEX, current):
-        query = "ytmsearch:{}".format(current)
+        query = "ytsearch:{}".format(current)
     try:
         if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
             query = query[2:]
-        tracks = await running_nodes[0].get_tracks(cls=wavelink.Track, query=query)
+        while True:
+            tracks = await running_nodes[0].get_tracks(cls=wavelink.Track, query=query)
+            if not tracks: continue
+            break
         if not tracks:
             return []
-        return [
-            app_commands.Choice(name=f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.duration)}]", value=track.uri)
-            for i,track in enumerate(tracks[:10])
-        ]
+        return [app_commands.Choice(name =
+                limit_string_to(
+                    f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.duration)}]",
+                    100), value=track.uri)
+                for i,track in enumerate(tracks[:10])
+               ]
     except Exception as e:
         if e.__class__.__name__ == "LoadTrackError": return []
         logging.error(f"Error: {e.__class__.__name__} - {str(e)}")
@@ -90,6 +95,7 @@ class PlayCommand(commands.Cog):
     @app_commands.autocomplete(query=query_complete)
     async def play_command(self, interaction: discord.Interaction, query: str):
         await interaction.response.defer(ephemeral=False)
+        return
         try:
             if (player := self.bot.node.get_player(interaction.guild)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -110,16 +116,16 @@ class PlayCommand(commands.Cog):
         except Exception as e:
             if isinstance(e, NoTracksFound):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return "failed"
             self.logger.error(f"Exception occured -- {e.__class__.__name__}: {str(e)}")
-
+            
     @app_commands.command(name="nowplaying", description="Get currently playing track info in a nice embed")
     @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")
     async def nowplaying_command(self, interaction: discord.Interaction, hidden: bool=False):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed)
             return
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
@@ -182,6 +188,18 @@ class PlayCommand(commands.Cog):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to grab, make sure your DMs are open to everyone",color=BASE_COLOR)
             await interaction.followup.send(embed=embed)
             return
+
+    @play_command.error
+    @nowplaying_command.error
+    @grab_command.error
+    async def on_cog_error(self, interaction, error):
+        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+        embed = discord.Embed(description=
+            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
+        try:
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        except:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("play", "Plays music", "Music: Base commands", [("query","What song to play",True)])

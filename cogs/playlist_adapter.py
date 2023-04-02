@@ -11,7 +11,7 @@ from discord.ext import commands
 from music import playlist
 from music.core import MusicPlayer
 from utils import help_utils, logger
-from utils.base_utils import get_length
+from utils.base_utils import get_length, limit_string_to
 from utils.buttons import EmbedPaginator
 from utils.colors import BASE_COLOR
 from utils.errors import (NoPlayerFound, PlaylistCreationError,
@@ -20,13 +20,6 @@ from utils.regexes import URL_REGEX
 from utils.run import running_nodes
 
 logger_instance = logger.Logger().get("cogs.playlist_adapter")
-
-def limit_string_to(string: str, limit: int) -> str:
-    # we add [...] if its larger than limit-4 
-    # (4 for safety reasons)
-    if len(string) >= limit-1:
-        string = string[:(limit-4)] + "..."
-    return string
 
 number_complete = {
     0: "🥇 ",
@@ -418,6 +411,23 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Unhandled exception occured while trying to rename playlist. Make sure that the name/id is correct.",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
+
+    @playlist_view_command.error
+    @view_playlist_of_user_command.error
+    @rename_playlist_command.error
+    @playlist_remove_song_command.error
+    @playlist_remove_command.error
+    @playlist_play.error
+    @playlist_add_song_command.error
+    @playlist_create_command.error
+    async def on_cog_error(self, interaction, error):
+        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+        embed = discord.Embed(description=
+            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
+        try:
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        except:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):
     help_utils.register_command("playlists view", "View your or user's playlists", "Music: Playlist management", [("user", "View this user's playlists", False)])

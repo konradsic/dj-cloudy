@@ -95,6 +95,17 @@ class SeekAndRestartCog(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "seek failed"
 
+    @seek_command.error
+    @restart_command.error
+    async def on_cog_error(self, interaction, error):
+        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+        embed = discord.Embed(description=
+            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
+        try:
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        except:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
 async def setup(bot):
     help_utils.register_command("seek", "Seek the player to given position", "Music: Advanced commands", [("position","Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s",False)])
     help_utils.register_command("restart", "Restart current playing track (replay)", "Music: Advanced commands")

@@ -148,13 +148,26 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await interaction.response.send_message(embed=embed)
         return
     
+    @queue_view_subcommand.error
+    @queue_shuffle_subcommand.error
+    @queue_cleanup_command.error
+    @queue_remove_command.error
+    async def on_cog_error(self, interaction, error):
+        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+        embed = discord.Embed(description=
+            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
+        try:
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        except:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+    
 class OtherQueueCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="skipto", description="Move the player to the specified position in the queue")
     @app_commands.describe(position="Position in the queue between 1 and queue length")
-    async def queue_moveto_command(self, interaction: discord.Interaction, position: int):
+    async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
         if not (player := self.bot.node.get_player(interaction.guild)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -206,6 +219,18 @@ class OtherQueueCommands(commands.Cog):
         await player.stop()
         embed = discord.Embed(description=f"<:previous_button:1029418191274905630> Playing previous track", color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
+        
+    @queue_skip_command.error
+    @queue_skipto_command.error
+    @queue_previous.error
+    async def on_cog_error(self, interaction, error):
+        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+        embed = discord.Embed(description=
+            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
+        try:
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        except:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:

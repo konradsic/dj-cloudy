@@ -6,6 +6,8 @@ A Discord bot that adds music functionality to your server.
 :license: MIT License, see license files for more details.
 """
 # TODO: Configuration system
+# TODO: Rewrite the logger so it can be more configurable and do something with log file limitations
+# TODO: Create a GeniusAPIClient / GeniusAPIHandler class for fetching lyrics and song info
 #######################################################################
 
 __version__ = "pre-1.2.0"
@@ -148,7 +150,7 @@ class DJ_Cloudy(commands.Bot):
         # clearscreen()
         took = f'{(time.time()-bot.last_restart):,.1f}'.replace(",", " ")
         self.logger.info(f"Loading extensions done (took {took}s)")
-
+    
     async def close(self):
         try:
             self.logger.info("Closing gateway...")
@@ -159,10 +161,6 @@ class DJ_Cloudy(commands.Bot):
         show_cursor()
 
 bot = DJ_Cloudy()
-
-@bot.tree.error
-async def on_error(interaction, error):
-    main_logger.error(f"Command [{interaction.command.name}] failed, because of {error.__class__.__name__}: {str(error)}")
 
 # haha idk how to do it in cogs so here :)
 

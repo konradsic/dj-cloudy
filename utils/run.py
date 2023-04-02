@@ -1,8 +1,11 @@
-from threading import Thread
 import os
-from flask import Flask
-from utils import logger
+from threading import Thread
 from time import sleep
+
+from flask import Flask
+
+from utils import logger
+
 app = Flask('')
 
 logging = logger.Logger().get("utils.run")
@@ -17,7 +20,7 @@ def run():
     logging.info("Running Flask app on host 0.0.0.0 (port 8080)")
     app.run(host="0.0.0.0", port=8080) 
 def start_lavalink():
-    logging.info("Starting Lavalink server trough `java -jar Lavalink.jar`")
+    logging.info("Starting Lavalink server: `java -jar Lavalink.jar`")
     os.system("java -jar Lavalink.jar")
 def run_lavalink(timeout=60.0):
     t = Thread(target=start_lavalink)

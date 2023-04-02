@@ -39,6 +39,13 @@ def inittable(bot_version, authors, python_version, dpy_version, wavelink_versio
     for content in contents:
         print(f"{' '*padding}{' '*(longest_content-len(content[0]))}{content[0]} : {content[1]}")
 
+def limit_string_to(string: str, limit: int) -> str:
+    # we add [...] if its larger than limit-4 
+    # (4 for safety reasons)
+    if len(string) >= limit-1:
+        string = string[:(limit-4)] + "..."
+    return string
+
 def change_volume(guild, val):
     volume_guilds[str(guild.id)] = val
 

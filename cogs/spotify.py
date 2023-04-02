@@ -54,6 +54,16 @@ class SpotifyExtensionCog(commands.Cog):
         await player.add_tracks(interaction, [results])
         self.logger.info("Spotify search executed successfully - added song to queue")
 
+    @spotify_command.error
+    async def on_cog_error(self, interaction, error):
+        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+        embed = discord.Embed(description=
+            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
+        try:
+            await interaction.followup.send(embed=embed, ephemeral=True)
+        except:
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
 async def setup(bot):
     help_utils.register_command("spotify", "Play a spotify track or album", "Extensions/Plugins", [("query","Song or album you want to play",True)])
     await bot.add_cog(SpotifyExtensionCog(bot), guilds=bot.guilds)
