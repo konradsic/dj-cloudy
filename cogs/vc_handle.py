@@ -1,15 +1,16 @@
 import datetime
+import sys
 
 import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
+from wavelink.ext import spotify
+
 from music.core import MusicPlayer
 from utils import help_utils, logger
-from utils.base_utils import register_node, get_config
+from utils.base_utils import get_config
 from utils.colors import BASE_COLOR
-from utils.run import running_nodes
-from wavelink.ext import spotify
 
 logging = logger.Logger().get("cogs.vc_handle")
 
@@ -112,19 +113,16 @@ class VC_Handler(commands.Cog):
         self.logger.info(f"Wavelink node `{node.id}` ready")
         self.node = node
         self.bot.node = node
-        running_nodes.append(node)
-        register_node(node)
 
     async def start_nodes(self):
         await self.bot.wait_until_ready()
 
-        nodes_data = dict({
-            "MAIN": {
-                "uri": "http://127.0.0.1:2333",
-                "password": "youshallnotpass",
-                "secure": False
-            }
-        })
+        config = get_config()
+        try:
+            nodes_data = config["lavalink"]["nodes"]
+        except:
+            self.logger.critical("Failed to load lavalink nodes data, aborting...")
+            sys.exit(0)
         spotify_config = self.spotify_config
         nodes = []
         for node in nodes_data.items():

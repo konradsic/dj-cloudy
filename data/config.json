@@ -15,5 +15,14 @@
     "logger": {
         "level": "DEBUG",
         "save_file": "bot-logs/bot.log"
+    },
+    "lavalink": {
+        "nodes": {
+            "MAIN": {
+                "uri": "URI of lavalink server (e.g. http://127.0.0.1:2333)",
+                "password": "password to the lavalink server",
+                "secure": false
+            }
+        }
     }
 }

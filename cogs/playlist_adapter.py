@@ -17,7 +17,6 @@ from utils.colors import BASE_COLOR
 from utils.errors import (NoPlayerFound, PlaylistCreationError,
                           PlaylistGetError, PlaylistRemoveError)
 from utils.regexes import URL_REGEX
-from utils.run import running_nodes
 
 logger_instance = logger.Logger().get("cogs.playlist_adapter")
 

@@ -5,7 +5,6 @@ from enum import Enum
 
 import discord
 import wavelink
-import pyfiglet
 import colorama
 import json
 import requests
@@ -23,9 +22,19 @@ registered_nodes = []
 
 logging = logger.Logger().get("utils.base_utils")
 
-def show_figlet(text, color1="#E50AF5", color2="#2CFBF7"):
+def show_figlet():
     colorama.init(autoreset=False)
-    font = pyfiglet.Figlet(font="larry3d", direction="left-to-right", justify=True, width=400).renderText(text)
+    font = r"""
+ ____     _____      ____    ___                       __              
+/\  _`\  /\___ \    /\  _`\ /\_ \                     /\ \             
+\ \ \/\ \\/__/\ \   \ \ \/\_\//\ \     ___   __  __   \_\ \  __  __    
+ \ \ \ \ \  _\ \ \   \ \ \/_/_\ \ \   / __`\/\ \/\ \  /'_` \/\ \/\ \   
+  \ \ \_\ \/\ \_\ \   \ \ \L\ \\_\ \_/\ \L\ \ \ \_\ \/\ \L\ \ \ \_\ \  
+   \ \____/\ \____/    \ \____//\____\ \____/\ \____/\ \___,_\/`____ \ 
+    \/___/  \/___/      \/___/ \/____/\/___/  \/___/  \/__,_ /`/___/> \
+                                                                /\___/
+                                                                \/__/
+    """
     print(colorama.Fore.CYAN + BOLD_ON + font + BOLD_OFF)
     colorama.init(autoreset=True)
     return font
@@ -46,22 +55,8 @@ def limit_string_to(string: str, limit: int) -> str:
         string = string[:(limit-4)] + "..."
     return string
 
-def change_volume(guild, val):
-    volume_guilds[str(guild.id)] = val
-
-def get_volume(guild):
-    try:
-        return volume_guilds[str(guild.id)]
-    except:
-        volume_guilds[str(guild.id)] = 100
-        return 100
-
-def register_node(node_cls):
-    if node_cls not in registered_nodes:
-        registered_nodes.append(node_cls)
-
 def get_nodes():
-    return registered_nodes
+    return wavelink.NodePool.get_connected_node()
 
 progressbar_emojis = {
     "bar_left_nofill": "<:progressbarleftnofill:1030469955512193025>",

@@ -9,9 +9,8 @@ from discord.ext import commands
 from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.colors import BASE_COLOR
-from utils.run import running_nodes
 from utils.buttons import PlayButtonsMenu, EmbedPaginator
-from utils.base_utils import convert_to_double, get_length
+from utils.base_utils import get_length
 from utils import logger
 
 @logger.LoggerApplication

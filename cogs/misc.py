@@ -44,8 +44,8 @@ class MiscCommands(commands.Cog):
     @app_commands.command(name="botinfo", description="Gathers most of informations about the bot and Wavelink nodes")
     async def botinfo_command(self,interaction: discord.Interaction):
         # gather all informations below:
-        nodes = get_nodes()
-        node_data = "".join(f'**Node `{node.identifier}`** at region *{node.region}*\n  - Host: `{basic_auth("node_host", node.host, interaction.user)}:{basic_auth("node_port", node.port, interaction.user)}`\n' for node in nodes)
+        nodes = [get_nodes()]
+        node_data = "".join(f'**Node `{node.id}`** with status `{node.status}`\n  - Host: URI `{basic_auth("uri", node.uri, interaction.user)}`\n' for node in nodes)
         if node_data == "":
             node_data = "No information about connected nodes"
         players = []

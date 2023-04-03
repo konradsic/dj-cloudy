@@ -12,11 +12,12 @@ from utils.base_utils import get_lyrics_token
 from utils.buttons import EmbedPaginator
 from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
-from utils.run import running_nodes
+from utils import logger
 
-
+@logger.LoggerApplication
 class LyricsCommandHandler(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, logger):
+        self.logger = logger
         self.bot = bot
 
     @app_commands.command(name="lyrics", description="Get lyrics for current playing or input song")
@@ -40,13 +41,13 @@ class LyricsCommandHandler(commands.Cog):
             if not re.match(URL_REGEX, song):
                 song = "ytmsearch:" + song
             try:
-                queried_song = await running_nodes[0].get_tracks(cls=wavelink.GenericTrack, query=song)
+                queried_song = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                 queried_song = queried_song[0]
                 title = queried_song.title
                 artist = queried_song.author
             except:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
         try:

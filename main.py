@@ -41,12 +41,8 @@ from utils.colors import BASE_COLOR
 from utils import preimports as _ # just import, not used, preimports are used to pre-define loggers for cogs and other classes.
 import platform
 
-logging.basicConfig(level=logging.ERROR)
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
-
 clearscreen()
-font = show_figlet("DJ Cloudy")
+font = show_figlet()
 inittable(__version__, __author__, platform.python_version(), discord.__version__, wavelink.__version__, __copyright__, font)
 
 # setting up logging instances
