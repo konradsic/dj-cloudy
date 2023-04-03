@@ -125,6 +125,7 @@ def convert_to_double(val):
     return val
 
 def get_length(dur):
+    dur = round(dur/1000)
     lm, ls = divmod(dur,60)
     lh, lm = divmod(lm, 60)
     ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)

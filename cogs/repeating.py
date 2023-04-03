@@ -19,7 +19,7 @@ class RepeatCommands(commands.Cog):
         app_commands.Choice(name="Repeat the whole queue", value="REPEAT_QUEUE")
     ])
     async def repeat_command(self, interaction: discord.Interaction, mode: str):
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return

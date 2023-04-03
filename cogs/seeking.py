@@ -20,7 +20,7 @@ class SeekAndRestartCog(commands.Cog):
     @app_commands.command(name="restart", description="Restart current playing track (similiar to seek position:0)")
     async def restart_command(self, interaction: discord.Interaction):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
@@ -40,7 +40,7 @@ class SeekAndRestartCog(commands.Cog):
     @app_commands.describe(position="Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s")
     async def seek_command(self, interaction: discord.Interaction, position: str=None):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)

@@ -35,29 +35,35 @@ class VC_Handler(commands.Cog):
         guild = additional_info.get('guild').id
         track = additional_info.get('track').title
         info = additional_info.get('info')
-        self.logger.debug(f"Track {track} {info} #{guild} (calling player advance)")
-        await player.advance()
+        if not (info == None):
+            self.logger.debug(f"Track {track} {info} #{guild} (calling player advance)")
+            await player.advance()
+        
 
+    # ! We use on_wavelink_track_end as it also handles on_wavelink_track_end
+    
+    # @commands.Cog.listener()
+    # async def on_wavelink_track_end(self, payload):
+    #     await self.on_player_track_error(payload.player, additional_info={
+    #         "track": payload.track,
+    #         "guild": payload.player.guild,
+    #         "info": payload.reason
+    #     })
+    
     @commands.Cog.listener()
-    async def on_wavelink_track_end(self, player, track, reason):
-        await self.on_player_track_error(player, additional_info={
-            "track": track,
-            "guild": player.guild,
-            "info": reason
+    async def on_wavelink_track_event(self, payload):
+        await self.on_player_track_error(payload.player, additional_info={
+            "track": payload.track,
+            "guild": payload.player.guild,
+            "info": payload.reason,
         })
+        
     @commands.Cog.listener()
-    async def on_wavelink_track_exception(self, player, track, error):
-        await self.on_player_track_error(player, additional_info={
-            "track": track,
-            "guild": player.guild,
-            "info": error
-        })
-    @commands.Cog.listener()
-    async def on_wavelink_track_stuck(self, player, track, treshold):
-        await self.on_player_track_error(player, additional_info={
-            "track": track,
-            "guild": player.guild,
-            "info": treshold
+    async def on_wavelink_track_start(self, payload):
+        await self.on_player_track_error(payload.player, additional_info={
+            "track": payload.track,
+            "guild": payload.player.guild,
+            "info": payload.reason,
         })
 
     @commands.Cog.listener()
@@ -69,7 +75,7 @@ class VC_Handler(commands.Cog):
                     if str(bot.id) == "1024303533685751868": is_bot_present = True
                 if is_bot_present:
                     try:
-                        player = self.node.get_player(member.guild)
+                        player = self.node.get_player(member.guild.id)
                     except:
                         return False
                     await player.set_pause(True)
@@ -79,7 +85,7 @@ class VC_Handler(commands.Cog):
                     player.paused_vc = True
         try:
             if len([m for m in after.channel.members if not m.bot]) >= 1:
-                player = self.node.get_player(member.guild)
+                player = self.node.get_player(member.guild.id)
                 if player is None: return
                 if player.paused_vc == True:
                     await player.set_pause(False)
@@ -94,15 +100,16 @@ class VC_Handler(commands.Cog):
             try:
                 if before.channel is None:
                     return
-                player = self.node.get_player(member.guild)
+                player = self.node.get_player(member.guild.id)
                 await player.disconnect()
+                del player
                 self.logger.info("Destroyed player at guild " + str(member.guild.id))
             except Exception as e:
                 self.logger.error(f"at on_voice_state_update - {e.__class__.__name__}: {str(e)}")
         
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node):
-        self.logger.info(f"Wavelink node `{node.identifier}` ready")
+        self.logger.info(f"Wavelink node `{node.id}` ready")
         self.node = node
         self.bot.node = node
         running_nodes.append(node)
@@ -111,20 +118,23 @@ class VC_Handler(commands.Cog):
     async def start_nodes(self):
         await self.bot.wait_until_ready()
 
-        nodes = {
+        nodes_data = dict({
             "MAIN": {
-                "host": "lavalink-hosting-247.konradsicinski.repl.co",
-                "port": 443,
-                "password": "dj-cloudy@Lava1Host",
+                "uri": "http://127.0.0.1:2333",
+                "password": "youshallnotpass",
+                "secure": False
             }
-        }
+        })
         spotify_config = self.spotify_config
-        for node in nodes.values():
-            try:
-                await wavelink.NodePool.create_node(bot=self.bot, **node, spotify_client=spotify.SpotifyClient(client_id=spotify_config["client"], client_secret=spotify_config["token"]), https=True)
-            except:
-                self.logger.warn(f"Node {node} cannot authorise with spotify, it will not handle spotify requests")
-                await wavelink.NodePool.create_node(bot=self.bot, **node, https=True)
+        nodes = []
+        for node in nodes_data.items():
+            node_id, data = node
+            nodes.append(wavelink.Node(id=node_id, uri=data["uri"], password=data["password"], secure=data["secure"], use_http=True))
+        try:
+            await wavelink.NodePool.connect(client=self.bot, nodes=nodes, spotify=spotify.SpotifyClient(client_id=spotify_config["client"], client_secret=spotify_config["token"]))
+        except:
+            await wavelink.NodePool.connect(client=self.bot, nodes=nodes, spotify=spotify.SpotifyClient(client_id=spotify_config["client"], client_secret=spotify_config["token"]))
+            
 
     @app_commands.command(name="connect",description="Connects to your voice channel")
     async def connect_command(self, interaction: discord.Interaction):
@@ -152,9 +162,10 @@ class VC_Handler(commands.Cog):
     @app_commands.command(name="disconnect", description="Disconnects from channel that bot is in")
     async def disconnect_command(self, interaction: discord.Interaction):
         try:
-            player = self.node.get_player(interaction.guild)
+            player = self.node.get_player(interaction.guild.id)
 
             await player.disconnect()
+            del player
             embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected", color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
         except:

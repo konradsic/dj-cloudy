@@ -13,7 +13,7 @@ class PlayPauseCommands(commands.Cog):
     @app_commands.command(name="pause", description="Pauses current playing track")
     async def pause_command(self, interaction: discord.Interaction):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
@@ -32,7 +32,7 @@ class PlayPauseCommands(commands.Cog):
     @app_commands.command(name="resume", description="Resumes paused playback")
     async def resume_command(self, interaction: discord.Interaction):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)

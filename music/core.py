@@ -27,6 +27,8 @@ class MusicPlayer(wavelink.Player):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.paused_vc = False
+        # ! [new in wavelink 2.0] queue is set to wavelink's default queue, so we set it to our!
+        self.queue = None 
         self.queue = Queue()
         self.bound_channel = None
         self.eq_levels = [.0,] * 15
@@ -58,19 +60,16 @@ class MusicPlayer(wavelink.Player):
                 color = BASE_COLOR,
                 timestamp = datetime.datetime.utcnow()
             )
-            dur = track.duration
-            lm, ls = divmod(dur,60)
-            lh, lm = divmod(lm, 60)
-            ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
-            if lh >= 1:
-                lm = convert_to_double(lm)
-            ls = convert_to_double(ls)
+            dur = get_length(track.duration)
             try: # add thumbnail
                 embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
-            except: pass
+            except:
+                try:
+                    embed.set_thumbnail(url=track.images[0])
+                except: pass
             embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
             embed.add_field(name="Author", value=track.author)
-            embed.add_field(name="Duration", value=f"`{str(lh) + ':' if int(lh) != 0 else ''}{lm}:{ls}`")
+            embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
         if self.is_playing():
@@ -79,19 +78,17 @@ class MusicPlayer(wavelink.Player):
                 color = BASE_COLOR,
                 timestamp = datetime.datetime.utcnow()
             )
-            dur = track.duration
-            lm, ls = divmod(dur,60)
-            lh, lm = divmod(lm, 60)
-            ls, lm, lh = math.floor(ls), math.floor(lm), math.floor(lh)
-            if lh >= 1:
-                lm = convert_to_double(lm)
-            ls = convert_to_double(ls)
+            dur = get_length(track.duration)
+            
             try: # add thumbnail
                 embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
-            except: pass
+            except:
+                try:
+                    embed.set_thumbnail(url=track.images[0])
+                except: pass
             embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
             embed.add_field(name="Author", value=track.author)
-            embed.add_field(name="Duration", value=f"`{str(lh) + ':' if int(lh) != 0 else ''}{lm}:{ls}`")
+            embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             # calculating estimated time to play this song
             current_pos = self.position
@@ -100,6 +97,7 @@ class MusicPlayer(wavelink.Player):
             upc_tracks = self.queue.upcoming_tracks[:-1]
             for upcoming in upc_tracks:
                 to_end += upcoming.duration
+            to_end = round(to_end/1000)
             durm, durs = divmod(to_end,60)
             durh, durm = divmod(durm, 60)
             durs, durm, durh = math.floor(durs), math.floor(durm), math.floor(durh)

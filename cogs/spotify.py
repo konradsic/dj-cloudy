@@ -24,7 +24,7 @@ class SpotifyExtensionCog(commands.Cog):
     async def spotify_command(self, interaction: discord.Interaction, query: str):
         await interaction.response.defer(thinking=True)
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             if interaction.user.voice is None:
@@ -37,22 +37,32 @@ class SpotifyExtensionCog(commands.Cog):
         query = query.strip("<>")
         parts = query.split("/")
         return_first = -1
+        type_of_query = None
         for part in parts:
             if part.lower() == "track":
                 return_first = True
+                type_of_query = spotify.SpotifySearchType.track
             elif part.lower() == "playlist":
                 return_first = False
+                spotify.SpotifySearchType.playlist
         if return_first == -1:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> To play a Spotify track enter a valid playlist/track URL",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        results = await spotify.SpotifyTrack.search(query=query, return_first=return_first)
-        if isinstance(results, list): # playlist
-            await player.add_tracks(interaction, results)
-            self.logger.info("Spotify search executed successfully - added playlist to queue")
-            return
-        await player.add_tracks(interaction, [results])
-        self.logger.info("Spotify search executed successfully - added song to queue")
+        try:
+            results = await spotify.SpotifyTrack.search(query=query, type=type_of_query, return_first=return_first)
+        except:
+            results = await spotify.SpotifyTrack.search(query=query, type=spotify.SpotifySearchType.album, return_first=return_first)
+        
+        if isinstance(results, spotify.SpotifyTrack):
+            results = [results]
+            
+        # make this "compatible" with the YouTubeTrack args
+        for i,result in enumerate(results):
+            results[i].author = " ".join(author for author in result.artists)
+        
+        await player.add_tracks(interaction, results)
+        self.logger.info("Spotify search executed successfully - added query to queue")
 
     @spotify_command.error
     async def on_cog_error(self, interaction, error):

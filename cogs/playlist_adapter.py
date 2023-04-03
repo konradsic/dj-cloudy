@@ -38,13 +38,13 @@ number_complete = {
 async def song_url_autocomplete(interaction: discord.Interaction, current: str) -> t.List[app_commands.Choice]:
     query = current.strip("<>")
     if current == "":
-        query = "ytmsearch:Best music"
+        query = "ytsearch:Best music"
     elif not re.match(URL_REGEX, current):
-        query = "ytmsearch:{}".format(current)
+        query = "ytsearch:{}".format(current)
     try:
         if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
             query = query[2:]
-        tracks = await running_nodes[0].get_tracks(cls=wavelink.Track, query=query)
+        tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
         if not tracks:
             return []
         return [
@@ -81,6 +81,12 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 found = play
                 break
         
+        starred = False
+        
+        if name_or_id.lower() == "starred":
+            found = {"tracks":handler.data["starred-playlist"]}
+            starred = True
+        
         if not found:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No playlist was found",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
@@ -91,7 +97,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             # to prevent errors we infinite request over the track if it fails, 
             # otherwise we break out of the loop
             while True:
-                query = await self.bot.node.get_tracks(cls=wavelink.Track, query=song)
+                query = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                 if not query:
                     self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")
                     continue
@@ -103,6 +109,13 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n"
             for i in range(len(tracks))
         ]
+        if not fields:
+            embed = discord.Embed(description="No tracks in the playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+            embed.set_footer(text="Made by Konradoo#6938")
+            embed.set_author(name=f"{user.name}'s playlist: STARRED", icon_url=user.display_avatar.url)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
         num_fields = len(fields)//6
         if len(fields)%num_fields != 0:
             num_fields += 1
@@ -151,7 +164,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 total_duration = 0
                 for track in p['tracks']:
                     while True:
-                        d = await self.bot.node.get_tracks(cls=wavelink.Track, query=track)
+                        d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
                         if not d:
                             self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
                             continue
@@ -169,7 +182,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         
         for t in user_data.data['starred-playlist']:
             while True:
-                d = await self.bot.node.get_tracks(cls=wavelink.Track, query=t)
+                d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=t)
                 if not d:
                     self.logger.error(f"Failed to fetch song \"{t}\" (request failed)")
                     continue
@@ -215,7 +228,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             tracks = []
             if copy_queue:
                 try:
-                    if (player := self.bot.node.get_player(interaction.guild)) is None:
+                    if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                         raise NoPlayerFound("There is no player connected in this guild")
                 except NoPlayerFound:
                     embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel -> no queue -> no songs to copy",color=BASE_COLOR)
@@ -326,7 +339,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         await interaction.response.defer(ephemeral=False, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             if interaction.user.voice is None:
@@ -360,7 +373,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 # to prevent errors we infinite request over the track if it fails, 
                 # otherwise we break out of the loop
                 while True:
-                    query = await self.bot.node.get_tracks(cls=wavelink.Track, query=song)
+                    query = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                     if not query:
                         self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")
                         continue
@@ -380,7 +393,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 # to prevent errors we infinite request over the track if it fails, 
                 # otherwise we break out of the loop
                 while True:
-                    query = await self.bot.node.get_tracks(cls=wavelink.Track, query=song)
+                    query = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                     if not query:
                         self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")
                         continue

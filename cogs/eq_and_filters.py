@@ -36,7 +36,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
     ])
     async def filters_choose_command(self, interaction: discord.Interaction, filter: str):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                     raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
@@ -57,7 +57,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
     @app_commands.command(name="reset", description="Reset applied filters")
     async def filters_reset_command(self, interaction: discord.Interaction):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
@@ -100,7 +100,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     ])
     async def equalizer_choose_command(self, interaction: discord.Interaction, equalizer: str):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
@@ -128,7 +128,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     ])
     async def equalizer_advanced_command(self, interaction: discord.Interaction, band: int, gain: float):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
@@ -158,7 +158,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     @app_commands.command(name="reset", description="Reset applied equalizers. Similiar to /filters reset")
     async def eq_reset_command(self, interaction: discord.Interaction):
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)

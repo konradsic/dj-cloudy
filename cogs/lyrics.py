@@ -23,7 +23,7 @@ class LyricsCommandHandler(commands.Cog):
     @app_commands.describe(song="Song you want lyrics for")
     async def lyrics_command(self, interaction: discord.Interaction, song: str = None):
         await interaction.response.defer(ephemeral=True, thinking=True)
-        if not (player := self.bot.node.get_player(interaction.guild)) and (song is None):
+        if not (player := self.bot.node.get_player(interaction.guild.id)) and (song is None):
             try:
                 playing = player.is_playing()
             except:
@@ -40,7 +40,7 @@ class LyricsCommandHandler(commands.Cog):
             if not re.match(URL_REGEX, song):
                 song = "ytmsearch:" + song
             try:
-                queried_song = await running_nodes[0].get_tracks(cls=wavelink.Track, query=song)
+                queried_song = await running_nodes[0].get_tracks(cls=wavelink.GenericTrack, query=song)
                 queried_song = queried_song[0]
                 title = queried_song.title
                 artist = queried_song.author

@@ -23,7 +23,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="view", description="View the queue in a nice embed")
     async def queue_view_subcommand(self, interaction: discord.Interaction):
-        player = self.bot.node.get_player(interaction.guild)
+        player = self.bot.node.get_player(interaction.guild.id)
         if player is None:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -37,8 +37,8 @@ class QueueCommands(commands.GroupCog, name="queue"):
             history = player.queue.track_history
             upcoming = player.queue.upcoming_tracks
             current = player.queue.current_track
-            length = sum([t.duration for t in player.queue.get_tracks()])
-            length = get_length(length)
+            length = get_length(
+                sum([t.duration for t in player.queue.get_tracks()]))
 
             embed = discord.Embed(title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
@@ -94,7 +94,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction):
-        player = self.bot.node.get_player(interaction.guild)
+        player = self.bot.node.get_player(interaction.guild.id)
         if player is None:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -111,7 +111,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return
@@ -128,7 +128,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="remove", description="Remove track with the given index from the queue")
     @app_commands.describe(index="Index of the song you want to remove")
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
@@ -168,7 +168,7 @@ class OtherQueueCommands(commands.Cog):
     @app_commands.command(name="skipto", description="Move the player to the specified position in the queue")
     @app_commands.describe(position="Position in the queue between 1 and queue length")
     async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
@@ -185,7 +185,7 @@ class OtherQueueCommands(commands.Cog):
     
     @app_commands.command(name="skip", description="Skip to the next track if one exists")
     async def queue_skip_command(self, interaction: discord.Interaction):
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
@@ -201,7 +201,7 @@ class OtherQueueCommands(commands.Cog):
         
     @app_commands.command(name="previous", description="Play the previous track if one exists")
     async def queue_previous(self, interaction: discord.Interaction):
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return

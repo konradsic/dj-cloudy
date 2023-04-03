@@ -12,7 +12,6 @@ from utils import help_utils, logger
 from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound, NoTracksFound
 from utils.regexes import URL_REGEX
-from utils.run import running_nodes
 from utils.base_utils import progressbar_emojis, get_length, limit_string_to
 from utils.buttons import PlayButtonsMenu
 
@@ -32,8 +31,8 @@ number_complete = {
 }
 
 def compose_progressbar(progress, end):
-    perc = round(progress/end*12) # there will be 20 emoji progressbars
-    full = 12
+    print(progress, end)
+    perc = round(progress/end*20) # there will be 20 emoji progressbars
     bar = ""
     if perc in [0,1]: 
         bar += progressbar_emojis["bar_left_nofill"]
@@ -68,7 +67,7 @@ async def query_complete(
         if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
             query = query[2:]
         while True:
-            tracks = await running_nodes[0].get_tracks(cls=wavelink.Track, query=query)
+            tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
             if not tracks: continue
             break
         if not tracks:
@@ -96,7 +95,7 @@ class PlayCommand(commands.Cog):
     async def play_command(self, interaction: discord.Interaction, query: str):
         await interaction.response.defer(ephemeral=False)
         try:
-            if (player := self.bot.node.get_player(interaction.guild)) is None:
+            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             if interaction.user.voice is None:
@@ -108,7 +107,7 @@ class PlayCommand(commands.Cog):
             player.bound_channel = interaction.channel
 
         query = query.strip("<>")
-        tracks = await self.bot.node.get_tracks(cls=wavelink.Track, query=query)
+        tracks = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=query)
         await player.add_tracks(interaction, [tracks[0]])
         try:
             pass
@@ -122,13 +121,14 @@ class PlayCommand(commands.Cog):
     @app_commands.command(name="nowplaying", description="Get currently playing track info in a nice embed")
     @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")
     async def nowplaying_command(self, interaction: discord.Interaction, hidden: bool=False):
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        await interaction.response.defer(thinking=True, ephemeral=False)
+        if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
             return
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         current = player.queue.current_track
@@ -149,14 +149,19 @@ class PlayCommand(commands.Cog):
             value=f"{'No upcoming track' if not player.queue.upcoming_tracks else f'[{player.queue.upcoming_tracks[0].title}]({player.queue.upcoming_tracks[0].uri})'}"
         )
         embed.add_field(name="Duration", value=f"{compose_progressbar(player.position, current.duration)} `{get_length(player.position)}/{duration}`", inline=False)    
-        embed.set_thumbnail(url=thumb)
+        try:
+            embed.set_thumbnail(url=thumb)
+        except:
+            try:
+                embed.set_thumbnail(url=current.images[0])
+            except: pass
         embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
-        await interaction.response.send_message(embed=embed, ephemeral=hidden, view=PlayButtonsMenu(user=interaction.user))
+        await interaction.followup.send(embed=embed, ephemeral=hidden, view=PlayButtonsMenu(user=interaction.user))
 
     @app_commands.command(name="grab", description="Grab currently playing song to your Direct Messages")
     async def grab_command(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
-        if not (player := self.bot.node.get_player(interaction.guild)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -172,8 +177,13 @@ class PlayCommand(commands.Cog):
             timestamp = datetime.datetime.utcnow()
         )
         embed.set_author(name="Song grabbed", icon_url=interaction.user.display_avatar.url)
-        embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text="https://github.com/konradsic/dj-cloudy")
+        try: # add thumbnail
+            embed.set_thumbnail(url=f"https://img.youtube.com/vi/{song.identifier}/maxresdefault.jpg")
+        except:
+            try:
+                embed.set_thumbnail(url=song.images[0])
+            except: pass
+        embed.set_footer(text="https://github.com/konradsic/dj-cloudy", icon_url=self.bot.user.display_avatar.url)
         embed.add_field(name="Song title", value=f"[{song.title}]({song.uri})", inline=False)
         embed.add_field(name="Author / Artist", value=song.author)
         embed.add_field(name="Duration", value=f"`{get_length(song.duration)}`")
