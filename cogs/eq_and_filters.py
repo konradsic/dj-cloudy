@@ -72,17 +72,6 @@ class FiltersCog(commands.GroupCog, name="filters"):
         await interaction.response.send_message(embed=embed)
         self.logger.info(f"Filters reset in guild #{interaction.guild.id}")
 
-    @filters_choose_command.error
-    @filters_reset_command.error
-    async def on_cog_error(self, interaction, error):
-        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
-        embed = discord.Embed(description=
-            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
-        try:
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        except:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-
 @logger.LoggerApplication
 class EqualizersCog(commands.GroupCog, name="equalizers"):
     def __init__(self, bot, logger):
@@ -173,18 +162,6 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Equalizers have been successfully reset",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
         self.logger.info(f"Filters reset in guild #{interaction.guild.id}")
-
-    @equalizer_advanced_command.error
-    @eq_reset_command.error
-    @equalizer_choose_command.error
-    async def on_cog_error(self, interaction, error):
-        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
-        embed = discord.Embed(description=
-            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
-        try:
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        except:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):
     help_utils.register_command("filters choose", "Select a filter to enchance your music experience", "Music: Advanced commands", [("filter","Filter to apply",True)])

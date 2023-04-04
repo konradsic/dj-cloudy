@@ -50,17 +50,7 @@ class VolumeController(commands.Cog):
         if (91 <= value <= 1000): emoji = "<:volume_high:1029437727294361691>"
         embed = discord.Embed(description=f"{emoji} Volume successfully set to `{value}%`", color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
-
-    @volume_command.error
-    async def on_cog_error(self, interaction, error):
-        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
-        embed = discord.Embed(description=
-            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
-        try:
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        except:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-
+        
 
 async def setup(bot):
     help_utils.register_command("volume", "Set or get current playback volume", category="Music: Base commands", arguments=[("value", "Value to set the volume to", False)])

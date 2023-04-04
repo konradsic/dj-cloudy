@@ -50,16 +50,6 @@ class ConfigCog(commands.GroupCog, name="config"):
         embed.description += description
         await interaction.followup.send(embed=embed)
 
-    @config_view_command.error
-    async def on_cog_error(self, interaction, error):
-        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
-        embed = discord.Embed(description=
-            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
-        try:
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        except:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-
 async def setup(bot):
     help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
         [("user", "Set to true if you want to see your profile, if it's false it will show guild profile", False)])

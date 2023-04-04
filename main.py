@@ -146,7 +146,7 @@ class DJ_Cloudy(commands.Bot):
         # clearscreen()
         took = f'{(time.time()-bot.last_restart):,.1f}'.replace(",", " ")
         self.logger.info(f"Loading extensions done (took {took}s)")
-    
+
     async def close(self):
         try:
             self.logger.info("Closing gateway...")
@@ -158,6 +158,17 @@ class DJ_Cloudy(commands.Bot):
 
 bot = DJ_Cloudy()
 
+# error handling
+@bot.tree.error
+async def on_command_exception(interaction, error):
+    main_logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+    embed = discord.Embed(description=
+        f"<:x_mark:1028004871313563758> An unexcepted error occured while trying to execute this command. Please contact developers for more info. \nDetails:\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
+    try:
+        await interaction.followup.send(embed=embed, ephemeral=True)
+    except:
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
 # haha idk how to do it in cogs so here :)
 
 async def view_playlist_menu(interaction: discord.Interaction, user: discord.Member):
