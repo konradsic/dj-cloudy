@@ -11,56 +11,63 @@ class HelpCommand(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="help", description="Get helpful information about commands of the bot")
-    @app_commands.describe(category="A category/group of commands you want to view")
-    async def help_command(self, interaction: discord.Interaction, category: str=None):
+    @app_commands.describe(command="A command you want to get detailed information about")
+    async def help_command(self, interaction: discord.Interaction, command: str=None):
+        await interaction.response.defer(thinking=True)
         help_commands = help_utils.get_commands()
         categories = {}
-        for command in help_commands:
+        for cmd in help_commands:
             try:
-                categories[command["category"]].append(command)
+                categories[cmd["category"]].append(cmd)
             except:
-                categories[command["category"]] = [command]
+                categories[cmd["category"]] = [cmd]
         
-        if category is None:
+        if command is None:
             embed = discord.Embed(
                 title="<:commands_button:1028377812777828502> Help command - Categories", 
-                description="Here you can view all categories and some best commands that belong to these categories (only 1 is shown as an example but there are more!). Use `/help [categroy]` to view a specific category with detailed description", 
+                description="Here, all categories with their respective commands are shown. To get detailed info about a command, use `/help <command>`\n*My command prefix is `/`*", 
                 color=BASE_COLOR
             )
             embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             for category_name, category_items in zip(categories.keys(), categories.values()):
-                embed.add_field(name=f"{category_name} - {len(category_items)}", value=f'Example: `{random.choice(category_items)["name"]}`', inline=True)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+                embed.add_field(name=f"{category_name} ({len(category_items)})", value="".join(
+                    f"`{command['name']}` ■ "
+                    for command in category_items[:-1]
+                ) + f"`{category_items[-1]['name']}`", inline=False)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        categories_lower = [c.lower() for c in categories.keys()]
+        names_lower = [n['name'].lower() for n in help_commands]
         # check if the category exists
-        if category.lower() not in categories_lower:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Category does not exist. Use `/help` to view all categories",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+        if command.lower() not in names_lower:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Command does not exist. Use `/help` to view all commands",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        selected_category = {}
+        
+        selected_command = {}
         # get items for category
-        for ctg in categories.items():
-            if category.lower() == ctg[0].lower():
-                selected_category = ctg[1]
+        for cmd in help_commands:
+            if command.lower() == cmd['name'].lower():
+                selected_command = cmd
 
+        command = selected_command # to make life easier
         # get the category
-        embed = discord.Embed(title=f"<:commands_button:1028377812777828502> Help for category {category}", description="*<> - required, [] - optional*", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
+        embed = discord.Embed(title=f"<:commands_button:1028377812777828502> Help for command `/{command['name']}`", description="*<> - required, [] - optional*", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
         embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        for command in selected_category:
-            arguments = ""
-            syntax_arguments = ""
-            try:
-                for arg in list(command['arguments'].items()):
-                    arguments += f"- `{arg[0]}` - {arg[1]['description']}. Required: `{arg[1]['required']}`\n"
-                    syntax_arguments += f"<{arg[0]}> " if arg[1]['required'] else f"[{arg[0]}] "
-                embed.add_field(name=command["name"], value=f"{command['description']}\nSyntax: `/{command['name']} {syntax_arguments[:-1]}`\n**Arguments:**\n{arguments}", inline=False)
-            except Exception as e:
-                embed.add_field(name=command["name"], value=f"{command['description']}\nSyntax: `/{command['name']}`", inline=False)
-        
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        arguments = ""
+        syntax_arguments = ""
+        embed.add_field(name="Description", value=command['description'], inline=False)
+        try:
+            for arg in list(command['arguments'].items()):
+                arguments += f"■ `{arg[0]}` - {arg[1]['description']}. Required: `{arg[1]['required']}`\n"
+                syntax_arguments += f"<{arg[0]}> " if arg[1]['required'] else f"[{arg[0]}] "
+            embed.add_field(name="Arguments", value=f"{arguments}", inline=False)
+        except Exception as e: pass
+
+        embed.add_field(name="Command syntax", value=f"`/{command['name']}{' ' + syntax_arguments[:-1] if syntax_arguments else ''}`", inline=False)
+    
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 async def setup(bot):
     help_utils.register_command("help", "Get helpful information about commands of the bot", "Miscellaneous", [("category","A category/group of commands you want to view",False)])

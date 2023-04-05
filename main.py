@@ -19,8 +19,10 @@ MIN_REQ_VERSION = "1.0.2"
 
 import asyncio
 import datetime
+import getpass
 import logging
 import os
+import platform
 import threading
 import time
 
@@ -33,13 +35,13 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils import logger
-from utils.base_utils import (clearscreen, get_bot_token, get_length,
-                              hide_cursor, inittable, show_cursor, 
-                              show_figlet, get_application_id, check_for_updates,
-                              make_files, load_logger_config)
+from utils import preimports as _  
+# ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
+from utils.base_utils import (check_for_updates, clearscreen,
+                              get_application_id, get_bot_token, get_length,
+                              hide_cursor, inittable, load_logger_config,
+                              make_files, show_cursor, show_figlet)
 from utils.colors import BASE_COLOR
-from utils import preimports as _ # just import, not used, preimports are used to pre-define loggers for cogs and other classes.
-import platform
 
 clearscreen()
 font = show_figlet()
@@ -58,7 +60,15 @@ from music import playlist
 TOKEN = get_bot_token()
 app_id = get_application_id()
 colorama.init(autoreset=True)
-main_logger.info("Initializing...")
+# gather some info and log init message
+device = platform.node()
+pid = os.getpid()
+path_to = os.path.abspath("./main.py")
+
+user, effective_user = os.getlogin(), getpass.getuser()
+
+main_logger.info(f"Initializing DJ Cloudy on device [{device}] wih PID [{pid}]")
+main_logger.info(f"{path_to} started by [{user}] (effective user: {effective_user})")
 
 config_logs = load_logger_config()
 logger.config["logging-path"] = config_logs[1]
@@ -169,7 +179,7 @@ async def on_command_exception(interaction, error):
     except:
         await interaction.response.send_message(embed=embed, ephemeral=True)
     
-# haha idk how to do it in cogs so here :)
+# haha idk how to do it in cogs so here :
 
 async def view_playlist_menu(interaction: discord.Interaction, user: discord.Member):
     await interaction.response.defer(ephemeral=True, thinking=True)
