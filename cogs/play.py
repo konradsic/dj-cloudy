@@ -122,9 +122,19 @@ class PlayCommand(commands.Cog):
     @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")
     async def nowplaying_command(self, interaction: discord.Interaction, hidden: bool=False):
         await interaction.response.defer(thinking=True, ephemeral=False)
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.followup.send(embed=embed)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
@@ -135,20 +145,23 @@ class PlayCommand(commands.Cog):
         duration = get_length(current.duration)
         author = current.author
         link = current.uri
+        rep = player.queue.repeat.string_mode
+
         thumb = f"https://img.youtube.com/vi/{current.identifier}/maxresdefault.jpg"
         embed = discord.Embed(
-            title="Currently playing track informations", 
+            title="<:play_button:1028004869019279391> Currently playing track informations", 
             description="Here you can view informations about currently playing track", 
             timestamp=datetime.datetime.utcnow(), 
             color=BASE_COLOR
         )
         embed.add_field(name="Track title", value=f"[**{current.title}**]({link})", inline=False)
         embed.add_field(name="Author / Artist", value=author, inline=True)
-        embed.add_field(name="Requested by", value=interaction.user.mention, inline=True)
+        embed.add_field(name="Data requested by", value=interaction.user.mention, inline=True)
         embed.add_field(name="Next up", 
             value=f"{'No upcoming track' if not player.queue.upcoming_tracks else f'[{player.queue.upcoming_tracks[0].title}]({player.queue.upcoming_tracks[0].uri})'}"
         )
         embed.add_field(name="Duration", value=f"{compose_progressbar(player.position, current.duration)} `{get_length(player.position)}/{duration}`", inline=False)    
+        embed.add_field(name="Repeat mode", value=f"`{rep}`", inline=False)
         try:
             embed.set_thumbnail(url=thumb)
         except:
@@ -161,8 +174,18 @@ class PlayCommand(commands.Cog):
     @app_commands.command(name="grab", description="Grab currently playing song to your Direct Messages")
     async def grab_command(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.is_playing():

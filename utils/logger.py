@@ -77,7 +77,7 @@ def remove_underscores(label):
 def weight(x):
     # get weight from file name
     components = x.strip(".log").split("-")
-    weight = 10000 * components[2] + 100 * components[1] + components[0]
+    weight = 10000 * int(components[2]) + 100 * int(components[1]) + int(components[0])
     return weight
 
 def dir_size(dir_):

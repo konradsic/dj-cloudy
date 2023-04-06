@@ -140,7 +140,7 @@ class VC_Handler(commands.Cog):
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
             embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Connected to <#{channel.id}>", color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=False)
             player.bound_channel = interaction.channel
         except Exception as e:
             if str(e) == "Already connected to a voice channel.": # handle that
@@ -159,17 +159,27 @@ class VC_Handler(commands.Cog):
 
     @app_commands.command(name="disconnect", description="Disconnects from channel that bot is in")
     async def disconnect_command(self, interaction: discord.Interaction):
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
         try:
             player = self.node.get_player(interaction.guild.id)
-
-            await player.disconnect()
+            if str(player.channel.id) != str(voice.channel.id):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                    color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+            await player.teardown()
             del player
-            embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected", color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+
+        embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected", color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:

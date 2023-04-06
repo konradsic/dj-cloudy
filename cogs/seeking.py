@@ -22,6 +22,17 @@ class SeekAndRestartCog(commands.Cog):
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
+            voice = interaction.user.voice
+            if not voice:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+            
+            if str(player.channel.id) != str(voice.channel.id):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                    color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -41,7 +52,18 @@ class SeekAndRestartCog(commands.Cog):
     async def seek_command(self, interaction: discord.Interaction, position: str=None):
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
-                    raise NoPlayerFound("There is no player connected in this guild")
+                raise NoPlayerFound("There is no player connected in this guild")
+            voice = interaction.user.voice
+            if not voice:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+            
+            if str(player.channel.id) != str(voice.channel.id):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                    color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
         except:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)

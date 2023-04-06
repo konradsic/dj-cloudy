@@ -7,13 +7,15 @@ import wavelink
 from discord import app_commands
 from discord.ext import commands
 from utils import help_utils
-from utils import lyrics_handler as lhandler
-from utils.base_utils import get_lyrics_token
 from utils.buttons import EmbedPaginator
 from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils import logger
-from music.songs import GeniusAPIClient, SearchResponse, GeniusSong
+from music.songs import (
+    GeniusAPIClient, 
+    SearchResponse, 
+    GeniusSong
+)
 
 @logger.LoggerApplication
 class LyricsCommandHandler(commands.Cog):
@@ -25,9 +27,25 @@ class LyricsCommandHandler(commands.Cog):
     @app_commands.describe(song="Song you want lyrics for")
     async def lyrics_command(self, interaction: discord.Interaction, song: str = None):
         await interaction.response.defer(ephemeral=True, thinking=True)
-        if not (player := self.bot.node.get_player(interaction.guild.id)) and (song is None):
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if song is None:
+            if not (player := self.bot.node.get_player(interaction.guild.id)):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+            
+            if str(player.channel.id) != str(voice.channel.id):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                    color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
             try:
                 playing = player.is_playing()
+                if not playing: raise Exception
             except:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `noSong`: Nothing is playing and the `song` argument is also `None`",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)

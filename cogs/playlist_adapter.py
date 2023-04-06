@@ -340,6 +340,18 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
+
+            voice = interaction.user.voice
+            if not voice:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+            
+            if str(player.channel.id) != str(voice.channel.id):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                    color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
         except:
             if interaction.user.voice is None:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)

@@ -22,9 +22,18 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="view", description="View the queue in a nice embed")
     async def queue_view_subcommand(self, interaction: discord.Interaction):
-        player = self.bot.node.get_player(interaction.guild.id)
-        if player is None:
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
@@ -93,9 +102,18 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction):
-        player = self.bot.node.get_player(interaction.guild.id)
-        if player is None:
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
@@ -110,9 +128,19 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         elif not player.queue.tracks:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
@@ -127,11 +155,23 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="remove", description="Remove track with the given index from the queue")
     @app_commands.describe(index="Index of the song you want to remove")
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-        elif not (1 <= index <= len(player.queue)):
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        
+        if not (1 <= index <= len(player.queue)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Index of the track is out of range",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
@@ -154,10 +194,21 @@ class OtherQueueCommands(commands.Cog):
     @app_commands.command(name="skipto", description="Move the player to the specified position in the queue")
     @app_commands.describe(position="Position in the queue between 1 and queue length")
     async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
         if not (1 <= position <= len(player.queue)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Position index is out of range",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -171,10 +222,21 @@ class OtherQueueCommands(commands.Cog):
     
     @app_commands.command(name="skip", description="Skip to the next track if one exists")
     async def queue_skip_command(self, interaction: discord.Interaction):
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
         elif not player.queue.upcoming_tracks:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -187,8 +249,18 @@ class OtherQueueCommands(commands.Cog):
         
     @app_commands.command(name="previous", description="Play the previous track if one exists")
     async def queue_previous(self, interaction: discord.Interaction):
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         elif not player.queue.track_history:
@@ -196,7 +268,7 @@ class OtherQueueCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
-        # setting player index to current-2 because
+        # ! setting player index to current-2 because
         #   1) we go 1 track back
         #   2) we go one more because when stop() 
         #      is invoked we go to the next track so it would play the current track one more time
@@ -205,18 +277,6 @@ class OtherQueueCommands(commands.Cog):
         await player.stop()
         embed = discord.Embed(description=f"<:previous_button:1029418191274905630> Playing previous track", color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
-        
-    @queue_skip_command.error
-    @queue_skipto_command.error
-    @queue_previous.error
-    async def on_cog_error(self, interaction, error):
-        self.logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
-        embed = discord.Embed(description=
-            f"<:x_mark:1028004871313563758> An error occured. Please contact developers for more info. Details are shown below.\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
-        try:
-            await interaction.followup.send(embed=embed, ephemeral=True)
-        except:
-            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:
