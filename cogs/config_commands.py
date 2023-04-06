@@ -50,6 +50,17 @@ class ConfigCog(commands.GroupCog, name="config"):
         embed.description += description
         await interaction.followup.send(embed=embed)
 
+    @app_commands.command(name="set-user", description="Set configuration for your profile")
+    @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use thier respective ID")
+    async def config_set_user_cmd(self, interaction: discord.Interaction, key: str, value: str):
+        await interaction.response.defer(thinking=True, ephemeral=True)
+
+    
+    @app_commands.command(name="set-user", description="Set configuration for current guild. Requires ManageGuild permission")
+    @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use thier respective ID")
+    async def config_set_guild_cmd(self, interaction: discord.Interaction, key: str, value: str):
+        await interaction.response.defer(thinking=True, ephemeral=False)
+
 async def setup(bot):
     help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
         [("user", "Set to true if you want to see your profile, if it's false it will show guild profile", False)])
