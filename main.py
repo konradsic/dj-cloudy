@@ -2,7 +2,7 @@
 DJ Cloudy
 ==========
 A Discord bot that adds music functionality to your server.
-:copyright: 2022-present @konradsic, @ArgoMk3
+:copyright: 2022-present @konradsic
 :license: MIT License, see license files for more details.
 """
 # TODO: Configuration system
@@ -67,7 +67,7 @@ path_to = os.path.abspath("./main.py")
 
 user, effective_user = os.getlogin(), getpass.getuser()
 
-main_logger.info(f"Initializing DJ Cloudy on device [{device}] wih PID [{pid}]")
+main_logger.info(f"Initializing DJ Cloudy on device [{device}], PID: {pid}")
 main_logger.info(f"{path_to} started by [{user}] (effective user: {effective_user})")
 
 config_logs = load_logger_config()
