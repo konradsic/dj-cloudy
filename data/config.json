@@ -14,7 +14,7 @@
     },
     "logger": {
         "level": "DEBUG",
-        "save_file": "bot-logs/bot.log"
+        "logs_directory": "bot-logs"
     },
     "lavalink": {
         "nodes": {

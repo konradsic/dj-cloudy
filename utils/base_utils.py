@@ -267,7 +267,7 @@ def make_files():
 def load_logger_config():
     try:
         config = get_config()["logger"]
-        level, file = config["level"], config["save_file"]
+        level, file = config["level"], config["logs_directory"]
         level = logger.get_level_from_string(level)
         if level is None:
             logging.warn("Incorrect logging level was passed in config file, using default value (INFO)")
@@ -275,4 +275,4 @@ def load_logger_config():
         return level, file
     except:
         logging.error("Error while parsing logger config, using default config")
-        return logger.LogLevels.INFO, "./bot-logs/bot.log"
+        return logger.LogLevels.INFO, "bot-logs"

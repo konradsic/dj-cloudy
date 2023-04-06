@@ -1,14 +1,15 @@
 # preimport cogs to register loggers
+from discord.ext.commands import Bot
+
+from cogs.config_commands import ConfigCog
 from cogs.eq_and_filters import EqualizersCog, FiltersCog
+from cogs.events import EventHandlerCog
 from cogs.play import PlayCommand
 from cogs.playlist_adapter import PlaylistGroupCog
-from cogs.vc_handle import VC_Handler
+from cogs.queue_commands import QueueCommands
 from cogs.seeking import SeekAndRestartCog
 from cogs.spotify import SpotifyExtensionCog
-from cogs.queue_commands import QueueCommands
-from cogs.config_commands import ConfigCog
-
-from discord.ext.commands import Bot
+from cogs.vc_handle import VC_Handler
 
 # preinit
 preinitialized_cogs = (
@@ -20,5 +21,6 @@ preinitialized_cogs = (
     SeekAndRestartCog(Bot),
     SpotifyExtensionCog(Bot),
     QueueCommands(Bot),
-    ConfigCog(Bot)
+    ConfigCog(Bot),
+    EventHandlerCog(Bot)
 )

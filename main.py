@@ -67,13 +67,13 @@ path_to = os.path.abspath("./main.py")
 
 user, effective_user = os.getlogin(), getpass.getuser()
 
-main_logger.info(f"Initializing DJ Cloudy on device [{device}], PID: {pid}")
-main_logger.info(f"{path_to} started by [{user}] (effective user: {effective_user})")
-
 config_logs = load_logger_config()
-logger.config["logging-path"] = config_logs[1]
+logger.config["logging-path"] = config_logs[1] + "/bot.log"
 logger.set_level(config_logs[0])
 logger.preinit_logs()
+
+main_logger.info(f"Initializing DJ Cloudy on device [{device}], PID: {pid}")
+main_logger.info(f"{path_to} started by [{user}] (effective user: {effective_user})")
 main_logger.info("Loaded logger config successfully, changes were applied")
 
 # checking up on the rate limits

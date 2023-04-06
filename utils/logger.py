@@ -1,11 +1,12 @@
 import datetime
+import json
+from colorama import Fore, Style, init
+import os
+
+init(autoreset=True)
 
 BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
-
-from colorama import Fore, Style, init
-init(autoreset=True)
-
 class LogLevels:
     DEBUG = 1
     INFO = 5
@@ -29,14 +30,27 @@ log_colors = {
     "CRITICAL": Fore.RED
 }
 
+BYTE_CONV_RATES = {
+    ("B", "B"): 1,
+    ("B", "KB"): 1000,
+    ("KB", "MB"): 1000,
+    ("MB", "GB"): 1000,
+    ("B", "MB"): 1000**2,
+    ("B", "GB"): 1000**3
+}
+
 def preinit_logs():
-    try:
-        with open(config['logging-path'], 'r') as f: pass
-    except:
+    # config
+    with open("./data/bot-config.json", mode="r") as f:
+        data = json.load(f)
+    if not (data.get("extraConfig", {}).get("logger.formatFilesUsingDatetime")):
         try:
-            with open(config['logging-path'], 'w') as f: pass
+            with open(config['logging-path'], 'r') as f: pass
         except:
-            print("[CRITICAL] Directory you are trying to create the log file does not exist. Please create a directory for the log file.")
+            try:
+                with open(config['logging-path'], 'w') as f: pass
+            except:
+                print("[CRITICAL] Directory you are trying to create the log file does not exist. Please create a directory for the log file.")
 
 def set_level(level):
     try:
@@ -59,6 +73,66 @@ def remove_underscores(label):
     if label.startswith("__") and label.endswith("__"):
         return label[2:-2]
     return label
+
+def weight(x):
+    # get weight from file name
+    components = x.strip(".log").split("-")
+    weight = 10000 * components[2] + 100 * components[1] + components[0]
+    return weight
+
+def dir_size(dir_):
+    size = 0
+    with os.scandir(dir_) as files:
+        for entry in files:
+            if entry.is_file():
+                size += entry.stat().st_size
+            elif entry.is_dir():
+                size += dir_size(entry.path)
+    return size
+
+def convert_bytes(size, fmt, goal):
+    conv = BYTE_CONV_RATES[(fmt, goal)]
+    return (size / conv, goal)
+
+def save_logs(msg):
+    path = config['logging-path']
+    # get directory
+    log_dir = path.split("/")[0]
+    # get format from config
+    with open("./data/bot-config.json", mode="r") as f:
+        data = json.load(f)
+    extras = data.get("extraConfig", {})
+    limit = extras.get("logger.limitLogsTo")
+    fmt = extras.get("logger.formatFilesUsingDatetime")
+    if fmt:
+        # open a file corresponding to the current date
+        date = datetime.datetime.now().strftime("%d-%m-%Y")
+        file_format = date + ".log"
+        content = ""
+        try:
+            with open(log_dir + "/" + file_format, mode="r") as f:
+                content = f.read()
+        except: pass
+        with open(log_dir + "/" + file_format, mode="w") as f:
+            f.write(content + msg + "\n")
+    if limit:
+        lmt, byte = limit
+        # sort files using a custom weight for sorting
+        # ! weight = 1000Y + 10M + D
+        filenames = []
+        for _,_,files in os.walk(log_dir):
+            filenames.extend(files)
+        filenames = sorted(filenames, key=lambda x: weight(x))
+        # get size of files
+        sizes = dir_size(log_dir)
+        # check if over limit
+        sizes = convert_bytes(sizes, "B", byte)
+        if sizes[0] > float(int(lmt)):
+            # delete files until limit is not over
+            while sizes[0] > float(int(lmt)):
+                os.remove(filenames[0])
+                del filenames[0]
+                sizes = convert_bytes(dir_size(log_dir), "B", byte)
 
 # @decorator
 def LoggerApplication(cls):
@@ -116,18 +190,13 @@ class Logger:
         longest_logger_name = config["longest_cls_len"]
         msg = ""
         if log_type == "CRITICAL":
-            msg = f"{Fore.RED}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {self.name}{' '*(longest_logger_name+1-len(self.name))}CRITICAL : {message}"
+            msg = f"{Fore.RED}{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {self.name}{' '*(longest_logger_name+1-len(self.name))}CRITICAL : {message}"
         else:
-            msg = f"{Style.DIM}{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} {Fore.CYAN}{self.name}{' '*(longest_logger_name+1-len(self.name))}{color}{BOLD_ON}{log_type}{BOLD_OFF}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} : {message}"
+            msg = f"{Style.DIM}{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} {Fore.CYAN}{self.name}{' '*(longest_logger_name+1-len(self.name))}{color}{BOLD_ON}{log_type}{BOLD_OFF}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} : {message}"
         if is_level_logged(get_level_from_string(log_type)):
             print(msg)
 
-        with open(config["logging-path"], mode="r+") as _: pass
-        with open(config["logging-path"], mode="r") as content_reader:
-            content = content_reader.read()
-        with open(config["logging-path"], mode="w") as writer:
-            writer.write(content+msg+"\n")
-        return True
+            save_logs(msg)
 
     def debug(self, message):
         self._log("DEBUG", message)
@@ -144,7 +213,7 @@ class Logger:
     def critical(self, message):
         self._log("CRITICAL", message)
 
-#message = f"{datetime.datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{process_name}{' '*(len_process-len(process_name))}] {self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} CRITICAL -- {message}"
+#message = f"{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{process_name}{' '*(len_process-len(process_name))}] {self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} CRITICAL -- {message}"
 
 def print_logs(history):
     """
