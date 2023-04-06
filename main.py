@@ -6,8 +6,6 @@ A Discord bot that adds music functionality to your server.
 :license: MIT License, see license files for more details.
 """
 # TODO: Configuration system
-# TODO: Rewrite the logger so it can be more configurable and do something with log file limitations
-# TODO: Create a GeniusAPIClient / GeniusAPIHandler class for fetching lyrics and song info
 #######################################################################
 
 __version__ = "pre-1.2.0"
