@@ -13,6 +13,7 @@ from utils.buttons import EmbedPaginator
 from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils import logger
+from music.songs import GeniusAPIClient, SearchResponse, GeniusSong
 
 @logger.LoggerApplication
 class LyricsCommandHandler(commands.Cog):
@@ -32,14 +33,15 @@ class LyricsCommandHandler(commands.Cog):
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
-        client = lhandler.initialize_client(access_token=get_lyrics_token())
+        client = self.bot.genius
         title, artist = None,None
+        before_song = song + ""
         if not song: # we need to get current song
             title = player.queue.current_track.title
             artist = player.queue.current_track.author.strip("- Topic")
         else:
             if not re.match(URL_REGEX, song):
-                song = "ytmsearch:" + song
+                song = "ytsearch:" + song
             try:
                 queried_song = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                 queried_song = queried_song[0]
@@ -51,12 +53,13 @@ class LyricsCommandHandler(commands.Cog):
                 return
 
         try:
-            song = lhandler.get_lyrics(client, artist, title)
-            lyrics = song[0]
-            title = song[1]
-        except:
+            song = client.get_lyrics(title)
+            lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
+            title = title + " by " + artist
+        except Exception as e:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
+            print(e.__class__.__name__, str(e))
             return
         # paginator yay
         # split for 35 lines each

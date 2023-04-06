@@ -13,9 +13,6 @@ class EventHandlerCog(commands.Cog):
         self.bot = bot
         self.logger = logger
         
-    @commands.Cog.listener()
-    async def on_ready(self):
-        # load songs.GeniusAPIClient to the bot
         cfg = base_utils.get_config()
         genius_token = cfg.get("lyrics").get("genius-auth-token")
         if genius_token is None:
@@ -51,4 +48,4 @@ class EventHandlerCog(commands.Cog):
     
 async def setup(bot):
     await bot.add_cog(EventHandlerCog(bot),
-                guilds=bot.guilds)
+                guilds=[discord.Object(g.id) for g in bot.guilds])

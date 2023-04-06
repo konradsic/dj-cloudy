@@ -65,10 +65,10 @@ class GeniusSong:
         self.lyrics_state: str = resp["lyrics_state"]
 
         self.stats: dict = resp["stats"]
-        self.views: int = resp["stats"]["pageviews"]
+        self.views: int = self.stats.get("pageviews")
 
     def __str__(self):
-        return f"<GeniusSong> {self.short_title} by {self.artist} in lang: {self.lang} path: {self.path}"
+        return f"<class GeniusSong> {self.short_title} by {self.artist} in lang: {self.lang} path: {self.path}"
 
 
 def correct_string(string):
@@ -86,9 +86,8 @@ class GeniusAPIClient():
             url, headers = self.get_request_data(query)
         url = url or query
 
-        print(url)
         req: Request = Request(url=url, headers=headers)
-        return req        
+        return req
     
     def _fetch(self, request: Request, /, is_json: bool=False) -> http.client.HTTPResponse | dict:
         fetch = urllib.request.urlopen(request).read().decode('utf-8')
@@ -135,9 +134,8 @@ class GeniusAPIClient():
 
         request = self._build_request(song_endpoint + TXT_FORMAT)
         fetch = self._fetch(request, is_json=True)
-
+        
         obj = GeniusSong(fetch)
-
         return obj
     
     def get_lyrics(self, lyrics_song_name: str) -> str:
@@ -146,11 +144,11 @@ class GeniusAPIClient():
         Uses bs4 to scrape data from path fetched from function above
         """
         song = self.get_song(lyrics_song_name)
-        path = song.url
-        _, headers = self.get_request_data("")
-
-        request = self._build_request(path, headers)
-        fetched = self._fetch(request)
+        print(song.path)
+        req = self._build_request("https://genius.com" + song.path, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",
+        })
+        fetched = self._fetch(req)
 
         soup = BeautifulSoup(fetched, "html.parser")
         found = soup.find("div", {"data-lyrics-container": True})
