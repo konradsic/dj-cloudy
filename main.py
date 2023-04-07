@@ -62,8 +62,10 @@ colorama.init(autoreset=True)
 device = platform.node()
 pid = os.getpid()
 path_to = os.path.abspath("./main.py")
-
-user, effective_user = os.getlogin(), getpass.getuser()
+try:
+    user, effective_user = os.getlogin(), getpass.getuser()
+except:
+    user, effective_user = "Unknown", "Unknown"
 
 config_logs = load_logger_config()
 logger.config["logging-path"] = config_logs[1] + "/bot.log"
