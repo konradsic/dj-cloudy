@@ -36,7 +36,7 @@ class ConfigurationHandler:
             content = json.load(f)
         
         try:
-            self.data = content["users" if self.is_user else "guilds"][self.id]
+            self.data = content["users" if self.is_user else "guilds"][str(self.id)]
         except:
             self.data = profile
         try:
@@ -44,14 +44,14 @@ class ConfigurationHandler:
         except:
             with open("data/settings.json", mode="w") as f:
                 json.dump({"users": {}, "guilds": {}},f)
-        self.save()
+            self.save()
 
     def save(self):
         with open("data/settings.json", mode="r") as f:
             content = json.load(f)
         
         type = "users" if self.is_user else "guilds"
-        content[type][self.id] = self.data
+        content[type][str(self.id)] = self.data
         with open("data/settings.json", mode="w") as f:
             json.dump(content, f)
 
@@ -75,6 +75,7 @@ class ConfigurationHandler:
         valType = get_class_from_value(value)
         if valType == "discord.role.Role":
             valType = "role"
+            value = str(value.id)
         if valType not in ["int", "str", "bool", "role"]:
             raise IncorrectValueType(f"{valType} is not a correct value type")
         if valType != current["type"]:
@@ -83,7 +84,7 @@ class ConfigurationHandler:
         # correct data type - lets overwrite data
         self.data[key]["value"] = value
         self.save()
-        return self.data["key"] # new value
+        return self.data[key] # new value
         
 
     def update_profile(self):
