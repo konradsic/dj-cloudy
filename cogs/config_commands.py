@@ -165,4 +165,10 @@ class ConfigCog(commands.GroupCog, name="config"):
 async def setup(bot):
     help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
         [("user", "Set to true if you want to see your profile, if it's false it will show guild profile", False)])
+    help_utils.register_command("config set-user", "Set configuration for your profile", "Configuration",
+        [("key", "A parameter you want to change", True),
+         ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
+    help_utils.register_command("config set-guild", "Set configuration for current guild. Requires `manage_guild` permission", "Configuration",
+        [("key", "A parameter you want to change", True),
+         ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
     await bot.add_cog(ConfigCog(bot), guilds=bot.guilds)

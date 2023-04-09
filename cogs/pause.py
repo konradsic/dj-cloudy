@@ -37,7 +37,7 @@ class PlayPauseCommands(commands.Cog):
             await interaction.response.send_message(embed=embed)
             return "alr paused"
         
-        await player.set_pause(True)
+        await player.pause()
         embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
         
@@ -66,13 +66,13 @@ class PlayPauseCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "alr resumed"
         
-        await player.set_pause(False)
+        await player.resume()
         embed = discord.Embed(description=f"<:play_button:1028004869019279391> Playback resumed",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("pause", "Pauses current playing track", "Music: Base commands")
-    help_utils.register_command("resume", "Resumes paused playback", "Music: Base commands")
+    help_utils.register_command("pause", "Pauses current playing track", "Music")
+    help_utils.register_command("resume", "Resumes paused playback", "Music")
     await bot.add_cog(
         PlayPauseCommands(bot),
         guilds = [discord.Object(id=g.id) for g in bot.guilds]

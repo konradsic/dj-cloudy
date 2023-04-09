@@ -11,6 +11,7 @@ from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.base_utils import get_config
 from utils.colors import BASE_COLOR
+from utils.errors import NoPlayerFound
 
 logging = logger.Logger().get("cogs.vc_handle")
 
@@ -69,32 +70,39 @@ class VC_Handler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        if not member.bot and after.channel is None:
-            if not [m for m in before.channel.members if not m.bot]:
-                is_bot_present = False
-                for bot in [m for m in before.channel.members if m.bot]:
-                    if str(bot.id) == "1024303533685751868": is_bot_present = True
-                if is_bot_present:
-                    try:
-                        player = self.node.get_player(member.guild.id)
-                    except:
-                        return False
-                    await player.set_pause(True)
-                    if player.channel is not None:
-                        embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused because everybody left",color=BASE_COLOR)
-                        await player.bound_channel.send(embed=embed)
-                    player.paused_vc = True
+        if not member.bot and ((after.channel is None) or (after.channel != before.channel)):
+            if before.channel is not None:
+                if not [m for m in before.channel.members if not m.bot]:
+                    is_bot_present = False
+                    # check if bot in vc
+                    for m in list([m for m in before.channel.members if m.bot]):  
+                        if str(m.id) == str(self.bot.user.id):
+                            is_bot_present = True
+
+                    if is_bot_present:
+                        cont = True
+                        try:
+                            player = wavelink.NodePool.get_connected_node().get_player(member.guild.id)
+                        except:
+                            cont = False
+                        if not player.paused_vc and cont:
+                            await player.pause()
+                            if player.channel is not None:
+                                embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused because everybody left",color=BASE_COLOR)
+                                await player.bound_channel.send(embed=embed)
+                            player.paused_vc = True
+
         try:
-            if len([m for m in after.channel.members if not m.bot]) >= 1:
-                player = self.node.get_player(member.guild.id)
+            if len(list([m for m in member.voice.channel.members if not m.bot])) >= 1:
+                player = wavelink.NodePool.get_connected_node().get_player(int(member.guild.id))
                 if player is None: return
                 if player.paused_vc == True:
-                    await player.set_pause(False)
+                    await player.resume()
                     if player.bound_channel is not None:
                         embed = discord.Embed(description=f"<:play_button:1028004869019279391> Resuming playback...",color=BASE_COLOR)
                         await player.bound_channel.send(embed=embed)
                     player.paused_vc = False
-        except: pass
+        except Exception as e: self.logger.debug(f"{e.__class__.__name__}, {str(e)}, {member}")
 
         # check if bot has been disconnected:
         if str(member.id) == str(self.bot.user.id):
@@ -106,7 +114,7 @@ class VC_Handler(commands.Cog):
                 del player
                 self.logger.info("Destroyed player at guild " + str(member.guild.id))
             except Exception as e:
-                self.logger.error(f"at on_voice_state_update - {e.__class__.__name__}: {str(e)}")
+                self.logger.error(f"on_voice_state_update:: {e.__class__.__name__}: {str(e)}")
         
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, node):
@@ -154,36 +162,41 @@ class VC_Handler(commands.Cog):
             self.logger.error(f"Exception occured while connecting -- {e.__class__.__name__} - {str(e)}")
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> {e.__class__.__name__}: {str(e)}",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+            return # ^ we did not defer, so we kinda set our own little error handler
             
 
     @app_commands.command(name="disconnect", description="Disconnects from channel that bot is in")
     async def disconnect_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             player = self.node.get_player(interaction.guild.id)
+            if not player: raise NoPlayerFound
             if str(player.channel.id) != str(voice.channel.id):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             await player.teardown()
             del player
-        except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+        except Exception as e:
+            if isinstance(e, NoPlayerFound):
+                print(e.__class__.__name__ + ": " + str(e))
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+            raise e
 
         embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected", color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("connect", "Connects to your voice channel", "Music: Base commands")
-    help_utils.register_command("disconnect", "Disconnects from channel that bot is in", "Music: Base commands")
+    help_utils.register_command("connect", "Connects to your voice channel", "Music")
+    help_utils.register_command("disconnect", "Disconnects from channel that bot is in", "Music")
     await bot.add_cog(VC_Handler(bot),
                       guilds=[discord.Object(id=g.id) for g in bot.guilds])

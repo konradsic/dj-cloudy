@@ -35,7 +35,7 @@ class MusicPlayer(wavelink.Player):
 
     async def teardown(self):
         try:
-            await self.destroy()
+            await self.disconnect()
         except KeyError:
             pass
 

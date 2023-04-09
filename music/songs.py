@@ -3,6 +3,7 @@ from urllib.request import Request
 import json
 import http
 from bs4 import BeautifulSoup
+from utils import logger
 
 URL_BASE = "https://api.genius.com"
 SEARCH_ENDPOINT = "/search?q="
@@ -75,9 +76,11 @@ def correct_string(string):
     "The string will be corrected so it can be used in an URL"
     return string.replace(" ", "%20")
 
+@logger.LoggerApplication
 class GeniusAPIClient():
-    def __init__(self, genius_bearer_token: str):
+    def __init__(self, genius_bearer_token: str, logger):
         self._bearer: str = genius_bearer_token
+        self.logger = logger
 
     def _build_request(self, query: str, headers: dict=None) -> Request:
         query = correct_string(query)
@@ -129,6 +132,7 @@ class GeniusAPIClient():
         Get song informations from Genius API using `self.search()`. 
         Informations are extracted to a class to make life easier
         """
+        self.logger.info("Fetching song " + song + "...")
         data = self.search(song)
         song_endpoint = data.best_api_path
 
@@ -136,6 +140,7 @@ class GeniusAPIClient():
         fetch = self._fetch(request, is_json=True)
         
         obj = GeniusSong(fetch)
+        self.logger.info(f"Found, result: {song}")
         return obj
     
     def get_lyrics(self, lyrics_song_name: str) -> str:
@@ -144,8 +149,7 @@ class GeniusAPIClient():
         Uses bs4 to scrape data from path fetched from function above
         """
         song = self.get_song(lyrics_song_name)
-        print(song.path)
-        req = self._build_request("https://genius.com" + song.path, headers={
+        req = self._build_request(song.url, headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",
         })
         fetched = self._fetch(req)

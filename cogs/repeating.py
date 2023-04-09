@@ -38,6 +38,6 @@ class RepeatCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
-    help_utils.register_command("repeat", "Choose a repeating mode", "Music: Base commands", [("mode", "What mode you want to choose?", True)])
+    help_utils.register_command("repeat", "Choose a repeating mode", "Music", [("mode", "What mode you want to choose?", True)])
     await bot.add_cog(RepeatCommands(bot),
                 guilds=[discord.Object(id=g.id) for g in bot.guilds])

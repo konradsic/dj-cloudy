@@ -17,6 +17,18 @@ from music.songs import (
     GeniusSong
 )
 
+def remove_brackets(string):
+    string = list(string)
+    span_i = -1
+    for i,elem in enumerate(string):
+        if elem == "(":
+            span_i = i
+        if elem == ")" and span_i != -1:
+            del string[span_i:i+1]
+            break
+    return "".join(e for e in string)
+
+
 @logger.LoggerApplication
 class LyricsCommandHandler(commands.Cog):
     def __init__(self, bot, logger):
@@ -27,12 +39,12 @@ class LyricsCommandHandler(commands.Cog):
     @app_commands.describe(song="Song you want lyrics for")
     async def lyrics_command(self, interaction: discord.Interaction, song: str = None):
         await interaction.response.defer(ephemeral=True, thinking=True)
-        voice = interaction.user.voice
-        if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed, ephemeral=True)
-            return
         if song is None:
+            voice = interaction.user.voice
+            if not voice:
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
             if not (player := self.bot.node.get_player(interaction.guild.id)):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
@@ -51,7 +63,7 @@ class LyricsCommandHandler(commands.Cog):
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
-        client = self.bot.genius
+        client: GeniusAPIClient = self.bot.genius
         title, artist = None,None
         before_song = song + ""
         if not song: # we need to get current song
@@ -62,16 +74,21 @@ class LyricsCommandHandler(commands.Cog):
                 song = "ytsearch:" + song
             try:
                 queried_song = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
-                queried_song = queried_song[0]
-                title = queried_song.title
-                artist = queried_song.author
+                if queried_song:
+                    queried_song = queried_song[0]
+                    title = queried_song.title
+                    artist = queried_song.author
+                else:
+                    title = before_song
+                    artist = "Unknown"
             except:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
         try:
-            song = client.get_lyrics(title)
+            title = remove_brackets(title)
+            song = client.get_lyrics(title + " " + artist)
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
             title = title + " by " + artist
         except Exception as e:
@@ -116,7 +133,7 @@ class LyricsCommandHandler(commands.Cog):
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 1000, interaction.user))
 
 async def setup(bot):
-    help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Miscellaneous", [("song","Song you want lyrics for", False)])
+    help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Music", [("song","Song you want lyrics for", False)])
     await bot.add_cog(
         LyricsCommandHandler(bot),
         guilds =[discord.Object(id=g.id) for g in bot.guilds]
