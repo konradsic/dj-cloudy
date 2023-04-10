@@ -27,7 +27,7 @@ class EventHandlerCog(commands.Cog):
     async def on_guild_join(self, guild):
         try:
             # change presence
-            await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
+            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
             # sync commands with the new guild
             await self.bot.tree.sync(guild=guild)
             self.logger.info(f"GUILD_JOIN : {guild.id} -> synced, changed presence")
@@ -39,7 +39,7 @@ class EventHandlerCog(commands.Cog):
     async def on_guild_remove(self, guild):
         try:
             # change presence
-            await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
+            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
             # log
             self.logger.info(f"GUILD_REMOVE : {guild.id} -> changed presence")
         except Exception as e:
