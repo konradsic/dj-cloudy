@@ -10,6 +10,7 @@ from utils.regexes import URL_REGEX
 from utils.errors import NoPlayerFound
 from utils.base_utils import convert_to_double, double_to_int
 from utils import logger
+from utils.configuration import ConfigurationHandler
 
 @logger.LoggerApplication
 class SeekAndRestartCog(commands.Cog):
@@ -50,6 +51,7 @@ class SeekAndRestartCog(commands.Cog):
     @app_commands.command(name="seek", description="Seek the player to given position")
     @app_commands.describe(position="Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s")
     async def seek_command(self, interaction: discord.Interaction, position: str=None):
+        cfg = ConfigurationHandler(interaction.user.id, user=True)
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -76,14 +78,23 @@ class SeekAndRestartCog(commands.Cog):
 
         # check if user inputted correct position
         if position is None:
-            if player.position+15 > player.queue.current_track.length:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return "cannot seek forward"
-            await player.seek(int((player.position+15)*1000))
-            embed = discord.Embed(description="<:seek_button:1030534160844062790> Seeked forward by `15 seconds`", color=BASE_COLOR)
+            seekForward = cfg.data["seekForward"]["value"]
+            seekDuration = cfg.data["defaultSeekAmount"]["value"]
+            if seekForward:
+                if player.position/1000+seekDuration > player.queue.current_track.length/1000:
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds",color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+                await player.seek(int(round(player.position/1000+seekDuration)*1000))
+            else:
+                if player.position/1000-seekDuration < 0:
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds",color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+                await player.seek(int(round(player.position/1000-seekDuration)*1000))
+            embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Seeked {'forward' if seekForward else 'backwards'} by `{seekDuration} seconds`", color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
-            return "15s forward success!"
+            return "relative seek success!"
         h,m,s = 0,0,0
         try:
             pos = position.split(":")

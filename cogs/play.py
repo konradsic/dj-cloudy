@@ -31,7 +31,6 @@ number_complete = {
 }
 
 def compose_progressbar(progress, end):
-    print(progress, end)
     perc = round(progress/end*20) # there will be 20 emoji progressbars
     bar = ""
     if perc in [0,1]: 

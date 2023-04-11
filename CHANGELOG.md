@@ -1,6 +1,51 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.2.0
+One of the biggest updates to this bot so far. This update focuses on configuration features, but there are also a lot of side changes that this update has
+
+**Developers side**
+* Added `extraConfig` to configuration alongside two extra configs.
+    Example:
+    ```json
+    {
+        ...,
+        "extraConfig": {
+            "logger.formatFilesUsingDatetime": true,
+            "logger.limitLogsTo": ["100", "MB"]
+        }
+    }
+    ```
+    As you can see, you can now additionally format logger files using datetime and limit log files to specific limit. Values are just examples, have fun with setting them
+* Renamed `save_file` to `logs_directory`, it now acts as a directory, not file due to `extraConfig:logger.formatFilesUsingDatetime`
+* Added `music.songs` for getting lyrics, but the `GeniusSong` class I've implemented can be used in future to gather song data
+* Updated WaveLink to 2.0, now requires Lavalink v3.5 or higher
+* Added lavalink config to config file
+* Updates to logger, now saves only messages above or equal to the set level
+
+**Users side**
+* Fixed bugs caused by updating wavelink version
+* Fixed seeking
+* Added configuration commands:
+```
+/config view <user: bool>
+/config set-user <key: str> <value: str>
+/config set-guild <key: str> <value: str>
+/config reset <profile: USER/GUILD>
+/config reset-value <profile: USER/GUILD> <key: str>
+``` 
+* Config keys and types of values:
+```
+USER:
+seekForward (bool)
+defaultSeekAmount (int, in seconds)
+GUILD:
+inactiveTimeout (int, in minutes)
+djRole (role, NotImplementedFunctionality)
+maxVolume (int)
+```
+* Bugfixes and many more...
+
 ## Version pre-1.2.0
 Version 1.2.0 brings the configuration update to us, but this is just a pre-release. What is added:
 - Configuration utils file (utils/configuration.py) with handler class

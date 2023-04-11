@@ -6,7 +6,7 @@ If you are cloning this repo make sure to credit me for my hard work!
 🌟 Star the repo if you like music and DJ Cloudy!
 
 * 📜 License: `MIT License`, see `LICENSE` file for more info
-* 📝 Version: `pre-1.2.0`, visit the `CHANGELOG.md` for more info
+* 📝 Version: `1.2.0`, visit the `CHANGELOG.md` for more info
 
 ## 🎶 Easy to use, rich feature music bot
 With a lot of commands and features people will become more active on your server. <br>

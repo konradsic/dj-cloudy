@@ -5,15 +5,15 @@ A Discord bot that adds music functionality to your server.
 :copyright: 2022-present @konradsic
 :license: MIT License, see license files for more details.
 """
-# TODO: Configuration system
+# TODO: Implement djRole functionality
 #######################################################################
 
-__version__ = "pre-1.2.0"
+__version__ = "1.2.0"
 __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
 
-MIN_REQ_VERSION = "1.0.2"
+MIN_REQ_VERSION = "1.2.0"
 
 import asyncio
 import datetime
