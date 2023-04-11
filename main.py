@@ -40,6 +40,7 @@ from utils.base_utils import (check_for_updates, clearscreen,
                               hide_cursor, inittable, load_logger_config,
                               make_files, show_cursor, show_figlet)
 from utils.colors import BASE_COLOR
+from utils.services.garbage import GarbageCollectionService
 
 clearscreen()
 font = show_figlet()
@@ -75,6 +76,7 @@ logger.preinit_logs()
 main_logger.info(f"Initializing DJ Cloudy on device [{device}], PID: {pid}")
 main_logger.info(f"{path_to} started by [{user}] (effective user: {effective_user})")
 main_logger.info("Loaded logger config successfully, changes were applied")
+garbage = GarbageCollectionService(1200)
 
 # checking up on the rate limits
 r = requests.head(url="https://discord.com/api/v1")
@@ -161,6 +163,7 @@ class DJ_Cloudy(commands.Bot):
         self.logger.info(f"Loading extensions done (took {took}s)")
 
     async def close(self):
+        garbage.close()
         try:
             self.logger.info("Closing gateway...")
             await super().close()
