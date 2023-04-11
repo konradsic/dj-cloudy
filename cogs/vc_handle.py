@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import sys
 
@@ -11,6 +12,7 @@ from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.base_utils import get_config
 from utils.colors import BASE_COLOR
+from utils.configuration import ConfigurationHandler
 from utils.errors import NoPlayerFound
 
 logging = logger.Logger().get("cogs.vc_handle")
@@ -70,6 +72,7 @@ class VC_Handler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
+        config = ConfigurationHandler(id=member.guild.id, user=False)
         if not member.bot and ((after.channel is None) or (after.channel != before.channel)):
             if before.channel is not None:
                 if not [m for m in before.channel.members if not m.bot]:
@@ -87,11 +90,23 @@ class VC_Handler(commands.Cog):
                             cont = False
                         if not player.paused_vc and cont:
                             await player.pause()
+                            disconnect_after = config.data["inactiveTimeout"]["value"]
                             if player.channel is not None:
-                                embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused because everybody left",color=BASE_COLOR)
+                                embed = discord.Embed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused because everybody left. Disconnecting in `{disconnect_after}min`",color=BASE_COLOR)
                                 await player.bound_channel.send(embed=embed)
                             player.paused_vc = True
-
+                            # use inactiveTimeout config value to check if users are disconnected after time passes
+                            # wait
+                            await asyncio.sleep(disconnect_after*60)
+                            # get channel
+                            for channel in member.guild.voice_channels:
+                                if str(channel.id) == str(before.channel.id):
+                                    # check
+                                    if not [m for m in before.channel.members if not m.bot]:
+                                        await player.teardown()
+                                        embed = discord.Embed(description=f"<:channel_button:1028004864556531824> Disconnected due to inactivity. Start a new party using `/connect` or `/play`!",color=BASE_COLOR)
+                                        await player.bound_channel.send(embed=embed)
+                            
         try:
             if len(list([m for m in member.voice.channel.members if not m.bot])) >= 1:
                 player = wavelink.NodePool.get_connected_node().get_player(int(member.guild.id))
