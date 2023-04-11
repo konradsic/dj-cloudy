@@ -88,7 +88,10 @@ class LyricsCommandHandler(commands.Cog):
 
         try:
             title = remove_brackets(title)
-            song = client.get_lyrics(title + " " + artist)
+            try:
+                song = client.get_lyrics(title + " " + artist)
+            except:
+                song = client.get_lyrics(title)
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
             title = title + " by " + artist
         except Exception as e:
@@ -99,18 +102,6 @@ class LyricsCommandHandler(commands.Cog):
         # paginator yay
         # split for 35 lines each
         lyrics = lyrics.split("\n")
-        for i in range(len(lyrics)):
-            line = lyrics[i]
-            if line.startswith(f"{title} Lyrics"):
-                lyrics[i] = line[len(f"{title} Lyrics"):]
-            elif line.endswith("You might also likeEmbed"):
-                lyrics[i] = line[:-len("You might also likeEmbed")]
-            # after removing
-            if line.endswith("Embed"):
-                lyrics[i] = line[:-len("Embed")]
-            # just realised that it can also start with that sht
-            if line.startswith("You might also like"):
-                lyrics[i] = line[len("You might also like"):]
         if len(lyrics) <= 35:
             lyric_groups = [lyrics]
         else:

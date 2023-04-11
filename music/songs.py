@@ -4,6 +4,7 @@ import json
 import http
 from bs4 import BeautifulSoup
 from utils import logger
+import requests
 
 URL_BASE = "https://api.genius.com"
 SEARCH_ENDPOINT = "/search?q="
@@ -111,7 +112,8 @@ class GeniusAPIClient():
         url = URL_BASE + endpoint
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",
-            "Authorization": f"Bearer {self._bearer}"
+            "Authorization": f"Bearer {self._bearer}",
+            "Host": "api.genius.com"
         }
         return url, headers
     
@@ -140,7 +142,7 @@ class GeniusAPIClient():
         fetch = self._fetch(request, is_json=True)
         
         obj = GeniusSong(fetch)
-        self.logger.info(f"Found, result: {song}")
+        self.logger.info(f"Found, result: {str(obj)}")
         return obj
     
     def get_lyrics(self, lyrics_song_name: str) -> str:
@@ -149,12 +151,14 @@ class GeniusAPIClient():
         Uses bs4 to scrape data from path fetched from function above
         """
         song = self.get_song(lyrics_song_name)
-        req = self._build_request(song.url, headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",
-        })
-        fetched = self._fetch(req)
 
-        soup = BeautifulSoup(fetched, "html.parser")
+        with requests.Session() as session:
+            res = session.get(song.url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",
+                "Host": "genius.com"
+            })        
+
+        soup = BeautifulSoup(res.text, "html.parser")
         found = soup.find("div", {"data-lyrics-container": True})
         
         found_parser = BeautifulSoup(str(found).replace("<br>", "<br/>").replace("<br/>", "\n"), "html.parser")
