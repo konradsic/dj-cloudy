@@ -43,7 +43,10 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
     try:
         if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
             query = query[2:]
-        tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
+        while True:
+            tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
+            if not tracks: continue
+            break
         if not tracks:
             return []
         return [
@@ -112,7 +115,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed = discord.Embed(description="No tracks in the playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_footer(text="Made by Konradoo#6938")
-            embed.set_author(name=f"{user.name}'s playlist: STARRED", icon_url=user.display_avatar.url)
+            embed.set_author(name=f"{user.name}'s playlist: {'STARRED' if starred else found['name']}", icon_url=user.display_avatar.url)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         num_fields = len(fields)//6
@@ -133,7 +136,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed = discord.Embed(description="Those are the tracks in user's playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_footer(text="Made by Konradoo#6938")
-            embed.set_author(name=f"{user.name}'s playlist: {found['name']}#{found['id']}", icon_url=user.display_avatar.url)
+            embed.set_author(name=f"{user.name}'s playlist: {found['name'] + '#' + found['id'] if found.get('name', '') else 'STARRED'}", icon_url=user.display_avatar.url)
             embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
             embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
             embeds.append(embed)

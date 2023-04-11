@@ -193,13 +193,19 @@ async def view_playlist_menu(interaction: discord.Interaction, user: discord.Mem
         for i, p in enumerate(handler.playlists,1):
             total_duration = 0
             for track in p['tracks']:
-                d = await bot.node.get_tracks(cls=wavelink.Track, query=track)
-                total_duration += d[0].length
+                while True:
+                    d = await bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
+                    if not d: continue
+                    total_duration += d[0].length
+                    break
             playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*\n"
     starred_dur = 0
     for t in handler.data['starred-playlist']:
-        d = await bot.node.get_tracks(cls=wavelink.Track, query=t)
-        starred_dur += d[0].length
+        while True:
+            d = await bot.node.get_tracks(cls=wavelink.GenericTrack, query=t)
+            if not d: continue
+            starred_dur += d[0].length
+            break
     starred_playlist_data = f"{len(handler.data['starred-playlist'])} total songs, total duration `{get_length(starred_dur)}`\n"
     embed = discord.Embed(description="These are the user's playlists", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
     embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
@@ -218,10 +224,13 @@ async def view_starred_playlist_menu(interaction: discord.Interaction, member: d
     if starred_playlist:
         track_data = ""
         for i, song in enumerate(starred_playlist,1):
-            cls_song = await bot.node.get_tracks(cls=wavelink.Track, query=song)
-            cls_song = cls_song[0]
-            total_duration += cls_song.duration
-            track_data += f'**{i}.** [{cls_song.title}]({cls_song.uri}) `[{get_length(cls_song.duration)}]`\n'
+            while True:
+                cls_song = await bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
+                if not cls_song: continue
+                cls_song = cls_song[0]
+                total_duration += cls_song.duration
+                track_data += f'**{i}.** [{cls_song.title}]({cls_song.uri}) `[{get_length(cls_song.duration)}]`\n'
+                break
     embed = discord.Embed(description="These are the user's starred/liked songs", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
     embed.set_footer(text="Made by Konradoo#6938")
     embed.set_thumbnail(url=bot.user.display_avatar.url)
