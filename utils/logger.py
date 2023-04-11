@@ -19,7 +19,8 @@ loggers = {}
 config = {
     "longest_cls_len": 0,
     "logging-path": "bot-logs/bot.log",
-    "logging_level": LogLevels.INFO
+    "logging_level": LogLevels.INFO,
+    "optimal_leng": 35
 }
 
 log_colors = {
@@ -38,6 +39,19 @@ BYTE_CONV_RATES = {
     ("B", "MB"): 1000**2,
     ("B", "GB"): 1000**3
 }
+
+def fit_logger_cls(cls_name, length):
+    if len(cls_name) <= length: return cls_name
+    # split parts and compose current class name
+    parts = cls_name.split(".")    
+    composed = "".join(part + "." for part in parts[:-1]) + parts[-1]
+    current_idx = 0
+    # iterate over until it's smaller than length
+    while len(composed) > length:
+        parts[current_idx] = parts[current_idx][0]
+        composed = "".join(part + "." for part in parts[:-1]) + parts[-1]
+        current_idx += 1
+    return composed
 
 def preinit_logs():
     # config
@@ -137,20 +151,35 @@ def save_logs(msg):
                 del filenames[0]
                 sizes = convert_bytes(dir_size(log_dir), "B", byte)
 
+def optimal_length(string, before, leng, err):
+    if leng-err <= len(string) <= leng+err:
+        return len(string)
+    return before
+
 # @decorator
 def LoggerApplication(cls):
     def wrapper(*args, **kwargs):
         fullpath = remove_underscores(cls.__module__) + "." + cls.__name__
         clen = len(fullpath)
-        if clen > config["longest_cls_len"]:
-            config["longest_cls_len"] = clen
+        if config["optimal_leng"] == 35:
+            shorted = fit_logger_cls(fullpath, 38)
+            origin_opt = optimal_length(fullpath, 35, 35, 3)
+            shorted_opt = optimal_length(shorted, 35, 35, 3)
+            # check if matched
+            if origin_opt == clen: config["optimal_leng"] = origin_opt
+            if shorted_opt == len(shorted): config["optimal_leng"] = shorted_opt
         return cls(*args, **kwargs, logger=Logger(name=fullpath))
     return wrapper
 
 def register_cls(cls):
-    leng = len(cls)
-    if leng > config["longest_cls_len"]:
-        config["longest_cls_len"] = leng
+    clen = len(cls)
+    if config["optimal_leng"] == 35:
+        shorted = fit_logger_cls(cls, 38)
+        origin_opt = optimal_length(cls, 35, 35, 3)
+        shorted_opt = optimal_length(shorted, 35, 35, 3)
+        # check if matched
+        if origin_opt == clen: config["optimal_leng"] = origin_opt
+        if shorted_opt == len(shorted): config["optimal_leng"] = shorted_opt
 
 
 class Logger:
@@ -190,15 +219,15 @@ class Logger:
     # logging part, yay
     def _log(self, log_type, message):
         color = log_colors[log_type]
-        longest_logger_name = config["longest_cls_len"]
+        longest_logger_name = config["optimal_leng"]
         msg = ""
+        fit = fit_logger_cls(self.name, config['optimal_leng'])
         if log_type == "CRITICAL":
-            msg = f"{Fore.RED}{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {self.name}{' '*(longest_logger_name+1-len(self.name))}CRITICAL : {message}"
+            msg = f"{Fore.RED}{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {fit}{' '*(longest_logger_name+1-len(fit))}CRITICAL : {message}"
         else:
-            msg = f"{Style.DIM}{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} {Fore.CYAN}{self.name}{' '*(longest_logger_name+1-len(self.name))}{color}{BOLD_ON}{log_type}{BOLD_OFF}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} : {message}"
+            msg = f"{Style.DIM}{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]}{Style.RESET_ALL} {Fore.CYAN}{fit}{' '*(longest_logger_name+1-len(fit))}{color}{BOLD_ON}{log_type}{BOLD_OFF}{' '*(5-len(log_type))}{Fore.WHITE}{Style.RESET_ALL} : {message}"
         if is_level_logged(get_level_from_string(log_type)):
             print(msg)
-
             save_logs(msg)
 
     def debug(self, message):
@@ -216,22 +245,7 @@ class Logger:
     def critical(self, message):
         self._log("CRITICAL", message)
 
-#message = f"{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} [{process_name}{' '*(len_process-len(process_name))}] {self.name}{Fore.WHITE}{' '*(longest_logger_name-len(self.name))} CRITICAL -- {message}"
 
-def print_logs(history):
-    """
-    print_logs
-    ------------
-    Prints out logging file to given moment
-
-    Parameters
-    -------
-    `history`:int - length of the history
-    """
-
-    with open(config["logging-path"], mode="r") as file:
-        lines = file.readlines()[-history:]
-        for line in lines:
-            print(line.strip("\n"))
+# print_logs: @deprecated
 
 preinit_logs()
