@@ -111,28 +111,31 @@ async def update_progressbar():
 
 # loading extensions
 async def load_extensions():
-    extensions = []
-    bot.ext_len = 0
-    bot.current_ext_loading = None
-    bot.current_ext_idx = 0
-    for cog in os.listdir('./cogs'):
-        if cog.endswith('.py'):
-            extensions.append("cogs." + cog[:-3])
-    bot.ext_len = len(extensions)
-    main_logger.info(f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
-    thread_loader = threading.Thread(target=asyncio.run, args=(update_progressbar(),))
-    thread_loader.start()
-    ext_loader = threading.Thread(target=asyncio.run, args=(extload(extensions),))
-    ext_loader.start()
-    thread_loader.join()
-    ext_loader.join()
-    while not bot.part_loaded:
-        pass
-    main_logger.info("Extensions loaded successfully, syncing with guilds...")
-    for guild in list(bot.guilds):
-        await bot.tree.sync(guild=guild)
-    main_logger.info(f"Extensions synced with {len(bot.guilds)} guilds")
-    bot.loaded = True
+    try:
+        extensions = []
+        bot.ext_len = 0
+        bot.current_ext_loading = None
+        bot.current_ext_idx = 0
+        for cog in os.listdir('./cogs'):
+            if cog.endswith('.py'):
+                extensions.append("cogs." + cog[:-3])
+        bot.ext_len = len(extensions)
+        main_logger.info(f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
+        thread_loader = threading.Thread(target=asyncio.run, args=(update_progressbar(),))
+        thread_loader.start()
+        ext_loader = threading.Thread(target=asyncio.run, args=(extload(extensions),))
+        ext_loader.start()
+        thread_loader.join()
+        ext_loader.join()
+        while not bot.part_loaded:
+            pass
+        main_logger.info("Extensions loaded successfully, syncing with guilds...")
+        for guild in list(bot.guilds):
+            await bot.tree.sync(guild=guild)
+        main_logger.info(f"Extensions synced with {len(bot.guilds)} guilds")
+        bot.loaded = True
+    except:
+        show_cursor()
 
 @logger.LoggerApplication
 class DJ_Cloudy(commands.Bot):

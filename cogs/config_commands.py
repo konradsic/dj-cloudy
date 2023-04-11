@@ -10,9 +10,8 @@ from utils import (
     logger as logger,
     configuration as cfg)
 from utils.colors import BASE_COLOR
-from utils.errors import (
-    IncorrectValueType
-)
+from utils.errors import IncorrectValueType
+from utils.buttons import ResetCfgConfirmation
 
 
 @logger.LoggerApplication
@@ -45,9 +44,12 @@ class ConfigCog(commands.GroupCog, name="config"):
             # if role then transform
             val = value["value"]
             if value["type"] == "role":
-                val = interaction.guild.get_role(int(value["value"]))
-                if val is not None:
-                    val = val.name
+                if value["value"] is not None:
+                    val = interaction.guild.get_role(int(value["value"]))
+                    if val is not None:
+                        val = val.name
+                else:
+                    val = "null"
             
             description += f"`{key}` **:** `{str(val)}`\n"
 
@@ -161,6 +163,61 @@ class ConfigCog(commands.GroupCog, name="config"):
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             raise e
+        
+    @app_commands.command(name="reset", description="Reset given configuration profile to default values")
+    @app_commands.describe(profile="Type of profile you want to reset. For guilds - required manage_guild permission")
+    @app_commands.choices(profile=[
+        app_commands.Choice(name="GUILD", value=0),
+        app_commands.Choice(name="USER", value=1),
+    ])
+    async def reset_config(self, interaction: discord.Interaction, profile: int):
+        await interaction.response.defer(thinking=True, ephemeral=False)
+        profile = bool(profile)
+        
+        perms = interaction.user.resolved_permissions
+        manage_guild = perms.manage_guild
+        if (not manage_guild) and (profile == False):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        config = cfg.ConfigurationHandler(id=interaction.user.id if profile else interaction.guild.id, user=profile)
+        
+        embed = discord.Embed(description="Confirm you want to reset the configuration by clicking \"Yes\"", color=BASE_COLOR)
+        
+        await interaction.followup.send(embed=embed, view=ResetCfgConfirmation(1000, config, interaction.user), ephemeral=False)
+        
+    @app_commands.command(name="reset-value", description="Reset configuration value for given key")
+    @app_commands.describe(profile="Type of profile you want to reset. For guilds - required manage_guild permission", key="Key you want to reset value for")
+    @app_commands.choices(profile=[
+        app_commands.Choice(name="GUILD", value=0),
+        app_commands.Choice(name="USER", value=1),
+    ])
+    async def reset_value_command(self, interaction: discord.Interaction, profile: int, key: str):
+        await interaction.response.defer(thinking=True, ephemeral=False)
+        profile = bool(profile) 
+        
+        perms = interaction.user.resolved_permissions
+        manage_guild = perms.manage_guild
+        if (not manage_guild) and (profile == False):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        config = cfg.ConfigurationHandler(id=interaction.user.id if profile else interaction.guild.id, user=profile)
+        foundKey = None
+        for k,v in config.data.items():
+            if k.lower() == key.lower():
+                foundKey = k
+                break
+        if not foundKey:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        try:
+            config.restore_default_vaule(foundKey)
+            embed = discord.Embed(description=f"<:tick:1028004866662084659> Success! Set `{foundKey}` to default value", color=BASE_COLOR)
+        except:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to default value", color=BASE_COLOR)
+        await interaction.followup.send(embed=embed, ephemeral=False)
 
 async def setup(bot):
     help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
@@ -171,4 +228,9 @@ async def setup(bot):
     help_utils.register_command("config set-guild", "Set configuration for current guild. Requires `manage_guild` permission", "Configuration",
         [("key", "A parameter you want to change", True),
          ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
+    help_utils.register_command("config reset", "Reset given configuration profile to default values", "Configuration",
+        [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True)])
+    help_utils.register_command("config reset-value", "Reset configuration value for given key", "Configuration",
+        [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True),
+         ("key", "Key you want to reset value for", True)])
     await bot.add_cog(ConfigCog(bot), guilds=bot.guilds)

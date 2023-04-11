@@ -7,6 +7,7 @@ from utils.errors import (
     UserNotFound,
     AuthFailed
 )
+import os
 
 def get_class_from_value(value):
     valType = str(type(value))
@@ -108,13 +109,14 @@ class ConfigurationHandler:
         # restore default of given value
         typeProfile = "user" if self.is_user else "guild"
         fileName = f"default-{typeProfile}.json"
-        with open(fileName, mode="r") as f:
+        with open("data/" + fileName, mode="r") as f:
             data = json.load(f)
         
         try:
             self.data[key] = data[key]
         except KeyError:
             raise KeyDoesNotExist(f"Attempted to reset value for \"{key}\" but it does not exist")
+        self.save()
         return True
         
 
@@ -125,7 +127,7 @@ class ConfigurationHandler:
 
         typeProfile = "user" if self.is_user else "guild"
         fileName = f"default-{typeProfile}.json"
-        with open(fileName, mode="r") as f:
+        with open("data/" + fileName, mode="r") as f:
             data = json.load(f)
         
         self.data = data

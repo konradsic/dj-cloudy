@@ -9,7 +9,7 @@ import wavelink
 
 from .base_utils import RepeatMode
 from .colors import BASE_COLOR
-
+from .configuration import ConfigurationHandler as Config
 
 class PlayButtonsMenu(View):
     def __init__(self, timeout: float=None, user: t.Optional[discord.Member] = None) -> None:
@@ -153,3 +153,34 @@ class EmbedPaginator(View):
     @ui.button(label="►", style=discord.ButtonStyle.blurple)
     async def forward_button(self, interaction: discord.Interaction, button):
         await self.show_page(self.current_page+1, interaction)
+        
+class ResetCfgConfirmation(View):
+    def __init__(self, timeout: float, cfg: Config, user: t.Optional[discord.Member]=None) -> None:
+        super().__init__(timeout=timeout)
+        self.user = user
+        self.config = cfg
+        
+    async def confirm(self, interaction: discord.Interaction, confirmed: bool):
+        self.children[0].disabled = True
+        self.children[1].disabled = True
+        
+        embed = discord.Embed(description="Success! ",color=BASE_COLOR)
+
+        if confirmed: message = "Configuration has been reset"
+        else: message = "Cancelled, nothing changed"
+        embed.description += message
+        
+        try:
+            if confirmed:
+                self.config.reset_to_default(True)
+        except Exception as e:
+            print(e.__class__.__name__, str(e))
+        await interaction.response.edit_message(embed=embed,view=self)
+        
+    @ui.button(label="Yes", style=discord.ButtonStyle.grey)
+    async def confirm_button(self, interaction: discord.Interaction, button):
+        await self.confirm(interaction, True)
+        
+    @ui.button(label="No", style=discord.ButtonStyle.blurple)
+    async def cancel_button(self, interaction: discord.Interaction, button):
+        await self.confirm(interaction, False)
