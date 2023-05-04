@@ -119,7 +119,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         num_fields = len(fields)//6
-        if num_fields != 0:
+        if num_fields == 0:
             num_fields += 1
         per_page = len(fields)//(num_fields-1)
         res_fields = []
