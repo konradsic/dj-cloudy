@@ -1,11 +1,11 @@
 import gc
 import threading
 import time
-from .. import logger
+from . import logger
 import asyncio
 
 @logger.LoggerApplication
-class GarbageCollectionService:
+class GarbageCollector:
     def __init__(self, collect_time: int, logger: logger.Logger):
         """
         Note: collect_time should be an int representing time beetween collecting in seconds
@@ -42,4 +42,10 @@ class GarbageCollectionService:
         before = gc.get_count()
         collected = gc.collect()
         buckets = gc.get_count()
-        self.logger.info(f"Garbage collected, collected: {collected}, {before} -> {buckets}")
+        collected_garbage = sum(before) - sum(buckets)
+        
+        if collected_garbage <= 100:
+            self.logger.info(f"Suspiciously small amount of garbage, buckets: {before}, collected {collected_garbage}")
+            
+        self.logger.debug(f"Collected garbage results: {before} -> {buckets}, collected {collected_garbage} ({collected})")
+            

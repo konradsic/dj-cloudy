@@ -2,6 +2,7 @@ import datetime
 import re
 import time
 import typing as t
+import math
 
 import discord
 import wavelink
@@ -118,10 +119,10 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed.set_author(name=f"{user.name}'s playlist: {'STARRED' if starred else found['name']}", icon_url=user.display_avatar.url)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        num_fields = len(fields)//6
+        num_fields = math.ceil(len(fields)/6)
         if num_fields == 0:
             num_fields += 1
-        per_page = len(fields)//(num_fields-1)
+        per_page = 6
         res_fields = []
         for _ in range(num_fields):
             res_fields.append([])
@@ -262,6 +263,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         for p in handler.playlists:
             if p['name'].lower() == name_or_id.lower() or p['id'].lower() == name_or_id.lower():
                 found = p
+                playlist_id = p['id']
                 break
         if name_or_id.lower() == "starred":
             found = 'starred'

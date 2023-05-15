@@ -18,29 +18,32 @@ MIN_REQ_VERSION = "1.2.0"
 import asyncio
 import datetime
 import getpass
-import logging
 import os
 import platform
 import threading
 import time
+import math
+import traceback
 
 import colorama
 import discord
 import requests
 import wavelink
-from colorama import Back, Fore, Style
+from colorama import Fore, Style
 from discord import app_commands
 from discord.ext import commands
+from utils.buttons import EmbedPaginator
 
 from utils import logger
-from utils import preimports as _  
+from utils import preimports
+del preimports
 # ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
 from utils.base_utils import (check_for_updates, clearscreen,
                               get_application_id, get_bot_token, get_length,
                               hide_cursor, inittable, load_logger_config,
                               make_files, show_cursor, show_figlet)
 from utils.colors import BASE_COLOR
-from utils.services.garbage import GarbageCollectionService
+from utils.garbage import GarbageCollector
 
 clearscreen()
 font = show_figlet()
@@ -76,7 +79,7 @@ logger.preinit_logs()
 main_logger.info(f"Initializing DJ Cloudy on device [{device}], PID: {pid}")
 main_logger.info(f"{path_to} started by [{user}] (effective user: {effective_user})")
 main_logger.info("Loaded logger config successfully, changes were applied")
-garbage = GarbageCollectionService(1200)
+garbage = GarbageCollector(1200)
 
 # checking up on the rate limits
 r = requests.head(url="https://discord.com/api/v1")
@@ -177,7 +180,7 @@ bot = DJ_Cloudy()
 # error handling
 @bot.tree.error
 async def on_command_exception(interaction, error):
-    main_logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}")
+    main_logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}\n{traceback.format_exc()}")
     embed = discord.Embed(description=
         f"<:x_mark:1028004871313563758> An unexcepted error occured while trying to execute this command. Please contact developers for more info. \nDetails:\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
     try:
@@ -223,6 +226,7 @@ async def view_starred_playlist_menu(interaction: discord.Interaction, member: d
     handler = playlist.PlaylistHandler(key=str(member.id))
     starred_playlist = handler.data['starred-playlist']
     track_data = "No tracks in their :star: songs playlist"
+    tracks = []
     total_duration = 0
     if starred_playlist:
         track_data = ""
@@ -232,15 +236,50 @@ async def view_starred_playlist_menu(interaction: discord.Interaction, member: d
                 if not cls_song: continue
                 cls_song = cls_song[0]
                 total_duration += cls_song.duration
-                track_data += f'**{i}.** [{cls_song.title}]({cls_song.uri}) `[{get_length(cls_song.duration)}]`\n'
+                tracks += cls_song
                 break
-    embed = discord.Embed(description="These are the user's starred/liked songs", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
-    embed.set_footer(text="Made by Konradoo#6938")
-    embed.set_thumbnail(url=bot.user.display_avatar.url)
-    embed.set_author(name=f"{member.name}'s starred songs", icon_url=member.display_avatar.url)
-    embed.add_field(name="Tracks", value=track_data, inline=False)
-    embed.add_field(name="Additional info", value=f"Total duration: `{get_length(total_duration)}`\nTotal tracks: **{len(starred_playlist)}**")
-    await interaction.followup.send(embed=embed, ephemeral=True)
+            
+    fields = [
+        f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n"
+        for i in range(len(tracks))
+    ]
+    
+    if track_data:
+        # no tracks in the playlist
+        embed = discord.Embed(description=track_data, timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
+        embed.set_footer(text="Made by Konradoo#6938")
+        embed.set_thumbnail(url=bot.user.display_avatar.url)
+        embed.set_author(name=f"{member.name}'s starred songs", icon_url=member.display_avatar.url)
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        return
+
+    # prepare pagination
+    found = {"tracks": starred_playlist}
+    num_fields = math.ceil(len(fields)/6)
+    if num_fields == 0:
+        num_fields += 1
+    per_page = 6
+    res_fields = []
+    for _ in range(num_fields):
+        res_fields.append([])
+        for _ in range(per_page):
+            try:
+                res_fields[-1].append(fields[0])
+                del fields[0]
+            except:
+                break
+    embeds = []
+    for i, field in enumerate(res_fields, start=1):
+        embed = discord.Embed(description="Those are the tracks in user's playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+        embed.set_thumbnail(url=bot.user.display_avatar.url)
+        embed.set_footer(text="Made by Konradoo#6938")
+        embed.set_author(name=f"{user.name}'s playlist: {found['name'] + '#' + found['id'] if found.get('name', '') else 'STARRED'}", icon_url=user.display_avatar.url)
+        embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
+        embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+        embeds.append(embed)
+    await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user), ephemeral=True)
+    return True
+        
 
 async def copy_user_playlist_menu(interaction: discord.Interaction, member: discord.Member):
     await interaction.response.defer(ephemeral=True, thinking=True)

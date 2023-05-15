@@ -116,7 +116,7 @@ python3 /path/to/project/main.py
 With the path, it's the same as in Windows section
 
 # 💻 Contributing
-You can always submit issues, pull reqiests or chat in "Discussions" page if you have any questions or you found a bug.
+You can always submit issues, pull requests or chat in "Discussions" page if you have any questions or you found a bug.
 
 🐛 There are some issue and pull request templates if you want some help with it. You can also post it via our Discord Support Server (link in the links section). 
 
