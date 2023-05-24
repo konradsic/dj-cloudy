@@ -10,6 +10,7 @@ import json
 import requests
 import uuid
 from . import logger
+from .configuration import ConfigurationHandler
 
 BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
@@ -276,3 +277,13 @@ def load_logger_config():
     except:
         logging.error("Error while parsing logger config, using default config")
         return logger.LogLevels.INFO, "bot-logs"
+    
+def djRole_check(interaction):
+    djRole = ConfigurationHandler(id=str(interaction.guild.id), user=False).data.get("djRole")["value"]
+    if not djRole: return True, djRole # no role - no reqs
+    
+    djRole = str(djRole) # to make sure this is a string
+    user_role_ids = [str(role.id) for role in interaction.user.roles]
+    if djRole in user_role_ids:
+        return True, djRole
+    return False, djRole

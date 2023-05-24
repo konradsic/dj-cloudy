@@ -9,9 +9,10 @@ from discord.ext import commands
 from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.colors import BASE_COLOR
-from utils.buttons import PlayButtonsMenu, EmbedPaginator
-from utils.base_utils import get_length
+from utils.buttons import PlayButtonsMenu, EmbedPaginator, SkipVotingMenu
+from utils.base_utils import get_length, djRole_check
 from utils import logger
+
 
 @logger.LoggerApplication
 class QueueCommands(commands.GroupCog, name="queue"):
@@ -102,6 +103,18 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -128,6 +141,18 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -155,6 +180,18 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="remove", description="Remove track with the given index from the queue")
     @app_commands.describe(index="Index of the song you want to remove")
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -194,6 +231,18 @@ class OtherQueueCommands(commands.Cog):
     @app_commands.command(name="skipto", description="Move the player to the specified position in the queue")
     @app_commands.describe(position="Position in the queue between 1 and queue length")
     async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -222,6 +271,18 @@ class OtherQueueCommands(commands.Cog):
     
     @app_commands.command(name="skip", description="Skip to the next track if one exists")
     async def queue_skip_command(self, interaction: discord.Interaction):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -229,7 +290,7 @@ class OtherQueueCommands(commands.Cog):
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
@@ -249,6 +310,18 @@ class OtherQueueCommands(commands.Cog):
         
     @app_commands.command(name="previous", description="Play the previous track if one exists")
     async def queue_previous(self, interaction: discord.Interaction):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -256,7 +329,7 @@ class OtherQueueCommands(commands.Cog):
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed, ephemeral=True)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
@@ -277,6 +350,33 @@ class OtherQueueCommands(commands.Cog):
         await player.stop()
         embed = discord.Embed(description=f"<:previous_button:1029418191274905630> Playing previous track", color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
+        
+    @app_commands.command(name="voteskip", description="If you don't have DJ perms, this will make a voting for skip")
+    async def voteskip_command(self, interaction: discord.Interaction):
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        if not (player := self.bot.node.get_player(interaction.guild.id)):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        if str(player.channel.id) != str(voice.channel.id):
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+        
+        elif not player.queue.upcoming_tracks:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to",color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+    
+        num_users = len([user for user in interaction.user.voice.channel.members if not user.bot])
+        num_votes = math.ceil(num_users/2)
+        embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Voting for skip! (0/{num_votes})", color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed, view=SkipVotingMenu(1200, player, num_votes, interaction.user.voice.channel, True))
 
 
 async def setup(bot: commands.Bot) -> None:

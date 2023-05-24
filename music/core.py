@@ -22,10 +22,11 @@ def shorten_name(string):
         return string[:25] + "..."
     return string
 
-# @log.LoggerApplication
+@log.LoggerApplication
 class MusicPlayer(wavelink.Player):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, logger: log.Logger, **kwargs):
         super().__init__(*args, **kwargs)
+        self.logger = logger
         self.paused_vc = False
         # ! [new in wavelink 2.0] queue is set to wavelink's default queue, so we set it to our!
         self.queue = None 
@@ -116,13 +117,15 @@ class MusicPlayer(wavelink.Player):
             message = f"(guild:`{interaction.guild.name}` channel:`{interaction.user.voice.channel.name}`)"
         except:
             message = "(No additional interaction info)"
-        logger.info(f"Playing {self.queue.current_track.uri} {message}")
+        self.logger.info(f"Playing {self.queue.current_track.uri} {message}")
         await self.play(self.queue.current_track)
 
     async def advance(self):
+        self.logger.debug("Player advance called")
         try:
-            logger.info(f"playing next track (repeat set to {self.queue.repeat.string_mode}, guild {self.guild.id})")
+            self.logger.info(f"playing next track (repeat set to {self.queue.repeat.string_mode}, guild {self.guild.id})")
             next_track = self.queue.get_next_track()
+            self.logger.debug(f"Next track: {next_track}")
             await self.play(next_track)
         except QueueIsEmpty:
             return False
@@ -133,6 +136,6 @@ class MusicPlayer(wavelink.Player):
         try:
             track = self.queue.first_track
             await self.play(track)
-            logger.info(f"Playing first track in guild {self.guild.id}")
+            self.logger.info(f"Playing first track in guild {self.guild.id}")
         except Exception as e:
-            logger.error(f"Failed to play first track in guild {self.guild.id}; caused by {e.__class__.__name__}: {str(e)}")
+            self.logger.error(f"Failed to play first track in guild {self.guild.id}; caused by {e.__class__.__name__}: {str(e)}")

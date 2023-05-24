@@ -22,20 +22,24 @@ class ConfigCog(commands.GroupCog, name="config"):
         super().__init__()
 
     @app_commands.command(name="view", description="View your configuration profile or configuration for this guild")
-    @app_commands.describe(user="Set to true if you want to see your profile, if it's false it will show guild profile")
-    async def config_view_command(self, interaction: discord.Interaction, user: bool=True):
+    @app_commands.describe(profile="What profile configuration you want to view?")
+    @app_commands.choices(profile=[
+        app_commands.Choice(name="USER", value=1),
+        app_commands.Choice(name="GUILD", value=0)
+    ])
+    async def config_view_command(self, interaction: discord.Interaction, profile: int = 1):
         await interaction.response.defer(ephemeral=False, thinking=True)
-        if user:
+        if profile:
             id = interaction.user.id
         else:
             id = interaction.guild.id
         
-        config = cfg.ConfigurationHandler(id=id, user=user)
+        config = cfg.ConfigurationHandler(id=id, user=profile)
         data = config.data
 
         embed = discord.Embed(description="Settings for this profile: key / value\n", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
-        embed.set_author(name="Your configuration profile" if user else "This guild's configuration profile", 
-                         icon_url=interaction.user.display_avatar.url if user else interaction.guild.icon.url)
+        embed.set_author(name="Your configuration profile" if profile else "This guild's configuration profile", 
+                         icon_url=interaction.user.display_avatar.url if profile else interaction.guild.icon.url)
         embed.set_footer(text="https://github.com/konradsic/dj-cloudy")
         
         description = ""
@@ -48,13 +52,14 @@ class ConfigCog(commands.GroupCog, name="config"):
                     val = interaction.guild.get_role(int(value["value"]))
                     if val is not None:
                         val = val.name
+                    val = "@" + val
                 else:
                     val = "null"
             
             description += f"`{key}` **:** `{str(val)}`\n"
 
         embed.description += description
-        await interaction.followup.send(embed=embed, ephemeral=True if user else False)
+        await interaction.followup.send(embed=embed, ephemeral=True if profile else False)
 
     @app_commands.command(name="set-user", description="Set configuration for your profile")
     @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use thier respective ID")
@@ -221,7 +226,7 @@ class ConfigCog(commands.GroupCog, name="config"):
 
 async def setup(bot):
     help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
-        [("user", "Set to true if you want to see your profile, if it's false it will show guild profile", False)])
+        [("profile", "What profile configuration you want to view?", False)])
     help_utils.register_command("config set-user", "Set configuration for your profile", "Configuration",
         [("key", "A parameter you want to change", True),
          ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])

@@ -40,19 +40,9 @@ class VC_Handler(commands.Cog):
         track = additional_info.get('track').title
         info = additional_info.get('info')
         if not (info == None):
-            self.logger.debug(f"Track {track} {info} #{guild} (calling player advance)")
+            self.logger.debug(f"Track {track} {info} #{guild} (calling player advance, queue position: {player.queue.position})")
             await player.advance()
         
-
-    # ! We use on_wavelink_track_end as it also handles on_wavelink_track_end
-    
-    # @commands.Cog.listener()
-    # async def on_wavelink_track_end(self, payload):
-    #     await self.on_player_track_error(payload.player, additional_info={
-    #         "track": payload.track,
-    #         "guild": payload.player.guild,
-    #         "info": payload.reason
-    #     })
     
     @commands.Cog.listener()
     async def on_wavelink_track_event(self, payload):
