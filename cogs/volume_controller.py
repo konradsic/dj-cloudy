@@ -54,7 +54,7 @@ class VolumeController(commands.Cog):
             embed = discord.Embed(description=f"{emoji} Current volume is set to `{volume}%`", color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return
-        await player.set_volume(volume=value)
+        await player.set_volume(value)
 
         emoji = ""
         if value == 0: emoji = "<:volume_none:1029437733631967233>"
