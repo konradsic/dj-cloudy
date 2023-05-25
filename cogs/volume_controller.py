@@ -7,6 +7,7 @@ from discord.ext import commands
 from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils.configuration import ConfigurationHandler
+from utils.base_utils import djRole_check
 
 # from music.core import some-import
 
@@ -17,6 +18,18 @@ class VolumeController(commands.Cog):
     @app_commands.command(name="volume", description="Set or get current playback volume")
     @app_commands.describe(value="Value to set the volume to")
     async def volume_command(self, interaction: discord.Interaction, value: int=None):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         voice = interaction.user.voice
         cfg = ConfigurationHandler(id=interaction.guild.id, user=False)
         if not voice:

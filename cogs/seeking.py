@@ -8,7 +8,7 @@ from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils.errors import NoPlayerFound
-from utils.base_utils import convert_to_double, double_to_int
+from utils.base_utils import convert_to_double, double_to_int, djRole_check
 from utils import logger
 from utils.configuration import ConfigurationHandler
 
@@ -20,6 +20,18 @@ class SeekAndRestartCog(commands.Cog):
 
     @app_commands.command(name="restart", description="Restart current playing track (similiar to seek position: 0:00)")
     async def restart_command(self, interaction: discord.Interaction):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -51,6 +63,18 @@ class SeekAndRestartCog(commands.Cog):
     @app_commands.command(name="seek", description="Seek the player to given position")
     @app_commands.describe(position="Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s")
     async def seek_command(self, interaction: discord.Interaction, position: str=None):
+        # djRole check
+        check, role = djRole_check(interaction)
+        if not check:
+            try:
+                user_vc_len = len(interaction.user.voice.channel.members)
+                if (not user_vc_len == 2):
+                    role = interaction.guild.get_role(int(role))
+                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+                    await interaction.response.send_message(embed=embed, ephemeral=True)
+                    return
+            except: pass
         cfg = ConfigurationHandler(interaction.user.id, user=True)
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:

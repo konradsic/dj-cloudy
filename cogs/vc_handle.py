@@ -25,7 +25,7 @@ class VC_Handler(commands.Cog):
         try:
             self.bot.loop.create_task(self.start_nodes())
         except:
-            pass # preinitialized cog -- commands.Bot does not a loop attr 
+            pass # preinitialized cog -- commands.Bot does not have a loop attr 
         self.node = None
         self._load_spotify_config()
 
