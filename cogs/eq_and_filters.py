@@ -35,18 +35,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         Choice(name="Low Pass", value="low_pass"),
     ])
     async def filters_choose_command(self, interaction: discord.Interaction, filter: str):
-        # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -79,18 +68,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
 
     @app_commands.command(name="reset", description="Reset applied filters")
     async def filters_reset_command(self, interaction: discord.Interaction):
-        # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -135,18 +113,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         Choice(name="boost", value="boost"),
     ])
     async def equalizer_choose_command(self, interaction: discord.Interaction, equalizer: str):
-        # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -187,18 +154,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         Choice(name=str(gain_value), value=gain_value) for gain_value in AEQ_HZ_BANDS
     ])
     async def equalizer_advanced_command(self, interaction: discord.Interaction, band: int, gain: float):
-        # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -240,18 +196,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
 
     @app_commands.command(name="reset", description="Reset applied equalizers. Similiar to /filters reset")
     async def eq_reset_command(self, interaction: discord.Interaction):
-        # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")

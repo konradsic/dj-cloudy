@@ -11,6 +11,7 @@ import requests
 import uuid
 from . import logger
 from .configuration import ConfigurationHandler
+from .colors import BASE_COLOR
 
 BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
@@ -278,12 +279,26 @@ def load_logger_config():
         logging.error("Error while parsing logger config, using default config")
         return logger.LogLevels.INFO, "bot-logs"
     
-def djRole_check(interaction):
+async def djRole_check(interaction: discord.Interaction, logger: logger.Logger):
     djRole = ConfigurationHandler(id=str(interaction.guild.id), user=False).data.get("djRole")["value"]
-    if not djRole: return True, djRole # no role - no reqs
+    if not djRole: return True # no role - no reqs
     
     djRole = str(djRole) # to make sure this is a string
     user_role_ids = [str(role.id) for role in interaction.user.roles]
     if djRole in user_role_ids:
-        return True, djRole
-    return False, djRole
+        return True
+    # ^ if True returned - check passed
+    # failed auth interaction response
+    try:
+        user_vc_len = len(interaction.user.voice.channel.members)
+        if not (user_vc_len == 2):
+            role = interaction.guild.get_role(int(djRole))
+            logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return False
+    except Exception as e: 
+        logger.error(f"DJ Auth failed (id: {interaction.user.id}, exception {e.__class__.__name__}: {str(e)}) ")
+        embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to check for DJ role permissions, try again", color=BASE_COLOR)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return False

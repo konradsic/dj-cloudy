@@ -10,7 +10,7 @@ from wavelink.ext import spotify
 
 from music.core import MusicPlayer
 from utils import help_utils, logger
-from utils.base_utils import get_config
+from utils.base_utils import get_config, djRole_check
 from utils.colors import BASE_COLOR
 from utils.configuration import ConfigurationHandler
 from utils.errors import NoPlayerFound
@@ -172,6 +172,7 @@ class VC_Handler(commands.Cog):
 
     @app_commands.command(name="disconnect", description="Disconnects from channel that bot is in")
     async def disconnect_command(self, interaction: discord.Interaction):
+        if not djRole_check(interaction, self.logger): return
         await interaction.response.defer(thinking=True)
         voice = interaction.user.voice
         if not voice:

@@ -193,12 +193,14 @@ class SkipVotingMenu(View): # player: type: Any (due to circular imports)
         self.num_votes = num_votes
         self.current_votes = 1
         self.forward_track = forward_track
+        self.voted_members = []
         
     def add_vote(self, user: discord.Member):
         if user.bot: return # no bots pls!
-        if user not in [self.vc.members]:
+        if (user not in self.vc.members) and (user not in self.vc.voted_members):
             return
         
+        self.voted_members.append(user)
         self.current_votes += 1
         
     @ui.button(label="Skip!", style=discord.ButtonStyle.blurple)

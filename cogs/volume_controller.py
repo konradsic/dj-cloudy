@@ -18,18 +18,6 @@ class VolumeController(commands.Cog):
     @app_commands.command(name="volume", description="Set or get current playback volume")
     @app_commands.describe(value="Value to set the volume to")
     async def volume_command(self, interaction: discord.Interaction, value: int=None):
-        # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
         voice = interaction.user.voice
         cfg = ConfigurationHandler(id=interaction.guild.id, user=False)
         if not voice:
@@ -49,12 +37,6 @@ class VolumeController(commands.Cog):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-        maxVolume = cfg.data["maxVolume"]["value"]
-        if value is not None:
-            if not (0 <= value <= maxVolume):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Volume value out of range! (max. `{maxVolume}`)",color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
 
         volume = player.volume
         if value is None:
@@ -67,6 +49,14 @@ class VolumeController(commands.Cog):
             embed = discord.Embed(description=f"{emoji} Current volume is set to `{volume}%`", color=BASE_COLOR)
             await interaction.response.send_message(embed=embed)
             return
+        
+        maxVolume = cfg.data["maxVolume"]["value"]
+        if value is not None:
+            if not (0 <= value <= maxVolume):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Volume value out of range! (max. `{maxVolume}`)",color=BASE_COLOR)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+                return
+        if not djRole_check(interaction, self.logger): return
         await player.set_volume(value)
 
         emoji = ""
