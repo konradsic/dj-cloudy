@@ -23,16 +23,15 @@ class ChangelogCommand(commands.Cog):
                 else:
                     fields[-1][1] += line + "\n"
         # small changes to the last field
-        fields = fields[:5]
+        fields = [fields[0]]
         embed = discord.Embed(
             title="Changelog - latest changes to the bot!", 
-            description="This is the changelog. It shows latest changes to the bot. Only 5 latest changes are shown but you can view all changes [**here**](https://github.com/konradsic/dj-cloudy/blob/main/CHANGELOG.md)",
+            description="This is the changelog. It shows latest changes to the bot. Only latest changes are shown but you can view all of them [**here**](https://github.com/konradsic/dj-cloudy/blob/main/CHANGELOG.md)\n",
             color=BASE_COLOR,
             timestamp=datetime.datetime.utcnow()
         )
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        for field in fields:
-            embed.add_field(name=field[0], value=field[1], inline=False)
+        embed.description += f"## {fields[0][0]}\n{fields[0][1]}"
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):

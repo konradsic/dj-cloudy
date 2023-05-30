@@ -1,0 +1,21 @@
+{
+    "PLAYING": [
+        "music in {{num_guilds}} guilds | /help",
+        "/help",
+        "with my developers | /changelog"
+    ],
+    "LISTENING": [
+        "Spotify",
+        "YouTube Music",
+        "Soundcloud",
+        "Bandcamp",
+        "muisc"
+    ],
+    "WATCHING": [
+        "you",
+        "new features"
+    ],
+    "COMPETING": [
+        "music quiz"
+    ]
+}

@@ -26,11 +26,9 @@ class EventHandlerCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         try:
-            # change presence
-            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
             # sync commands with the new guild
             await self.bot.tree.sync(guild=guild)
-            self.logger.info(f"GUILD_JOIN : {guild.id} -> synced, changed presence")
+            self.logger.info(f"GUILD_JOIN : {guild.id} -> synced application tree")
         except Exception as e:
             self.logger.error(f"GUILD_JOIN : failed to sync with guild {guild.id}. Error - {e.__class__.__name__}: {str(e)}")
         
@@ -38,10 +36,8 @@ class EventHandlerCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         try:
-            # change presence
-            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f"music in {len(self.guilds)} guilds | /help"))
             # log
-            self.logger.info(f"GUILD_REMOVE : {guild.id} -> changed presence")
+            self.logger.info(f"GUILD_REMOVE : {guild.id}")
         except Exception as e:
             self.logger.error(f"GUILD_REMOVE : failed to sync with guild {guild.id}. Error - {e.__class__.__name__}: {str(e)}")
     
