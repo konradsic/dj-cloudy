@@ -223,9 +223,11 @@ class QueueCommands(commands.GroupCog, name="queue"):
         embed = discord.Embed(description=f"<:playlist_button:1028926036181794857> Successfully removed track at position `{index}`",color=BASE_COLOR)
         await interaction.response.send_message(embed=embed)
         return
-    
+
+@logger.LoggerApplication
 class OtherQueueCommands(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, logger: logger.Logger):
+        self.logger = logger
         self.bot = bot
 
     @app_commands.command(name="skipto", description="Move the player to the specified position in the queue")
