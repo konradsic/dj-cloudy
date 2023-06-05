@@ -227,7 +227,8 @@ def is_update_required(current_version, min_version):
     """
     (new) Check if version is higher or equal to min_version, else throw error
     """
-    current_version = tuple(current_version.split("-")[1].split(".")) # tuple
+    if not current_version[-1].isdigit: # e.g. 1.2.1b
+        current_version = current_version[:-1]
     min_version = tuple(min_version.split("."))        # tuple
     
     # from highest to lowest
