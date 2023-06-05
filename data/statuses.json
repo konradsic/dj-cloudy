@@ -9,11 +9,14 @@
         "YouTube Music",
         "Soundcloud",
         "Bandcamp",
-        "muisc"
+        "music",
+        "Beethoven classics",
+        "the audience"
     ],
     "WATCHING": [
-        "you",
-        "new features"
+        "you | /help",
+        "new features",
+        "YouTube"
     ],
     "COMPETING": [
         "music quiz"

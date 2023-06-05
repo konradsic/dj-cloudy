@@ -12,10 +12,11 @@ from utils.colors import BASE_COLOR
 from utils.buttons import PlayButtonsMenu, EmbedPaginator, SkipVotingMenu
 from utils.base_utils import get_length, djRole_check
 from utils import logger
-
+ 
 
 @logger.LoggerApplication
 class QueueCommands(commands.GroupCog, name="queue"):
+    # TODO: Add djRole upgraded check to QueueCommands
     def __init__(self, bot: commands.Bot, logger) -> None:
         self.bot = bot
         self.logger = logger
@@ -104,17 +105,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="shuffle", description="Shuffle the queue")
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction):
         # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -142,17 +133,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
         # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -181,17 +162,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.describe(index="Index of the song you want to remove")
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
         # djRole check
-        check, role = djRole_check(interaction)
-        if not check:
-            try:
-                user_vc_len = len(interaction.user.voice.channel.members)
-                if (not user_vc_len == 2):
-                    role = interaction.guild.get_role(int(role))
-                    self.logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} in order to use DJ commands", color=BASE_COLOR)
-                    await interaction.response.send_message(embed=embed, ephemeral=True)
-                    return
-            except: pass
+        if not djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)

@@ -1,6 +1,39 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.2.1
+This version adds new and cool features to the bot.
+
+First of all, as promised, `djRole` checks are now in all commands that require it (check list below). 
+**Note**: if `djRole` was not set (by `/config set-guild key:djRole value:roleid`) then all users have elevated, DJ permissions (they can use all DJ commands)
+Support for custom changing status has been added. You can easily modify the interval between changes and randomly displaying statuses (`PLAYING, WATCHING, COMPETING, LISTENING`).
+
+**List of commands that require DJ Role**
+1. `/volume` when setting volume (when no arguments are passed everyone can use it)
+2. `/repeat`
+3. (selected - not all) Queue related:
+    **a)** `/queue shuffle`
+    **b)**`/queue remove`
+    **c)** `/queue cleanup`
+6. Equalizer and filters related
+    **a)** `/equalizers choose`
+    **b)** `/equalizers reset`
+    **c)** `/equalizers advanced`
+    **d)** `/filters choose`
+    **e)** `/filters reset`
+7. `/disconnect`
+8. Pause and resume commands
+    **a)** `/pause`
+    **b)** `/resume`
+9. `/playlists play` when `replace_queue: True`
+10. Seeking commands:
+    **a)** `/seek`
+    **b)** `/restart`
+
+If any other command will require DJ role checks, or if I didn't add all commands to this list, then it will be updated - stay tuned!
+
+This is the new **required version**, make sure to update your local bot now! All version below are **deprecated** and won't work (the bot will throw a critical error).
+
 ## Version 1.2.0
 One of the biggest updates to this bot so far. This update focuses on configuration features, but there are also a lot of side changes that this update has
 

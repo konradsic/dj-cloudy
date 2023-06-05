@@ -43,6 +43,7 @@ class MiscCommands(commands.Cog):
 
     @app_commands.command(name="botinfo", description="Gathers most of informations about the bot and Wavelink nodes")
     async def botinfo_command(self,interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True, ephemeral=True)
         # gather all informations below:
         nodes = [get_nodes()]
         node_data = "".join(f'**Node `{node.id}`** with status `{node.status}`\n  - Host: URI `{basic_auth("uri", node.uri, interaction.user)}`\n' for node in nodes)
@@ -66,7 +67,7 @@ class MiscCommands(commands.Cog):
             value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nCreated by: [Konradoo](https://github.com/konradsic)\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_footer(text=f"Requested by {interaction.user} | Licensed under the MIT License")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:
