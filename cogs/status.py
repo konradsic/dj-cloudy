@@ -49,7 +49,7 @@ class StatusChangerCog(commands.Cog):
         
     async def presence_loop(self):
         await self.bot.wait_until_ready()
-        before_status = ""
+        before_status = "PLAYING"
         
         while not self.bot.is_closed():
             activity_type, status, activity_name = await self.get_random_status(before_status)
@@ -59,7 +59,7 @@ class StatusChangerCog(commands.Cog):
                 discord.Status.idle,
                 discord.Status.online
             ]))
-            self.logger.info(f"Changed status to [{activity_name} {status}]")
+            self.logger.info(f"Changed status to [{activity_name}: {status}]")
             await asyncio.sleep(random.randint(*self.status_change_range))
     
         
