@@ -36,23 +36,24 @@ class StatusChangerCog(commands.Cog):
         playing = self.statuses.get("PLAYING")
 
         next_statuses = {
-            "LISTENING": (watching, "WATCHING"),
-            "WATCHING": (competing, "COMPETING"),
-            "COMPETING": (playing, "PLAYING"),
-            "PLAYING": (listening, "LISTENING"),
+            "LISTENING": (watching, "WATCHING", discord.ActivityType.watching),
+            "WATCHING": (competing, "COMPETING", discord.ActivityType.competing),
+            "COMPETING": (playing, "PLAYING", discord.ActivityType.playing),
+            "PLAYING": (listening, "LISTENING", discord.ActivityType.listening),
         }
         random_status = random.choice(next_statuses[before_category][0])
+        status_name, activity_type = next_statuses[before_category][1:]
         
         # ! tagscript -- replace tags with appropriate values
         random_status = random_status.replace("{{num_guilds}}", str(len(self.bot.guilds)))
-        return random_status, next_statuses[before_category][1]
+        return random_status, status_name, activity_type
         
     async def presence_loop(self):
         await self.bot.wait_until_ready()
         before_status = "PLAYING"
         
         while not self.bot.is_closed():
-            activity_type, status, activity_name = await self.get_random_status(before_status)
+            status, activity_name, activity_type = await self.get_random_status(before_status)
             before_status = status
             await self.bot.change_presence(activity=discord.Activity(type=activity_type, name=status), status=random.choice([
                 discord.Status.do_not_disturb,
