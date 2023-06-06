@@ -172,7 +172,7 @@ class VC_Handler(commands.Cog):
 
     @app_commands.command(name="disconnect", description="Disconnects from channel that bot is in")
     async def disconnect_command(self, interaction: discord.Interaction):
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         await interaction.response.defer(thinking=True)
         voice = interaction.user.voice
         if not voice:

@@ -46,15 +46,15 @@ class StatusChangerCog(commands.Cog):
         
         # ! tagscript -- replace tags with appropriate values
         random_status = random_status.replace("{{num_guilds}}", str(len(self.bot.guilds)))
-        return random_status, status_name, activity_type
+        return status_name, random_status, activity_type
         
     async def presence_loop(self):
         await self.bot.wait_until_ready()
         before_status = "PLAYING"
         
         while not self.bot.is_closed():
-            status, activity_name, activity_type = await self.get_random_status(before_status)
-            before_status = status
+            activity_name, status, activity_type = await self.get_random_status(before_status)
+            before_status = activity_name
             await self.bot.change_presence(activity=discord.Activity(type=activity_type, name=status), status=random.choice([
                 discord.Status.do_not_disturb,
                 discord.Status.idle,

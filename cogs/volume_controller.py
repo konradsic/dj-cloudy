@@ -8,12 +8,14 @@ from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils.configuration import ConfigurationHandler
 from utils.base_utils import djRole_check
-
+from utils import logger
 # from music.core import some-import
 
+@logger.LoggerApplication
 class VolumeController(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot: commands.Bot, logger: logger.Logger) -> None:
         self.bot = bot
+        self.logger = logger
 
     @app_commands.command(name="volume", description="Set or get current playback volume")
     @app_commands.describe(value="Value to set the volume to")
@@ -56,7 +58,7 @@ class VolumeController(commands.Cog):
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Volume value out of range! (max. `{maxVolume}`)",color=BASE_COLOR)
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         await player.set_volume(value)
 
         emoji = ""

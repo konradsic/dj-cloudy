@@ -6,14 +6,18 @@ from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound
 from utils import help_utils
 from utils.base_utils import djRole_check
+from utils import logger
 
+
+@logger.LoggerApplication
 class PlayPauseCommands(commands.Cog):
-    def __init__(self,bot: commands.Bot) -> None:
+    def __init__(self,bot: commands.Bot, logger: logger.Logger) -> None:
         self.bot = bot
+        self.logger = logger
 
     @app_commands.command(name="pause", description="Pauses current playing track")
     async def pause_command(self, interaction: discord.Interaction):
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -45,7 +49,7 @@ class PlayPauseCommands(commands.Cog):
         
     @app_commands.command(name="resume", description="Resumes paused playback")
     async def resume_command(self, interaction: discord.Interaction):
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")

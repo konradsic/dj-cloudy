@@ -1,6 +1,11 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.2.2
+This version fixes all bugs related to random status changing and `djRole` checks. Make sure to update your bot to this version.
+
+This is the new **required version**, make sure to update your local bot now! All version below are **deprecated** and won't work (the bot will throw a critical error).
+
 ## Version 1.2.1
 This version adds new and cool features to the bot.
 

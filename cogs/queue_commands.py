@@ -105,7 +105,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="shuffle", description="Shuffle the queue")
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction):
         # djRole check
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -133,7 +133,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
         # djRole check
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -162,7 +162,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.describe(index="Index of the song you want to remove")
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
         # djRole check
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -205,7 +205,7 @@ class OtherQueueCommands(commands.Cog):
     @app_commands.describe(position="Position in the queue between 1 and queue length")
     async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
         await interaction.response.defer(thinking=True)
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -235,7 +235,7 @@ class OtherQueueCommands(commands.Cog):
     @app_commands.command(name="skip", description="Skip to the next track if one exists")
     async def queue_skip_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -264,7 +264,7 @@ class OtherQueueCommands(commands.Cog):
     @app_commands.command(name="previous", description="Play the previous track if one exists")
     async def queue_previous(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)

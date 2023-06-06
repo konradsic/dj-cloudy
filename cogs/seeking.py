@@ -20,7 +20,7 @@ class SeekAndRestartCog(commands.Cog):
 
     @app_commands.command(name="restart", description="Restart current playing track (similiar to seek position: 0:00)")
     async def restart_command(self, interaction: discord.Interaction):
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -52,7 +52,7 @@ class SeekAndRestartCog(commands.Cog):
     @app_commands.command(name="seek", description="Seek the player to given position")
     @app_commands.describe(position="Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s")
     async def seek_command(self, interaction: discord.Interaction, position: str=None):
-        if not djRole_check(interaction, self.logger): return
+        if not await djRole_check(interaction, self.logger): return
         cfg = ConfigurationHandler(interaction.user.id, user=True)
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:

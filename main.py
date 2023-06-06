@@ -7,12 +7,12 @@ A Discord bot that adds music functionality to your server.
 """
 #######################################################################
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 __author__ = "@konradsic"
 __license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
 
-MIN_REQ_VERSION = "1.2.1"
+MIN_REQ_VERSION = "1.2.2"
 
 import asyncio
 import datetime

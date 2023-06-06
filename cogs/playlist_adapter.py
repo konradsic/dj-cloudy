@@ -380,7 +380,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             return
         # adapt the playlist
         if replace_queue:
-            if not djRole_check(interaction, self.logger): return
+            if not await djRole_check(interaction, self.logger): return
             # we need to replace the queue
             player.queue.cleanup()
             
