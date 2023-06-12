@@ -3,6 +3,7 @@ import re
 import time
 import typing as t
 import math
+import json
 
 import discord
 import wavelink
@@ -58,7 +59,6 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
             for i,track in enumerate(tracks[:10])
         ]
     except Exception as e:
-        if e.__class__.__name__ == "LoadTrackError": return []
         logger_instance.error(f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 
@@ -263,12 +263,16 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         for p in handler.playlists:
             if p['name'].lower() == name_or_id.lower() or p['id'].lower() == name_or_id.lower():
                 found = p
-                playlist_id = p['id']
+                playlist_id = p["id"]
+                playlist_name = p["name"]
                 break
         if name_or_id.lower() == "starred":
-            found = 'starred'
+            # gather starred playlist tracks
+            found = {"tracks": handler.data["starred-playlist"]}
+            playlist_id = None
+            playlist_name = "STARRED"
             starred = True
-        if not found and not starred:
+        if not found:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to get playlist with name/id `{name_or_id}`. Make sure that the name is a name of __your__ playlist",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -277,29 +281,30 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             limits = 500
         elif handler.data['credentials'] == 2:
             limits = 10**15 # "infinity"
-        if not starred:
-            if len(handler.playlists[found]) >= limits:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins",color=BASE_COLOR)
-                await interaction.followup.send(embed=embed, ephemeral=True)
-                return
 
-            try:
-                handler.add_to_playlist(name_or_id, song)
-            except:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to add the song. Please try again",color=BASE_COLOR)
-                await interaction.followup.send(embed=embed, ephemeral=True)
-                return
-            embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**song**]({song}) to the playlist",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed)
+        if len(found["tracks"]) >= limits:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        added = handler.add_to_starred(song)
-        if not added:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> This song was already in the playlist so it has been removed.",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed)
+
+        try:
+            handler.add_to_playlist(name_or_id.lower(), song)
+        except:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> An error occured while trying to add the song. Please try again",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**song**]({song}) to the starred playlist",color=BASE_COLOR)
+        
+        # get song data
+        while True:
+            song = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=song)
+            if not song: continue
+            song = song[0]
+            break
+        
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**{song.title}**]({song.uri}) to the playlist **{playlist_name}{'#' + playlist_id if playlist_id else ''}**",color=BASE_COLOR)
         await interaction.followup.send(embed=embed)
         return
+
 
     @app_commands.command(name="remove-song", description="Remove a song from your playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove the song from")

@@ -20,7 +20,7 @@ class PlaylistHandler:
         return self.data["playlists"]
 
     def _load(self):
-        # create FILE playlists.json if not exists
+        # create FILE playlists.json if it doesn't exist
         try:
             with open("data/playlists.json", mode="r") as f:
                 _ = json.load(f)
@@ -75,7 +75,7 @@ class PlaylistHandler:
             # find playlist
             for i,playlist in enumerate(self.data["playlists"]):
                 if playlist["name"].lower() == playlist_name.lower() or playlist["id"].lower() == playlist_name.lower():
-                    self.data["playlists"][i]['tracks'].append(song_url)
+                    self.data["playlists"][i]["tracks"].append(song_url)
         except: 
             # in case of an error we will raise PlaylistGetError
             raise PlaylistCreationError(f"Failed to add items to playlist {playlist_name}/song:{song_url}")
