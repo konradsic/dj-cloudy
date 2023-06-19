@@ -3,16 +3,12 @@ DJ Cloudy
 ==========
 A Discord bot that adds music functionality to your server.
 :copyright: 2022-present @konradsic
-:license: MIT License, see license files for more details.
 """
 #######################################################################
 
 __version__ = "1.2.2"
 __author__ = "@konradsic"
-__license__ = "Licensed under the MIT License"
 __copyright__ = "Copyright 2022-present konradsic"
-
-MIN_REQ_VERSION = "1.2.2"
 
 import asyncio
 import datetime
@@ -37,7 +33,7 @@ from utils import logger
 from utils import preimports
 del preimports
 # ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
-from utils.base_utils import (check_for_updates, clearscreen,
+from utils.base_utils import (clearscreen,
                               get_application_id, get_bot_token, get_length,
                               hide_cursor, inittable, load_logger_config,
                               make_files, show_cursor, show_figlet)
@@ -87,13 +83,14 @@ try:
 except:
     main_logger.info("No Rate Limit.")
 
-check_for_updates(__version__, MIN_REQ_VERSION)
+# NOTE: Since 19th June 2023 this project is closed-source, checking version makes no sense
 make_files()
 
 async def load_extension(ext):
     bot.current_ext_loading = ext
     bot.current_ext_idx += 1
     await bot.load_extension(ext)
+
 async def extload(extensions):
     for extension in extensions:
         await load_extension(extension)
