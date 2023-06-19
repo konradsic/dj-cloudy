@@ -14,11 +14,12 @@
         "the audience"
     ],
     "WATCHING": [
-        "you | /help",
         "new features",
-        "YouTube"
+        "YouTube",
+        "how to make music"
     ],
     "COMPETING": [
-        "music quiz"
+        "a music quiz",
+        "music contests"
     ]
 }

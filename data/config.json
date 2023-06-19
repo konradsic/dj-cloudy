@@ -2,7 +2,7 @@
     "bot": {
         "token": "your token here",
         "application_id": "ID of your bot",
-        "status-change-interval-range": [45, 120]
+        "status-change-interval-range": [45, 90]
     },
     "lyrics": {
         "genius-auth-token": "your genius api auth token here"
