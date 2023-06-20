@@ -3,10 +3,10 @@ import os
 import json
 import aiofiles
 import time
-#from errors import (
-#    CacheExpired,
-#    CacheNotFound
-#)
+from .errors import (
+   CacheExpired,
+   CacheNotFound
+)
 
 CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data/.cache"))
 
@@ -28,15 +28,15 @@ class JSONCacheManager:
             pass
         
         self.expiration_time = expiration_time
-        asyncio.run(self.create_file())
-        
-    async def create_file(self) -> None:
+        self.create_file()
+    
+    def create_file(self) -> None:
         try:
-            async with aiofiles.open(self.cache_file, mode="r") as _: pass
+            with open(self.cache_file, mode="r") as _: pass
         except:
             print("Creating cache file...")
-            async with aiofiles.open(self.cache_file, mode="w") as f: 
-                await f.write("{}")
+            with open(self.cache_file, mode="w") as f: 
+                f.write("{}")
 
     
     async def save(self, key: str, data: dict) -> None:
@@ -65,10 +65,10 @@ class JSONCacheManager:
                 async with aiofiles.open(self.cache_file, mode="w") as f:
                     await f.write(json.dumps(filecontents))
                 
-                #raise CacheExpired
-                return None
+                raise CacheExpired
+                # return None
             
             return filecontents[key]
         except KeyError:
-            #raise CacheNotFound
-            return None
+            raise CacheNotFound
+            # return None

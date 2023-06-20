@@ -10,7 +10,7 @@ from discord.ext import commands
 from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.colors import BASE_COLOR
-from utils.errors import NoPlayerFound, NoTracksFound
+from utils.errors import NoPlayerFound, NoTracksFound, CacheExpired, CacheNotFound
 from utils.regexes import URL_REGEX
 from utils.base_utils import progressbar_emojis, get_length, limit_string_to
 from utils.buttons import PlayButtonsMenu
@@ -71,6 +71,7 @@ async def query_complete(
             break
         if not tracks:
             return []
+        
         return [app_commands.Choice(name =
                 limit_string_to(
                     f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.duration)}]",
@@ -107,7 +108,21 @@ class PlayCommand(commands.Cog):
 
         query = query.strip("<>")
         tracks = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=query)
-        await player.add_tracks(interaction, [tracks[0]])
+        # Song cache saving
+        track = tracks[0]
+        try:
+            await self.bot.song_cache_mgr.get(track.uri)
+        except Exception as e:
+            if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                await self.bot.song_cache_mgr.save(track.uri, {
+                    "uri": track.uri,
+                    "title": track.title,
+                    "author": track.author,
+                    "length": track.length,
+                    "id": track.identifier
+                })
+        
+        await player.add_tracks(interaction, [track])
         try:
             pass
         except Exception as e:

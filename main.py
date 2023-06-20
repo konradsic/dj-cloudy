@@ -11,13 +11,11 @@ __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
 import asyncio
-import datetime
 import getpass
 import os
 import platform
 import threading
 import time
-import math
 import traceback
 
 import colorama
@@ -25,9 +23,7 @@ import discord
 import requests
 import wavelink
 from colorama import Fore, Style
-from discord import app_commands
 from discord.ext import commands
-from utils.buttons import EmbedPaginator
 
 from utils import logger
 from utils import preimports
@@ -39,6 +35,7 @@ from utils.base_utils import (clearscreen,
                               make_files, show_cursor, show_figlet)
 from utils.colors import BASE_COLOR
 from utils.garbage import GarbageCollector
+from utils.cache import JSONCacheManager
 
 clearscreen()
 font = show_figlet()
@@ -158,6 +155,8 @@ class DJ_Cloudy(commands.Bot):
         # clearscreen()
         took = f'{(time.time()-bot.last_restart):,.1f}'.replace(",", " ")
         self.logger.info(f"Loading extensions done (took {took}s)")
+        self.song_cache_mgr: JSONCacheManager = JSONCacheManager("songs.json")
+        self.logger.debug(f"Bound JSONCacheManager to `song_cache_mgr`")
 
     async def close(self):
         garbage.close()

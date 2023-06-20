@@ -17,7 +17,8 @@ from utils.base_utils import get_length, limit_string_to, djRole_check
 from utils.buttons import EmbedPaginator
 from utils.colors import BASE_COLOR
 from utils.errors import (NoPlayerFound, PlaylistCreationError,
-                          PlaylistGetError, PlaylistRemoveError)
+                          PlaylistGetError, PlaylistRemoveError,
+                          CacheExpired, CacheNotFound)
 from utils.regexes import URL_REGEX
 
 logger_instance = logger.Logger().get("cogs.playlist_adapter")
@@ -99,17 +100,34 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         for song in found['tracks']:
             # to prevent errors we infinite request over the track if it fails, 
             # otherwise we break out of the loop
-            while True:
-                query = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
-                if not query:
-                    self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")
-                    continue
-                tracks.append(query[0])
-                break
+            
+            # try cache
+            try:
+                t = await self.bot.song_cache_mgr.get(song)
+                tracks.append(t)
+            except Exception as e:
+                d = None
+                while True:
+                    d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
+                    if not d:
+                        self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")
+                        continue
+                    d = d[0]
+                    break
+                if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                    await self.bot.song_cache_mgr.save(d.uri, {
+                        "uri": d.uri,
+                        "title": d.title,
+                        "author": d.author,
+                        "length": d.length,
+                        "id": d.identifier
+                    })
+                tracks.append(await self.bot.song_cache_mgr.get(song))
+                
         took_time = time.time() - start
         self.logger.info(f"Loaded {len(found['tracks'])} tracks in ~{took_time:.2f}s")
         fields = [
-            f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n"
+            f"**{i+1}.** [{tracks[i]['title']}]({tracks[i]['uri']}) `[{get_length(tracks[i]['length'])}]`\n"
             for i in range(len(tracks))
         ]
         if not fields:
@@ -139,7 +157,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed.set_footer(text="Made by Konradoo#6938")
             embed.set_author(name=f"{user.name}'s playlist: {found['name'] + '#' + found['id'] if found.get('name', '') else 'STARRED'}", icon_url=user.display_avatar.url)
             embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+            embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
             embeds.append(embed)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user), ephemeral=True)
         return True
@@ -166,14 +184,31 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             for i, p in enumerate(playlists,1):
                 total_duration = 0
                 for track in p['tracks']:
-                    while True:
-                        d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
-                        if not d:
-                            self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
-                            continue
-                        total_duration += d[0].length
+                    # try cache
+                    try:
+                        t = await self.bot.song_cache_mgr.get(track)
+                        total_duration += t["length"]
                         total_tracks += 1
-                        break
+                    except Exception as e:
+                        d = None
+                        while True:
+                            d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
+                            if not d:
+                                self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
+                                continue
+                            total_duration += d[0].length
+                            total_tracks += 1
+                            d = d[0]
+                            break
+                        if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                            await self.bot.song_cache_mgr.save(d.uri, {
+                                "uri": d.uri,
+                                "title": d.title,
+                                "author": d.author,
+                                "length": d.length,
+                                "id": d.identifier
+                            })
+                    
                 playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*\n"
                 
         took_time = time.time() - start
@@ -183,15 +218,30 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         starred_dur = 0
         start = time.time()
         
-        for t in user_data.data['starred-playlist']:
-            while True:
-                d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=t)
-                if not d:
-                    self.logger.error(f"Failed to fetch song \"{t}\" (request failed)")
-                    continue
-                starred_dur += d[0].length
-                total_tracks += 1
-                break
+        for track in user_data.data['starred-playlist']:
+            # try cache
+            try:
+                t = await self.bot.song_cache_mgr.get(track)
+                starred_dur += t["length"]
+            except Exception as e:
+                d = None
+                while True:
+                    d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
+                    if not d:
+                        self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
+                        continue
+                    starred_dur += d[0].length
+                    d = d[0]
+                    break
+                if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                    await self.bot.song_cache_mgr.save(d.uri, {
+                        "uri": d.uri,
+                        "title": d.title,
+                        "author": d.author,
+                        "length": d.length,
+                        "id": d.identifier
+                    })
+
         took_time = time.time() - start
         self.logger.info(f"Loaded starred playlist ({total_tracks} songs) in ~{took_time:.2f}s")
         
@@ -296,12 +346,24 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         
         # get song data
         while True:
-            song = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=song)
-            if not song: continue
-            song = song[0]
+            track = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=song)
+            if not track: continue
+            track = track[0]
             break
         
-        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**{song.title}**]({song.uri}) to the playlist **{playlist_name}{'#' + playlist_id if playlist_id else ''}**",color=BASE_COLOR)
+        try:
+            await self.bot.song_cache_mgr.get(track.uri)
+        except Exception as e:
+            if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                await self.bot.song_cache_mgr.save(track.uri, {
+                    "uri": track.uri,
+                    "title": track.title,
+                    "author": track.author,
+                    "length": track.length,
+                    "id": track.identifier
+                })
+        
+        embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**{track.title}**]({track.uri}) to the playlist **{playlist_name}{'#' + playlist_id if playlist_id else ''}**",color=BASE_COLOR)
         await interaction.followup.send(embed=embed)
         return
 
