@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from utils import logger
+from . import logger
 
 # we will think about it later
 loggers = [
@@ -21,7 +21,10 @@ loggers = [
     logger.Logger().get("utils.errors.KeyDoesNotExist"),
     logger.Logger().get("utils.errors.IncorrectValueType"),
     logger.Logger().get("utils.errors.UserNotFound"),
-    logger.Logger().get("utils.errors.AuthFailed")
+    logger.Logger().get("utils.errors.AuthFailed"),
+    # cache errors loggers
+    logger.Logger().get("utils.errors.CacheExpired"),
+    logger.Logger().get("utils.errors.CacheNotFound")
 ]
 
 class UnhandledBotException(Exception):
@@ -96,3 +99,11 @@ class UserNotFound(UnhandledBotException):
 class AuthFailed(UnhandledBotException): 
     def __init__(self, string=None, *, logger: logger.Logger=loggers[15]):
         super().__init__(logger=logger, string = string or "Authentication failed, aborting...")
+        
+class CacheExpired(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[16]):
+        super().__init__(logger=logger, string = string or "Cache entry has expired")
+        
+class CacheNotFound(UnhandledBotException): 
+    def __init__(self, string=None, *, logger: logger.Logger=loggers[17]):
+        super().__init__(logger=logger, string = string or "Cache entry was not found")
