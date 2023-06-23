@@ -1,6 +1,16 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.3.0
+This version focuses on cache/temporary data and performance. It affects only the playlists commands & context menus group.
+
+**Are my playlists gone? How it works?**
+* This change ⚠ **WILL NOT** ⚠ affect your playlists in any way, just more data will be stored. 
+* Cache or an primitive implementation of it in our way is just storing songs, so there is no need to request them from the wavelink server.
+* Every cache entry (for songs its a link to the track) has an expiration time (usually one month after last time retrieved). After that the song or rather the entry is "deprecated", so it's removed from the cache and needs to be requested again. **Why?** Songs are deleted from YouTube, Soundcloud and Spotify so after a month there is a need to check it. We're working on a way to remove songs from the cache closer to the time they are deleted from the platform.
+* This update fixed all playlists commands & context menus (so buggy). We are on the way to remove (almost) all bugs from the bot (not as easy as you think).
+* Sneak peak: `v1.4.0` will be the music quiz update.
+
 ## Version 1.2.2
 This version fixes all bugs related to random status changing and `djRole` checks. Make sure to update your bot to this version.
 

@@ -6,7 +6,7 @@ A Discord bot that adds music functionality to your server.
 """
 #######################################################################
 
-__version__ = "1.2.2"
+__version__ = "1.3.0"
 __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
@@ -173,7 +173,9 @@ bot = DJ_Cloudy()
 # error handling
 @bot.tree.error
 async def on_command_exception(interaction, error):
-    main_logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}\n{traceback.format_exc()}")
+    colorama.init(autoreset=False)
+    main_logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}{Style.RESET_ALL}\n{Fore.RED}{traceback.format_exc()}")
+    colorama.init(autoreset=True)
     embed = discord.Embed(description=
         f"<:x_mark:1028004871313563758> An unexcepted error occured while trying to execute this command. Please contact developers for more info. \nDetails:\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
     try:

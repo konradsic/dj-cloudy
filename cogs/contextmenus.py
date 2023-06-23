@@ -3,7 +3,6 @@ import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils import logger
 from music import playlist
@@ -11,6 +10,8 @@ import wavelink
 from utils.base_utils import get_length
 import math
 from utils.buttons import EmbedPaginator
+from utils.errors import CacheExpired, CacheNotFound
+import time
 
 @logger.LoggerApplication
 class ContextMenusCog(commands.Cog):
@@ -23,29 +24,86 @@ class ContextMenusCog(commands.Cog):
         
     async def view_playlist_menu(self, interaction: discord.Interaction, user: discord.Member):
         await interaction.response.defer(ephemeral=True, thinking=True)
-        handler = playlist.PlaylistHandler(key=str(user.id))
-        playlist_res = "This user does not have any custom playlists"
-        if handler.playlists:
+        # get the user
+        if user is None:
+            user = interaction.user
+        if user.bot:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Bots cannot have playlists! Make sure to select a user next time",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        user_data = playlist.PlaylistHandler(key=str(user.id))
+        playlists = user_data.playlists
+        playlist_res = "No playlists for this user. Create a playlist with `/playlist create <name>`!"
+        
+        total_tracks = 0
+        start = time.time()
+        if playlists:
             playlist_res = ""
-            for i, p in enumerate(handler.playlists,1):
+            for i, p in enumerate(playlists,1):
                 total_duration = 0
                 for track in p['tracks']:
-                    while True:
-                        d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
-                        if not d: continue
-                        d = d[0]
-                        total_duration += d.length
-                        break
+                    # try cache
+                    try:
+                        t = await self.bot.song_cache_mgr.get(track)
+                        total_duration += t["length"]
+                        total_tracks += 1
+                    except Exception as e:
+                        d = None
+                        while True:
+                            d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
+                            if not d:
+                                self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
+                                continue
+                            total_duration += d[0].length
+                            total_tracks += 1
+                            d = d[0]
+                            break
+                        if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                            await self.bot.song_cache_mgr.save(d.uri, {
+                                "uri": d.uri,
+                                "title": d.title,
+                                "author": d.author,
+                                "length": d.length,
+                                "id": d.identifier
+                            })
+                    
                 playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*\n"
+                
+        took_time = time.time() - start
+        self.logger.info(f"Loaded {total_tracks} tracks in ~{took_time:.2f}s")
+        
+        total_tracks = 0
         starred_dur = 0
-        for t in handler.data['starred-playlist']:
-            while True:
-                d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=t)
-                if not d: continue
-                d = d[0]
-                starred_dur += d.length
-                break
-        starred_playlist_data = f"{len(handler.data['starred-playlist'])} total songs, total duration `{get_length(starred_dur)}`\n"
+        start = time.time()
+        
+        for track in user_data.data['starred-playlist']:
+            # try cache
+            try:
+                t = await self.bot.song_cache_mgr.get(track)
+                starred_dur += t["length"]
+            except Exception as e:
+                d = None
+                while True:
+                    d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
+                    if not d:
+                        self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
+                        continue
+                    starred_dur += d[0].length
+                    d = d[0]
+                    break
+                if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                    await self.bot.song_cache_mgr.save(d.uri, {
+                        "uri": d.uri,
+                        "title": d.title,
+                        "author": d.author,
+                        "length": d.length,
+                        "id": d.identifier
+                    })
+
+        took_time = time.time() - start
+        self.logger.info(f"Loaded starred playlist ({total_tracks} songs) in ~{took_time:.2f}s")
+        
+        starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total duration `{get_length(starred_dur)}`\n"
         embed = discord.Embed(description="These are the user's playlists", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
         embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
         embed.add_field(name="Custom playlists", value=playlist_res, inline=False)
@@ -60,20 +118,33 @@ class ContextMenusCog(commands.Cog):
         starred_playlist = handler.data['starred-playlist']
         track_data = "No tracks in their :star: songs playlist"
         tracks = []
-        total_duration = 0
+        
         if starred_playlist:
             track_data = ""
             for i, song in enumerate(starred_playlist,1):
-                while True:
-                    cls_song = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
-                    if not cls_song: continue
-                    cls_song = cls_song[0]
-                    total_duration += cls_song.duration
-                    tracks.append(cls_song)
-                    break
-                
+                try:
+                    t = await self.bot.song_cache_mgr.get(song)
+                    tracks.append(t)
+                except Exception as e:
+                    d = None
+                    while True:
+                        d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
+                        if not d:
+                            self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")
+                            continue
+                        d = d[0]
+                        break
+                    if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
+                        await self.bot.song_cache_mgr.save(d.uri, {
+                            "uri": d.uri,
+                            "title": d.title,
+                            "author": d.author,
+                            "length": d.length,
+                            "id": d.identifier
+                        })
+                    tracks.append(d)
         fields = [
-            f"**{i+1}.** [{tracks[i].title}]({tracks[i].uri}) `[{get_length(tracks[i].length)}]`\n"
+            f"**{i+1}.** [{tracks[i]['title']}]({tracks[i]['uri']}) `[{get_length(tracks[i]['length'])}]`\n"
             for i in range(len(tracks))
         ]
         
@@ -87,7 +158,6 @@ class ContextMenusCog(commands.Cog):
             return
 
         # prepare pagination
-        found = {"tracks": starred_playlist}
         num_fields = math.ceil(len(fields)/6)
         if num_fields == 0:
             num_fields += 1
@@ -106,9 +176,9 @@ class ContextMenusCog(commands.Cog):
             embed = discord.Embed(description="Those are the tracks in user's playlist", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_footer(text="Made by Konradoo#6938")
-            embed.set_author(name=f"{member.name}'s playlist: {found['name'] + '#' + found['id'] if found.get('name', '') else 'STARRED'}", icon_url=member.display_avatar.url)
+            embed.set_author(name=f"{member.name}'s starred playlist", icon_url=member.display_avatar.url)
             embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track.length for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+            embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
             embeds.append(embed)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user), ephemeral=True)
         return True

@@ -351,17 +351,13 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             track = track[0]
             break
         
-        try:
-            await self.bot.song_cache_mgr.get(track.uri)
-        except Exception as e:
-            if isinstance(e, CacheNotFound) or isinstance(e, CacheExpired):
-                await self.bot.song_cache_mgr.save(track.uri, {
-                    "uri": track.uri,
-                    "title": track.title,
-                    "author": track.author,
-                    "length": track.length,
-                    "id": track.identifier
-                })
+        await self.bot.song_cache_mgr.save(track.uri, {
+            "uri": track.uri,
+            "title": track.title,
+            "author": track.author,
+            "length": track.length,
+            "id": track.identifier
+        })
         
         embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully added [**{track.title}**]({track.uri}) to the playlist **{playlist_name}{'#' + playlist_id if playlist_id else ''}**",color=BASE_COLOR)
         await interaction.followup.send(embed=embed)
