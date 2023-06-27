@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
 import random
+import wavelink
 
-def get_random_song():
+async def get_random_song():
     artists = []
     
     req = requests.get("https://www.billboard.com/charts/artist-100/", headers={
@@ -21,4 +22,9 @@ def get_random_song():
         artists.append(indepth.string.strip())
 
     random_artist = random.choice(artists)
+    
+    node: wavelink.Node = wavelink.NodePool.get_connected_node()
+    tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{random_artist}")
+    track = random.choice(tracks)
+    return track
     
