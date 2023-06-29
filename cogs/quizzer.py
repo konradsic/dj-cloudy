@@ -1,12 +1,14 @@
 import datetime
 
 import discord
+import wavelink
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
+
+from music.quiz import Round, get_random_song
+from utils import help_utils, logger
 from utils.colors import BASE_COLOR
-from utils import logger
-from music.quiz import get_random_song
+
 
 @logger.LoggerApplication
 class MusicQuizCog(commands.Cog):
@@ -19,7 +21,9 @@ class MusicQuizCog(commands.Cog):
         await interaction.response.defer(thinking=True)
         song = await get_random_song()
 
-        await interaction.followup.send(f"{song.title}, {song.author}")
+        music_round = Round([], song, 120, wavelink.Player, [15, 60, 110])
+        music_round.reveal_song_letter()
+        await interaction.followup.send(song.title + "\n`" + music_round.song_string + "`")
 
 async def setup(bot):
     await bot.add_cog(MusicQuizCog(bot),
