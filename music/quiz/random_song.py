@@ -65,3 +65,15 @@ async def song_from_collection(top_num: int, from_best: bool = True):
     tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
     return random.choice(tracks)
     
+async def many_songs_from_collection(num: int, top_num: int, from_best: bool = True):
+    """Generate `num` unique songs with given criteria"""
+    songs = []
+    
+    for i in range(num):
+        while True:
+            song = await song_from_collection(top_num, from_best)
+            if song not in songs:
+                songs.append(song)
+                break
+    
+    return songs

@@ -1,10 +1,14 @@
-from random_song import song_from_artist, song_from_collection
+from .random_song import (
+    song_from_artist, song_from_collection,
+    many_songs_from_collection
+)
 from typing import List, Literal
 import discord
 import wavelink
 import asyncio
 import random
 import re
+import difflib
 
 PUNCTUATION = [".", ",", "&", "-", "'", "\"", ":", ";", "`", "?"]
 
@@ -82,6 +86,36 @@ class Round():
         l[random_idx] = self.song_title[random_idx]
         self.song_string = "".join(letter for letter in l)
         
+    def submit_answer(self, ans, title: True):
+        matcher = difflib.SequenceMatcher
+        if title:
+            match = matcher(None, ans.lower(), self.song_title.lower()).ratio()
+        else:
+            match = matcher(None, ans.lower(), self.song_artist.lower()).ratio()
+        
+        if match >= 0.85: # 85% or more the same
+            return True
+        
+        return False
+        
 
 class QuizBuilder():
-    pass
+    def __init__(
+        self,
+        num_rounds: int,
+        song_collection_num: int,
+        players: List[discord.Member],
+        round_time: int,
+        player: wavelink.Player,
+        round_time_stages: List[int],
+    ):
+        self.num_round = num_rounds
+        self.songs = many_songs_from_collection(num_rounds, song_collection_num)
+        self.players = players
+        self.rounds = list([
+            Round(players, self.songs[i], round_time, player, round_time_stages)
+            for i in range(num_rounds)
+        ])
+        
+        self.current_round = 0
+        
