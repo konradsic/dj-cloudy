@@ -43,11 +43,11 @@ def compose_progressbar(progress, end):
     midbars = perc-2 # first and last
     # add midbars
     bar += f"{progressbar_emojis['bar_mid_fill'] * midbars}"
-    if midbars < 10:
+    if midbars < 18:
         bar += progressbar_emojis["bar_mid_halffill"]
-    # add reamining bars
-    bar += f"{progressbar_emojis['bar_mid_nofill'] * (10-midbars)}"
-    if perc == 12:
+    # add remaining bars
+    bar += f"{progressbar_emojis['bar_mid_nofill'] * (18-midbars)}"
+    if perc == 20:
         bar += progressbar_emojis["bar_right_fill"]
         return bar
     bar += progressbar_emojis["bar_right_nofill"]

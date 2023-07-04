@@ -77,3 +77,8 @@ async def many_songs_from_collection(num: int, top_num: int, from_best: bool = T
                 break
     
     return songs
+
+async def many_songs_from_artist(artist: str, limit: str = 100):
+    node = wavelink.NodePool.get_connected_node()
+    tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
+    return tracks[:limit]

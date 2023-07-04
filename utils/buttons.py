@@ -191,7 +191,7 @@ class SkipVotingMenu(View): # player: type: Any (due to circular imports)
         self.player = player
         self.vc = vc
         self.num_votes = num_votes
-        self.current_votes = 1
+        self.current_votes = 0
         self.forward_track = forward_track
         self.voted_members = []
         
@@ -212,13 +212,23 @@ class SkipVotingMenu(View): # player: type: Any (due to circular imports)
             await interaction.response.edit_message(embed=embed, view=self)
             return
         
+        if self.current_votes < self.num_votes:
+            return
+    
         # voting success!
-        if self.current_votes >= self.num_votes:
-            if not self.forward_track: # previous
-                self.player.queue.position -= 2 
-                # ^ explained in cogs.queue_commands.OtherQueueCommands.queue_previous func
-            await self.player.stop() # chain-calls player advance 
-            
-            embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Skipped! (action approved by channel users)", color=BASE_COLOR)
-            self.children[0].disabled = True
-            await interaction.response.edit_message(embed=embed, view=self)
+        if not self.forward_track: # previous
+            self.player.queue.position -= 2 
+            # ^ explained in cogs.queue_commands.OtherQueueCommands.queue_previous func
+        await self.player.stop() # chain-calls player advance 
+        
+        embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Skipped! (action approved by channel users)", color=BASE_COLOR)
+        self.children[0].disabled = True
+        await interaction.response.edit_message(embed=embed, view=self)
+
+class QuizButtonsUI(View):
+    def __init__(self, timeout: float):
+        super().__init__(timeout=timeout)
+        
+    @ui.button(label="Join quiz", style=discord.ButtonStyle.blurple)
+    async def join_quiz_btn(self, interaction: discord.Interaction, button):
+        pass
