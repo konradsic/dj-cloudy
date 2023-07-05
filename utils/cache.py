@@ -20,6 +20,7 @@ class JSONCacheManager:
         self,
         cache_file: str,
         expiration_time: int = 60 * 60 * 24 * 30 # a month, in seconds
+        # ! set expiration_time to -1 to act as INFINITY (won't expire)
     ) -> None:
         self.cache_file = os.path.abspath(os.path.join(CACHE_DIR, cache_file))
         try:
@@ -34,7 +35,7 @@ class JSONCacheManager:
         try:
             with open(self.cache_file, mode="r") as _: pass
         except:
-            print("Creating cache file...")
+            # print("Creating cache file...")
             with open(self.cache_file, mode="w") as f: 
                 f.write("{}")
 
@@ -44,7 +45,10 @@ class JSONCacheManager:
             content = json.loads(await f.read())
         
         content[key] = data
-        content[key]["expiration"] = round(time.time()) + self.expiration_time
+        if self.expiration_time == -1:
+            content[key]["expiration"] = -1
+        else:
+            content[key]["expiration"] = round(time.time()) + self.expiration_time
         
         async with aiofiles.open(self.cache_file, mode="w") as f:
             saved = json.dumps(content)
@@ -59,7 +63,7 @@ class JSONCacheManager:
         filecontents = await self.get_cache_file()
         
         try:
-            if filecontents[key]["expiration"] < round(time.time()): 
+            if (filecontents[key]["expiration"] < round(time.time()) and not (self.expiration_time == -1)): 
                 del filecontents[key]
                 # set without setting expiration
                 async with aiofiles.open(self.cache_file, mode="w") as f:

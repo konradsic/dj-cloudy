@@ -16,7 +16,6 @@ from utils import logger
 
 @logger.LoggerApplication
 class QueueCommands(commands.GroupCog, name="queue"):
-    # TODO: Add djRole upgraded check to QueueCommands
     def __init__(self, bot: commands.Bot, logger) -> None:
         self.bot = bot
         self.logger = logger

@@ -14,12 +14,13 @@ import difflib
 from traceback import format_exc
 import colorama
 from utils import emoji
+from music.core import MusicPlayer
 from utils.buttons import QuizButtonsUI
 
 logging = logger.Logger(__name__)
 
 def diff(a, b) -> float:
-    return difflib.SequenceMatcher(None, a, b).ratio()
+    return difflib.SequenceMatcher(None, a.lower(), b.lower()).quick_ratio()
 
 def difflist(current: str, targets: list) -> list:
     return sorted(targets, key=lambda x: diff(current, x), reverse=True)
@@ -40,7 +41,9 @@ async def song_collection_autocomplete(
         
         # easier :D
         if current.startswith("artist:"):
-            sorted_artists = difflist(current, artists)
+            splitted = current.split(":", 1)[1]
+            if not splitted: splitted = ""
+            sorted_artists = difflist(splitted, artists)
             return [
                 app_commands.Choice(name=f"{i}. [🧑‍🎤] {artist}", value=f"artist:{artist}")
                 for i, artist in enumerate(sorted_artists[:10], start=1)
@@ -82,6 +85,19 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         # djRole check
         if not await djRole_check(interaction, self.logger): return
         
+        voice = interaction.user.voice
+        if not voice:
+            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+
+        if (player := self.bot.node.get_player(interaction.guild.id)):    
+            if str(player.channel.id) != str(voice.channel.id):
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                    color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+
         category, string = song_collection.split(":")
         songs = []
         if category == "artist":
@@ -96,15 +112,24 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
             await interaction.followup.send(embed=embed)
             return
         
-        starting_in = round(time.time()) + 30
+        starting_in = round(time.time()) + 60
         
         quiz_embed = discord.Embed(description=f"Music quiz starting in <t:{starting_in}:R>. Click the button below to join.", color=BASE_COLOR)
-        quiz_embed.set_author(name="Music Quiz!", url=self.bot.user.avatar.url)
+        quiz_embed.set_author(name="Music Quiz!", icon_url=self.bot.user.avatar.url)
         quiz_embed.add_field(name="Songs in the quiz", value=genres)
         quiz_embed.add_field(name="Rounds", value=f"{rounds} (estimated time: `{get_length(65 * rounds * 1000)}`)")
         # ^ we multiply estimated time by 1000 because of get_length is suited for wavelink.Playable track duration that is in milliseconds
+        try:
+            self.bot.quizzes[str(interaction.guild.id)] = []
+        except:
+            self.bot.quizzes = {str(interaction.guild.id): []}
         
-        await interaction.followup.send(embed=quiz_embed, view=QuizButtonsUI(timeout=60))
+        try:
+            channel = interaction.user.voice.channel
+            await channel.connect(cls=MusicPlayer, self_deaf=True)
+        except: pass
+        
+        await interaction.followup.send(embed=quiz_embed, view=QuizButtonsUI(timeout=60, bot=self.bot))
 
 
 

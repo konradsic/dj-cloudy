@@ -3,8 +3,10 @@ import requests
 import random
 import wavelink
 from typing import Literal
+import asyncio
 
-async def get_top100_artists():
+
+def get_top100_artists_cache():
     artists = []
     
     req = requests.get("https://www.billboard.com/charts/artist-100/", headers={
@@ -22,6 +24,11 @@ async def get_top100_artists():
             .find("ul", {"class": "lrv-a-unstyle-list"}).find("li", {"class": "o-chart-results-list__item"}).find("h3")
         artists.append(indepth.string.strip())
     return artists
+
+top100_artists = get_top100_artists_cache()
+
+async def get_top100_artists():
+    return top100_artists
 
 async def get_random_song():
     artists = await get_top100_artists()
@@ -47,7 +54,7 @@ async def song_from_artist(artist: str):
     return None
 
 
-async def song_from_collection(top_num: int, from_best: bool = True):
+async def song_from_collection(top_num: int, from_best: bool = True, ret_tracks: bool = False):
     """
         `top_num` is the number of top artists (max 100)
         `from_best` if True will get top_num artists from the top, if False will fetch from the bottom of the list
@@ -58,6 +65,7 @@ async def song_from_collection(top_num: int, from_best: bool = True):
         artist = random.choice(artists[:top_num])
         node: wavelink.Node = wavelink.NodePool.get_connected_node()
         tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
+        if ret_tracks: return tracks
         return random.choice(tracks)
 
     artist = random.choice(artists[-(top_num-1):])
@@ -67,17 +75,18 @@ async def song_from_collection(top_num: int, from_best: bool = True):
     
 async def many_songs_from_collection(num: int, top_num: int, from_best: bool = True):
     """Generate `num` unique songs with given criteria"""
-    songs = []
+    ret = []
     
-    for i in range(num):
-        while True:
-            song = await song_from_collection(top_num, from_best)
-            if song not in songs:
-                songs.append(song)
-                break
+    songs = await song_from_collection(top_num, from_best, ret_tracks=True)
+    indices = []
+    while not (len(indices) == num):
+        rand = random.randint(0, num)
+        if rand not in indices: indices.append(rand)
     
-    return songs
-
+    for idx in indices:
+        ret.append(songs[idx])
+    return ret
+    
 async def many_songs_from_artist(artist: str, limit: str = 100):
     node = wavelink.NodePool.get_connected_node()
     tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")

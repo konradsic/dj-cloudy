@@ -10,6 +10,7 @@ import wavelink
 from .base_utils import RepeatMode
 from .colors import BASE_COLOR
 from .configuration import ConfigurationHandler as Config
+from . import emoji
 
 class PlayButtonsMenu(View):
     def __init__(self, timeout: float=None, user: t.Optional[discord.Member] = None) -> None:
@@ -226,9 +227,40 @@ class SkipVotingMenu(View): # player: type: Any (due to circular imports)
         await interaction.response.edit_message(embed=embed, view=self)
 
 class QuizButtonsUI(View):
-    def __init__(self, timeout: float):
+    def __init__(self, timeout: float, bot: discord.Client):
         super().__init__(timeout=timeout)
+        self.bot = bot
+        #self.players = self.bot.quizzes[str(interaction.guild.id)]
         
     @ui.button(label="Join quiz", style=discord.ButtonStyle.blurple)
     async def join_quiz_btn(self, interaction: discord.Interaction, button):
-        pass
+        try:
+            if interaction.user in self.bot.quizzes[str(interaction.guild.id)]:
+                await interaction.response.send_message(embed=discord.Embed(
+                    description=f"{emoji.XMARK.string} Already joined the quiz, please wait for the start",
+                    color=BASE_COLOR
+                ), ephemeral=True)
+                return
+            
+            # NOTE: vc checks - user needs to be in the vc to join
+            player = wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)
+            if not interaction.user.voice:
+                await interaction.response.send_message(embed=discord.Embed(
+                    description=f"{emoji.XMARK.string} You need to be in a voice channel ({player.channel.mention}) to join the quiz",
+                    color=BASE_COLOR
+                ), ephemeral=True)
+                return
+                
+            if interaction.user.voice.channel != player.channel:
+                await interaction.response.send_message(embed=discord.Embed(
+                    description=f"{emoji.XMARK.string} You need to be in the same channel that the bot is in to join the quiz. Please switch to {player.channel.mention}"
+                ), ephemeral=True)
+                return
+            
+            self.bot.quizzes[str(interaction.guild.id)].append(interaction.user)
+            await interaction.response.send_message(embed=discord.Embed(
+                description=f"{emoji.TICK.string} Successfully joined the quiz",
+                color=BASE_COLOR
+            ), ephemeral=True)
+        except Exception as e:
+            print(e.__class__.__name__, str(e))

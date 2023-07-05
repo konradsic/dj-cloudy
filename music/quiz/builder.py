@@ -9,11 +9,11 @@ import asyncio
 import random
 import re
 import difflib
+import time
 
 PUNCTUATION = [".", ",", "&", "-", "'", "\"", ":", ";", "`", "?"]
 
 def cleanup(string):
-    # TODO: removal of brackets, etc.
     replace_matcher = {
         "[": "(",
         "]": ")",
@@ -25,6 +25,7 @@ def cleanup(string):
     
     string = re.sub("\(.*?\)", "", string)
     return string.strip()
+
 
 class Round():
     def __init__(
@@ -103,14 +104,14 @@ class QuizBuilder():
     def __init__(
         self,
         num_rounds: int,
-        song_collection_num: int,
+        songs: list,
         players: List[discord.Member],
         round_time: int,
         player: wavelink.Player,
         round_time_stages: List[int],
     ):
         self.num_round = num_rounds
-        self.songs = many_songs_from_collection(num_rounds, song_collection_num)
+        self.songs = songs
         self.players = players
         self.rounds = list([
             Round(players, self.songs[i], round_time, player, round_time_stages)

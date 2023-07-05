@@ -156,7 +156,8 @@ class DJ_Cloudy(commands.Bot):
         took = f'{(time.time()-bot.last_restart):,.1f}'.replace(",", " ")
         self.logger.info(f"Loading extensions done (took {took}s)")
         self.song_cache_mgr: JSONCacheManager = JSONCacheManager("songs.json")
-        self.logger.debug(f"Bound JSONCacheManager to `song_cache_mgr`")
+        self.system_vars: JSONCacheManager = JSONCacheManager("systemcache.json", expiration_time = -1)
+        self.logger.debug("JSON Cache managers initialized")
 
     async def close(self):
         garbage.close()
