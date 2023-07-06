@@ -1,15 +1,19 @@
-from .random_song import (
-    song_from_artist, song_from_collection,
-    many_songs_from_collection
-)
-from typing import List, Literal
-import discord
-import wavelink
 import asyncio
+import datetime
+import difflib
 import random
 import re
-import difflib
 import time
+from typing import List, Literal
+
+import discord
+import wavelink
+from utils.buttons import SendAnswerUI
+
+from utils.colors import BASE_COLOR
+
+from .random_song import (many_songs_from_collection, song_from_artist,
+                          song_from_collection)
 
 PUNCTUATION = [".", ",", "&", "-", "'", "\"", ":", ";", "`", "?"]
 
@@ -49,7 +53,7 @@ class Round():
         self.song_title: str = cleanup(self.song.title)
         self.song_artist: str = self.song.author
         
-        # set ups
+        # setups
         self.revealed_letters: List[int] = [] # indices
         self.point_for_artist: bool = True # false after third stage
         
@@ -109,6 +113,8 @@ class QuizBuilder():
         round_time: int,
         player: wavelink.Player,
         round_time_stages: List[int],
+        interaction: discord.Interaction,
+        bot: discord.ext.commands.Bot
     ):
         self.num_round = num_rounds
         self.songs = songs
@@ -118,5 +124,43 @@ class QuizBuilder():
             for i in range(num_rounds)
         ])
         
-        self.current_round = 0
+        self.current_round_idx = 0
+        self.player_mapping_points = {str(player.id): 0 for player in players}
+        self.interaction = interaction
+        self.bot = bot
+        
+        
+    @property
+    async def current_round(self):
+        return self.rounds[self.current_round_idx]
+        
+    async def run(self):
+        channel = self.interaction.channel
+        
+        embed = discord.Embed(description="Prepare your ears for the first round! (quiz starting...)", color=BASE_COLOR)
+        embed.set_author(name="Building quiz...", icon_url=self.bot.user.avatar.url)
+        
+        await channel.send(embed=embed)
+        
+        for i in range(len(self.rounds)):
+            cur_round = self.current_round
+            points = await self.run_round(cur_round, i + 1)
+        
+    async def run_round(self, round_: Round, idx: int) -> dict[str, int]: # UserID, points
+        t = round(time.time())
+        end_time = t + round_.time
+        stages = round_.time_stages
+        round_events = {
+            stages[0]: f"2x Letters reveal (<t:{t + stages[0]}:R>)",
+            stages[1]: f"Second 2x letter reveal (<t:{t + stages[1]}:R>)",
+            stages[2]: f"Author/Artist reveal (<t:{t + stages[2]}:R>)",
+            end_time: f"Round end (<t:{t + stages[2]}:R>)"
+        }
+        
+        embed = discord.Embed(description=f"Round #{idx} is ending in <t:{end_time}:R>")
+        embed.set_author(name="Round is running!", color=BASE_COLOR, timestamp = datetime.datetime.utcnow())
+        embed.add_field(name="Hints", value="No hints for now!", inline=True)
+        await self.interaction.channel.send(embed=embed, view=SendAnswerUI(timeout=round_.time), interaction=self.interaction, players=round_.players, song=round_.song, start=t)
+        
+        
         

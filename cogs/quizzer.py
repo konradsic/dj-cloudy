@@ -9,13 +9,14 @@ from discord.ext import commands
 from utils import help_utils, logger, get_length
 from utils.colors import BASE_COLOR
 from utils import djRole_check
-from music.quiz import random_song
+from music.quiz import random_song, QuizBuilder
 import difflib
 from traceback import format_exc
 import colorama
 from utils import emoji
 from music.core import MusicPlayer
 from utils.buttons import QuizButtonsUI
+import asyncio
 
 logging = logger.Logger(__name__)
 
@@ -97,6 +98,13 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
+            
+        try:
+            self.bot.quizzes[str(interaction.guild.id)]
+            embed = discord.Embed(description=f"{emoji.XMARK.string} Another quiz is already running!", color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        except: pass
 
         category, string = song_collection.split(":")
         songs = []
@@ -112,7 +120,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
             await interaction.followup.send(embed=embed)
             return
         
-        starting_in = round(time.time()) + 60
+        starting_in = round(time.time()) + 30
         
         quiz_embed = discord.Embed(description=f"Music quiz starting in <t:{starting_in}:R>. Click the button below to join.", color=BASE_COLOR)
         quiz_embed.set_author(name="Music Quiz!", icon_url=self.bot.user.avatar.url)
@@ -129,7 +137,17 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
             await channel.connect(cls=MusicPlayer, self_deaf=True)
         except: pass
         
-        await interaction.followup.send(embed=quiz_embed, view=QuizButtonsUI(timeout=60, bot=self.bot))
+        await interaction.followup.send(embed=quiz_embed, view=QuizButtonsUI(timeout=30, bot=self.bot))
+        
+        await asyncio.sleep(30)
+        
+        players = self.bot.quizzes[str(interaction.guild.id)]
+        music_player = wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)
+        music_player.queue.cleanup()
+        
+        game = QuizBuilder(rounds, songs, players, 60, music_player, [20, 40, 50], interaction, self.bot) 
+        # NOTE: passing "interaction" lets the QuizBuilder run itself without code here
+        await game.run() # game loop - run rounds
 
 
 

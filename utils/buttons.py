@@ -264,3 +264,15 @@ class QuizButtonsUI(View):
             ), ephemeral=True)
         except Exception as e:
             print(e.__class__.__name__, str(e))
+
+class SendAnswerUI(View):
+    def __init__(self, timeout: float, interaction: discord.Interaction, players: list[discord.Member], song: wavelink.Playable, start: int) -> None:
+        super().__init__(timeout=timeout)
+        self.timeout = timeout
+        self.players = players
+        self.song = song
+        self.start = start
+        
+    @ui.button(label="Click to answer!", style=discord.ButtonStyle.blurple)
+    async def answer_button(self, interaction: discord.Interaction, button):
+        pass
