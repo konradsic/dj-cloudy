@@ -15,7 +15,7 @@ from traceback import format_exc
 import colorama
 from utils import emoji
 from music.core import MusicPlayer
-from utils.buttons import QuizButtonsUI
+from utils.buttons import QuizButtonsUI, QuizResponseModal
 import asyncio
 
 logging = logger.Logger(__name__)
@@ -79,9 +79,8 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         super().__init__()
         
     @app_commands.command(name="start", description="Start a music quiz. Requires DJ permissions")
-    @app_commands.describe(rounds="Number of rounds", song_collection="What collection of songs you want to select. Use `artist:` to search for artists")
-    @app_commands.autocomplete(song_collection=song_collection_autocomplete)
-    async def quiz_start_command(self, interaction: discord.Interaction, rounds: int, song_collection: str):
+    @app_commands.describe(rounds="Number of rounds")
+    async def quiz_start_command(self, interaction: discord.Interaction, rounds: int):
         await interaction.response.defer(thinking=True)
         # djRole check
         if not await djRole_check(interaction, self.logger): return
@@ -106,14 +105,8 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
             return
         except: pass
 
-        category, string = song_collection.split(":")
-        songs = []
-        if category == "artist":
-            songs = await random_song.many_songs_from_artist(string, limit=rounds)
-            genres = f"`[🧑‍🎤]` {string}'s songs"
-        if category == "top":
-            songs = await random_song.many_songs_from_collection(num=rounds, top_num=int(string), from_best=True)
-            genres = f"`[📂]` Songs from top {string} artist(s) [(check here)](https://www.billboard.com/charts/artist-100/)"
+        songs = await random_song.random_songs_new(rounds)
+        genres = f"`[📂]` Top 1000 songs of all time"
             
         if not songs:
             embed = discord.Embed(description=f"{emoji.XMARK.string} No songs were found with given criteria. Try again", color=BASE_COLOR)
@@ -143,7 +136,8 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         
         players = self.bot.quizzes[str(interaction.guild.id)]
         music_player = wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)
-        music_player.queue.cleanup()
+        try: music_player.queue.cleanup() # emptying the queue for sure
+        except: pass
         
         game = QuizBuilder(rounds, songs, players, 60, music_player, [20, 40, 50], interaction, self.bot) 
         # NOTE: passing "interaction" lets the QuizBuilder run itself without code here
@@ -152,5 +146,6 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
 
 
 async def setup(bot):
+    help_utils.register_command("quiz start", "Start a music quiz. Requires DJ permissions", "Music quiz", [("rounds", "Number of rounds", True)])
     await bot.add_cog(MusicQuizCog(bot),
                       guilds=[discord.Object(id=g.id) for g in bot.guilds])

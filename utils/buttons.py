@@ -1,16 +1,21 @@
+import difflib
+import time
 import typing as t
 
 import discord
+import wavelink
 from discord import ui
-from discord.ui import View
+from discord.ui import Modal, View
 
 from music import playlist
-import wavelink
 
+from . import emoji
 from .base_utils import RepeatMode
+from .cache import JSONCacheManager
 from .colors import BASE_COLOR
 from .configuration import ConfigurationHandler as Config
-from . import emoji
+from traceback import format_tb
+
 
 class PlayButtonsMenu(View):
     def __init__(self, timeout: float=None, user: t.Optional[discord.Member] = None) -> None:
@@ -265,14 +270,57 @@ class QuizButtonsUI(View):
         except Exception as e:
             print(e.__class__.__name__, str(e))
 
+class QuizResponseModal(Modal, title="What is the song and author?"):
+    song_title = ui.TextInput(label="Song title", required=True, placeholder="What is the title of the currently playing song")
+    song_author = ui.TextInput(label="Song author", required=False, placeholder="What is the author of the currently playing song")
+
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        try:
+            points = 0
+            mgr = JSONCacheManager("quizzes.json", expiration_time = -1)
+            _old = await mgr.get(str(interaction.guild.id))
+            started = _old["round_start"]
+            players = list(_old.keys())
+            if str(interaction.user.id) not in players:
+                await interaction.followup.send("You are not in the players list!", ephemeral=True)
+                return
+            round_time = 60
+            # NOTE: points - 200 (time), 500 (title) and 300 (author) - max 1000
+            artist = _old["artist"]
+            title = _old["title"]
+            
+            # comparison
+            matcher = difflib.SequenceMatcher
+            match_title = matcher(None, str(self.song_title).lower(), str(title).lower()).real_quick_ratio()
+            match_artist = matcher(None, str(self.song_author).lower(), str(artist).lower()).real_quick_ratio()
+            
+            # points if good
+            if match_title == 1.0: # ~~more than 80% similarity
+                points += 500
+            if match_artist == 1.0:
+                points += 300
+            if points:
+                points += round(200 * (1 - round(time.time() - started) / (round_time)))
+                
+            if not (points == 0):
+                await interaction.followup.send(f"Submitted! Your score: {round(points)} points", ephemeral=True)
+                _old[str(interaction.user.id)] = points
+                await mgr.save(str(interaction.guild.id), _old)
+                return
+            await interaction.followup.send("Submitted! Although you didn't get any points :(", ephemeral=True)   
+        except Exception as e:
+            print(e.__class__.__name__, str(e), format_tb())
+                 
+        
+
 class SendAnswerUI(View):
-    def __init__(self, timeout: float, interaction: discord.Interaction, players: list[discord.Member], song: wavelink.Playable, start: int) -> None:
+    def __init__(self, timeout: float, interaction: discord.Interaction, quiz) -> None:
         super().__init__(timeout=timeout)
         self.timeout = timeout
-        self.players = players
-        self.song = song
-        self.start = start
+        self.quiz = quiz
         
     @ui.button(label="Click to answer!", style=discord.ButtonStyle.blurple)
     async def answer_button(self, interaction: discord.Interaction, button):
-        pass
+        await interaction.response.send_modal(QuizResponseModal())

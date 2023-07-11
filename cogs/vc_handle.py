@@ -39,8 +39,8 @@ class VC_Handler(commands.Cog):
         guild = additional_info.get('guild').id
         track = additional_info.get('track').title
         info = additional_info.get('info')
-        if not (info == None):
-            self.logger.debug(f"Track {track} {info} #{guild} (calling player advance, queue position: {player.queue.position})")
+        self.logger.debug(f"Track {track} {info} #{guild} (calling player advance, queue position: {player.queue.position})")
+        if not (info == None or info == "REPLACED"):
             await player.advance()
         
     

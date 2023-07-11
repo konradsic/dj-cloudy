@@ -18,7 +18,7 @@ class ChangelogCommand(commands.Cog):
             for line in lines:
                 line = line.strip("\n")
                 if line == "": continue
-                if line.startswith("##"):
+                if line.startswith("##") and len(line.split(" ")[0]) == 2:
                     fields.append([line[3:], ""])
                 else:
                     fields[-1][1] += line + "\n"

@@ -49,7 +49,7 @@ async def song_from_artist(artist: str):
         if str(artist_it) == artist:
             node: wavelink.Node = wavelink.NodePool.get_connected_node()
             tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
-            return random.choice(tracks)
+            return random.choice(tracks[:15])
             
     return None
 
@@ -65,13 +65,13 @@ async def song_from_collection(top_num: int, from_best: bool = True, ret_tracks:
         artist = random.choice(artists[:top_num])
         node: wavelink.Node = wavelink.NodePool.get_connected_node()
         tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
-        if ret_tracks: return tracks
-        return random.choice(tracks)
+        if ret_tracks: return tracks[:15]
+        return random.choice(tracks[:15])
 
     artist = random.choice(artists[-(top_num-1):])
     node: wavelink.Node = wavelink.NodePool.get_connected_node()
     tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
-    return random.choice(tracks)
+    return random.choice(tracks[:15])
     
 async def many_songs_from_collection(num: int, top_num: int, from_best: bool = True):
     """Generate `num` unique songs with given criteria"""
@@ -91,3 +91,41 @@ async def many_songs_from_artist(artist: str, limit: str = 100):
     node = wavelink.NodePool.get_connected_node()
     tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
     return tracks[:limit]
+
+def new_songs_top1000():
+    url = "https://b101.iheart.com/featured/bill-george/content/2023-01-03-the-top-1000-songs-of-all-time/"
+
+    reqeust = requests.get(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",}).text
+
+    soup = BeautifulSoup(reqeust, "html.parser")
+    div = soup.find("div", {"class": "component-embed-html"})
+    paragraphs = div.find_all("p")[1:]
+
+    res = []
+
+    for p in paragraphs:
+        text = p.text
+        num = text.split("\t", maxsplit=1)[0]
+        if not num.isdigit(): continue
+        res.append(text.split("\t", maxsplit=1)[1].replace("\t", " ").strip())
+        
+    return res
+    
+songs = new_songs_top1000()
+
+async def random_songs_new(num: int, limit: int = 1000):
+    songs_collection = songs[:limit]
+    ret = []
+    indices = []
+    while not (len(indices) == num):
+        rand = random.randint(0, limit)
+        if rand not in indices: indices.append(rand)
+    
+    # wavelink req    
+    for idx in indices:
+        node: wavelink.Node = wavelink.NodePool.get_connected_node()
+        tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{songs_collection[idx].lower()}")
+        track = tracks[0]
+        ret.append(track)
+        
+    return ret

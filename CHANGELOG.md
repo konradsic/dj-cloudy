@@ -1,6 +1,35 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.4.0a1
+This is the first alpha release of the `1.4.0` upcoming version. It adds the music quiz functionality, read more about it down below
+
+### Intro
+After hundreds lines of code and two weeks of coding and debugging the music quiz update v.alpha is ready! Using the powers of discord's UI views - buttons and modals, previously implemented cache the result is pretty satisfying
+
+### The story
+I decided to focus on the bot more, because my vacations just started. First of all, I've made the `1.3.0` version, but I've always wanted to implement music quiz functionality. The music quiz update was planned for the end of January and here we are, in July. Why? I had school and other plans, hosting platform was unavailable, I even thought that the bot will be discontinued. 
+
+I also had a deadline, because I scheduled a Discord event in my private server, I needed to get it done before the event. Luckily, I deployed the alpha version ideally on time, I also had an extra hour :)
+
+### Okay, but what changed? What's new?
+- The music quiz command - `/quiz start`, planning to do `/quiz end`, because you cannot run two quizzes at the same time. Running quiz can bug, so `/quiz end` is necessary.
+- Some bugfixes, although more of bugs will be fixed in the stable version
+- Quiz functionality - After running the command, an embed with a "Join quiz" button will appear, click the button to join the quiz. Individual round is 60 seconds, with a 5 seconds break between each round. In the break a ranking is displayed. To submit your answer in a round, click a special button, after that a modal will appear. Fill it with your answer and submit. Your score will be displayed to you after the submission.
+
+### Plans for the official 1.4.0
+- To fix bugs
+- To release next alpha and beta releases packed with new quiz features and bugfixes
+- To add the `/quiz end` command
+- Change the song collection (current is kinda old ngl)
+- Improve the quiz experience
+
+**DO NOT** expect that the `1.4.0` stable will come so early, I also wanna rest during the vacations :D
+
+### tl;dr
+A new alpha version has just been released. It adds music quiz functionality. To start a quiz use `/quiz start`.
+Some bugs have not been fixed, and this **is not** a stable version.
+
 ## Version 1.3.0
 This version focuses on cache/temporary data and performance. It affects only the playlists commands & context menus group.
 

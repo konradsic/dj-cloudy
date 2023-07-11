@@ -15,7 +15,7 @@ from utils.colors import BASE_COLOR
 from .random_song import (many_songs_from_collection, song_from_artist,
                           song_from_collection)
 
-PUNCTUATION = [".", ",", "&", "-", "'", "\"", ":", ";", "`", "?"]
+PUNCTUATION = [".", ",", "&", "-", "'", "\"", ":", ";", "`", "?", "/"]
 
 def cleanup(string):
     replace_matcher = {
@@ -58,7 +58,7 @@ class Round():
         self.point_for_artist: bool = True # false after third stage
         
         self.song_string: str = None
-        self.artist_string: str = None 
+        self.artist_string: str = "" 
         # ^ type: ignore [x2]
     
     def reveal_artist(self):
@@ -102,7 +102,14 @@ class Round():
             return True
         
         return False
-        
+
+def get_round_embed(hint, next_event, end_time, icon_url, round_num):
+    embed = discord.Embed(description=f"Round #{round_num} is ending in <t:{end_time}:R>", color=BASE_COLOR, timestamp = datetime.datetime.utcnow())
+    embed.set_author(name="Round is running!", icon_url=icon_url)
+    embed.add_field(name="Hints", value=hint, inline=False)
+    embed.add_field(name="Next event", value=next_event, inline=True)
+    return embed
+
 
 class QuizBuilder():
     def __init__(
@@ -128,10 +135,12 @@ class QuizBuilder():
         self.player_mapping_points = {str(player.id): 0 for player in players}
         self.interaction = interaction
         self.bot = bot
+        self.player = player
+        self.player.queue.add(*self.songs)
         
         
     @property
-    async def current_round(self):
+    def current_round(self):
         return self.rounds[self.current_round_idx]
         
     async def run(self):
@@ -144,23 +153,70 @@ class QuizBuilder():
         
         for i in range(len(self.rounds)):
             cur_round = self.current_round
-            points = await self.run_round(cur_round, i + 1)
+            await self.run_round(cur_round, i + 1)
+            # round results
+            embed = discord.Embed(description="Lets look at the results (next round starting soon)", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
+            embed.set_author(name="Round ended!", icon_url=self.bot.user.avatar.url)
+            _cache = self.player_mapping_points
+            embed.add_field(name="Ranking", value="\n".join(f"{i}. <@{player}> `{points} pts.`" for (i, player), points in zip(enumerate(_cache.keys()), _cache.values())), inline=False)
+            embed.add_field(name="Song", value=f"The song was...\n`{cur_round.song_title}, by: {cur_round.song_artist}`", inline=False)
+            await self.interaction.channel.send(embed=embed)
+            
+            await asyncio.sleep(5)
+            self.current_round_idx += 1
         
-    async def run_round(self, round_: Round, idx: int) -> dict[str, int]: # UserID, points
+    async def run_round(self, round_: Round, idx: int):
         t = round(time.time())
         end_time = t + round_.time
+        pdict = {
+            str(player.id): 0 for player in self.players
+        }
+        pdict["round_start"] = t
+        pdict["title"] = round_.song_title
+        pdict["artist"] = round_.song_artist
+        
+        await self.bot.quiz_cache.save(str(self.interaction.guild.id), pdict)
         stages = round_.time_stages
         round_events = {
             stages[0]: f"2x Letters reveal (<t:{t + stages[0]}:R>)",
             stages[1]: f"Second 2x letter reveal (<t:{t + stages[1]}:R>)",
             stages[2]: f"Author/Artist reveal (<t:{t + stages[2]}:R>)",
-            end_time: f"Round end (<t:{t + stages[2]}:R>)"
+            end_time: f"Round end (<t:{end_time}:R>)"
         }
         
-        embed = discord.Embed(description=f"Round #{idx} is ending in <t:{end_time}:R>")
-        embed.set_author(name="Round is running!", color=BASE_COLOR, timestamp = datetime.datetime.utcnow())
-        embed.add_field(name="Hints", value="No hints for now!", inline=True)
-        await self.interaction.channel.send(embed=embed, view=SendAnswerUI(timeout=round_.time), interaction=self.interaction, players=round_.players, song=round_.song, start=t)
+        embed = get_round_embed("No hint for now!", round_events[stages[0]], end_time, self.bot.user.avatar.url, idx)
+        try:
+            if idx == 1:
+                await self.player.start_playback(self.interaction)
+            else:
+                await self.player.stop()
+            await self.player.seek(60 * 1000)
+        except: pass
         
+        ui = SendAnswerUI(timeout=round_.time, interaction=self.interaction, quiz=self)
+        msg = await self.interaction.channel.send(embed=embed, view=ui)
         
+        _stages2 = [*round_.time_stages, end_time]
+        before_time = 0
         
+        for k,v in list(round_events.items())[:-1]:
+            await asyncio.sleep(k-before_time)
+            before_time = k
+            if k == stages[0] or k == stages[1]:
+                round_.reveal_song_letter()
+                round_.reveal_song_letter()
+                # ^ two times as promised
+            if k == stages[2]:
+                round_.reveal_artist()
+            
+            embed = get_round_embed(f"`{round_.song_string}, by: {round_.artist_string or 'Not revealed yet!'}`", round_events[_stages2[_stages2.index(k) + 1]], end_time, self.bot.user.avatar.url, idx)
+            ui.timeout = round_.time - k
+            await msg.edit(embed=embed, view=ui)
+
+        await asyncio.sleep(round_.time-before_time)
+        _cache = await self.bot.quiz_cache.get(str(self.interaction.guild.id))
+        _cache = list(_cache.items())[:-4]
+        for k,v in _cache:
+            self.player_mapping_points[k] += v
+        
+        return

@@ -6,7 +6,7 @@ A Discord bot that adds music functionality to your server.
 """
 #######################################################################
 
-__version__ = "1.3.0"
+__version__ = "1.4.0a1"
 __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
@@ -157,6 +157,7 @@ class DJ_Cloudy(commands.Bot):
         self.logger.info(f"Loading extensions done (took {took}s)")
         self.song_cache_mgr: JSONCacheManager = JSONCacheManager("songs.json")
         self.system_vars: JSONCacheManager = JSONCacheManager("systemcache.json", expiration_time = -1)
+        self.quiz_cache: JSONCacheManager = JSONCacheManager("quizzes.json", expiration_time = -1)
         self.logger.debug("JSON Cache managers initialized")
 
     async def close(self):
