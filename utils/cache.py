@@ -76,3 +76,13 @@ class JSONCacheManager:
         except KeyError:
             raise CacheNotFound
             # return None
+
+    async def remove(self, key: str) -> dict:
+        filecontents = await self.get_cache_file()
+        try:
+            del filecontents[key]
+        except:
+            raise CacheNotFound
+        
+        async with aiofiles.open(self.cache_file, mode="w") as f:
+            await f.write(json.dumps(filecontents))

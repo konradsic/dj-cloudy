@@ -12,6 +12,7 @@ import uuid
 from . import logger
 from .configuration import ConfigurationHandler
 from .colors import BASE_COLOR
+from . import emoji
 
 BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
@@ -265,3 +266,26 @@ async def djRole_check(interaction: discord.Interaction, logger: logger.Logger):
         embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to check for DJ role permissions, try again", color=BASE_COLOR)
         await interaction.followup.send(embed=embed, ephemeral=True)
         return False
+
+async def quiz_check(
+    bot: discord.ext.commands.Bot, 
+    interaction: discord.Interaction, 
+    logger: logger.Logger
+) -> bool:
+    try:
+        quiz_data = await bot.quiz_cache.get(str(interaction.guild.id))
+    except:
+        return True
+    
+    if quiz_data == {}:
+        return True
+    
+    embed = discord.Embed(description=f"{emoji.XMARK.string} You cannot use this command during the music quiz!", color=BASE_COLOR)
+    logger.error(f"{interaction.user.id} caught in 4K - cheating! (commands disabled during the quiz)")
+    try:
+        await interaction.response.send_message(embed=embed)
+    except:
+        await interaction.followup.send(embed=embed)
+        
+    return False
+    

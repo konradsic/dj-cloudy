@@ -164,6 +164,10 @@ class QuizBuilder():
             
             await asyncio.sleep(5)
             self.current_round_idx += 1
+            
+        # cleanup
+        await self.bot.quiz_cache.remove(str(self.interaction.guild.id))
+        del self.bot.quizzes[str(self.interaction.guild.id)]
         
     async def run_round(self, round_: Round, idx: int):
         t = round(time.time())

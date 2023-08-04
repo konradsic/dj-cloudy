@@ -6,7 +6,7 @@ import wavelink
 from utils import help_utils
 from discord.ext import commands
 from utils.colors import BASE_COLOR
-from utils.base_utils import djRole_check
+from utils.base_utils import djRole_check, quiz_check
 from utils import logger
 
 @logger.LoggerApplication
@@ -25,6 +25,7 @@ class RepeatCommands(commands.Cog):
     async def repeat_command(self, interaction: discord.Interaction, mode: str):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)

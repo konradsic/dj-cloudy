@@ -14,6 +14,7 @@ from utils.base_utils import (
 )
 from discord.app_commands import Choice
 from utils import logger
+from utils.base_utils import quiz_check
 
 @logger.LoggerApplication
 class FiltersCog(commands.GroupCog, name="filters"):
@@ -36,6 +37,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
     ])
     async def filters_choose_command(self, interaction: discord.Interaction, filter: str):
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -69,6 +71,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
     @app_commands.command(name="reset", description="Reset applied filters")
     async def filters_reset_command(self, interaction: discord.Interaction):
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -114,6 +117,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     ])
     async def equalizer_choose_command(self, interaction: discord.Interaction, equalizer: str):
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -155,6 +159,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     ])
     async def equalizer_advanced_command(self, interaction: discord.Interaction, band: int, gain: float):
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -197,6 +202,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     @app_commands.command(name="reset", description="Reset applied equalizers. Similiar to /filters reset")
     async def eq_reset_command(self, interaction: discord.Interaction):
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")

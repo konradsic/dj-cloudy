@@ -31,7 +31,6 @@ class SearchResponse:
 
         self.best_api_path: str = self.best_result["result"]["api_path"]
         self.best_id: int = self.best_result["result"]["id"]
-        self.best_song_lang: str = self.best_result["result"]["language"]
 
 class GeniusSong:
     def __init__(
@@ -157,10 +156,14 @@ class GeniusAPIClient():
                 "User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",
                 "Host": "genius.com"
             })        
-
-        soup = BeautifulSoup(res.text, "html.parser")
-        found = soup.find("div", {"data-lyrics-container": True})
         
-        found_parser = BeautifulSoup(str(found).replace("<br>", "<br/>").replace("<br/>", "\n"), "html.parser")
-
-        return "".join(e for e in found_parser.strings)
+        soup = BeautifulSoup(res.text, "html.parser")
+        found = soup.find_all("div", {"data-lyrics-container": True})
+        all_text = ""
+        for elem in found:
+            all_text += str(elem)
+                
+        found_parser = BeautifulSoup(str(all_text).replace("<br>", "<br/>").replace("<br/>", "\n"), "html.parser")
+        res = "".join(e for e in found_parser.strings)
+        self.logger.debug(res)
+        return res

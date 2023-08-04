@@ -10,7 +10,7 @@ from music.core import MusicPlayer
 from utils import help_utils, logger
 from utils.colors import BASE_COLOR
 from utils.buttons import PlayButtonsMenu, EmbedPaginator, SkipVotingMenu
-from utils.base_utils import get_length, djRole_check
+from utils.base_utils import get_length, djRole_check, quiz_check
 from utils import logger
  
 
@@ -24,6 +24,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="view", description="View the queue in a nice embed")
     async def queue_view_subcommand(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -107,6 +108,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await interaction.response.defer(thinking=True)
         # djRole check
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -134,6 +136,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         # djRole check
         if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
@@ -164,6 +167,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
     @app_commands.describe(index="Index of the song you want to remove")
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
         await interaction.response.defer(thinking=True)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         # djRole check
         if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
@@ -209,6 +213,7 @@ class OtherQueueCommands(commands.Cog):
     async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -239,6 +244,7 @@ class OtherQueueCommands(commands.Cog):
     async def queue_skip_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -268,6 +274,7 @@ class OtherQueueCommands(commands.Cog):
     async def queue_previous(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -300,6 +307,7 @@ class OtherQueueCommands(commands.Cog):
     @app_commands.command(name="voteskip", description="If you don't have DJ perms, this will make a voting for skip")
     async def voteskip_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)

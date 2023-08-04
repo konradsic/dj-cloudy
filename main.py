@@ -6,7 +6,7 @@ A Discord bot that adds music functionality to your server.
 """
 #######################################################################
 
-__version__ = "1.4.0a1"
+__version__ = "1.4.0a2"
 __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
@@ -29,10 +29,10 @@ from utils import logger
 from utils import preimports
 del preimports
 # ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
-from utils.base_utils import (clearscreen,
-                              get_application_id, get_bot_token, get_length,
-                              hide_cursor, inittable, load_logger_config,
-                              make_files, show_cursor, show_figlet)
+from utils import (clearscreen,
+                   get_application_id, get_bot_token, get_length,
+                   hide_cursor, inittable, load_logger_config,
+                   make_files, show_cursor, show_figlet)
 from utils.colors import BASE_COLOR
 from utils.garbage import GarbageCollector
 from utils.cache import JSONCacheManager

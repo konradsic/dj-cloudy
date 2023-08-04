@@ -13,7 +13,7 @@ from discord.ext import commands
 from music import playlist
 from music.core import MusicPlayer
 from utils import help_utils, logger
-from utils.base_utils import get_length, limit_string_to, djRole_check
+from utils.base_utils import get_length, limit_string_to, djRole_check, quiz_check
 from utils.buttons import EmbedPaginator
 from utils.colors import BASE_COLOR
 from utils.errors import (NoPlayerFound, PlaylistCreationError,
@@ -404,6 +404,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.describe(replace_queue="Wherever to replace queue with the playlist or just to append")
     async def playlist_play(self, interaction: discord.Interaction, name_or_id: str, replace_queue: bool=False):
         await interaction.response.defer(ephemeral=False, thinking=True)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:

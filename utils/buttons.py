@@ -1,6 +1,7 @@
 import difflib
 import time
 import typing as t
+from traceback import format_tb
 
 import discord
 import wavelink
@@ -9,22 +10,23 @@ from discord.ui import Modal, View
 
 from music import playlist
 
-from . import emoji
-from .base_utils import RepeatMode
+from . import emoji, logger
+from .base_utils import RepeatMode, djRole_check
 from .cache import JSONCacheManager
 from .colors import BASE_COLOR
 from .configuration import ConfigurationHandler as Config
-from traceback import format_tb
 
-
+@logger.LoggerApplication
 class PlayButtonsMenu(View):
-    def __init__(self, timeout: float=None, user: t.Optional[discord.Member] = None) -> None:
+    def __init__(self, logger: logger.Logger, timeout: float=None, user: t.Optional[discord.Member] = None) -> None:
         super().__init__(timeout=timeout)
         self.user = user
         self.timeout = timeout
+        self.logger = logger
 
     @ui.button(emoji="<:volume_high:1029437727294361691>", style=discord.ButtonStyle.gray)
     async def volume_up_button(self, interaction, button):
+        if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -44,6 +46,7 @@ class PlayButtonsMenu(View):
 
     @ui.button(emoji="<:volume_low:1029437729265688676>", style=discord.ButtonStyle.gray)
     async def volume_low_button(self, interaction, button):
+        if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -63,6 +66,7 @@ class PlayButtonsMenu(View):
 
     @ui.button(emoji="<:repeat_button:1030534158302330912>", style=discord.ButtonStyle.gray)
     async def toggle_repeat_button(self, interaction, button):
+        if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -86,6 +90,7 @@ class PlayButtonsMenu(View):
 
     @ui.button(emoji="<:seek_button:1030534160844062790>", style=discord.ButtonStyle.gray)
     async def restart_playback_button(self, interaction: discord.Interaction, button):
+        if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.response.send_message(embed=embed, ephemeral=True)

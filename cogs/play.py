@@ -12,7 +12,7 @@ from utils import help_utils, logger
 from utils.colors import BASE_COLOR
 from utils.errors import NoPlayerFound, NoTracksFound, CacheExpired, CacheNotFound
 from utils.regexes import URL_REGEX
-from utils.base_utils import progressbar_emojis, get_length, limit_string_to
+from utils.base_utils import progressbar_emojis, get_length, limit_string_to, quiz_check
 from utils.buttons import PlayButtonsMenu
 
 logging = logger.Logger().get("cogs.play")
@@ -94,6 +94,7 @@ class PlayCommand(commands.Cog):
     @app_commands.autocomplete(query=query_complete)
     async def play_command(self, interaction: discord.Interaction, query: str):
         await interaction.response.defer(ephemeral=False)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
@@ -136,6 +137,7 @@ class PlayCommand(commands.Cog):
     @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")
     async def nowplaying_command(self, interaction: discord.Interaction, hidden: bool=False):
         await interaction.response.defer(thinking=True, ephemeral=False)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
@@ -188,6 +190,7 @@ class PlayCommand(commands.Cog):
     @app_commands.command(name="grab", description="Grab currently playing song to your Direct Messages")
     async def grab_command(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)

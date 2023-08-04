@@ -16,18 +16,21 @@ from music.songs import (
     SearchResponse, 
     GeniusSong
 )
+from unidecode import unidecode
+from utils.base_utils import quiz_check
 
 def remove_brackets(string):
-    string = list(string)
-    span_i = -1
-    for i,elem in enumerate(string):
-        if elem == "(":
-            span_i = i
-        if elem == ")" and span_i != -1:
-            del string[span_i:i+1]
-            break
-    return "".join(e for e in string)
-
+    replace_matcher = {
+        "[": "(",
+        "]": ")",
+        "{": "(",
+        "}": ")"
+    }
+    for k,v in replace_matcher.items():
+        string = string.replace(k, v)
+    
+    string = re.sub("\(.*?\)", "", string)
+    return string.strip()
 
 @logger.LoggerApplication
 class LyricsCommandHandler(commands.Cog):
@@ -38,6 +41,7 @@ class LyricsCommandHandler(commands.Cog):
     @app_commands.command(name="lyrics", description="Get lyrics for current playing or input song")
     @app_commands.describe(song="Song you want lyrics for")
     async def lyrics_command(self, interaction: discord.Interaction, song: str = None):
+        if not await quiz_check(self.bot, interaction, self.logger): return
         await interaction.response.defer(ephemeral=True, thinking=True)
         if song is None:
             voice = interaction.user.voice
@@ -65,10 +69,11 @@ class LyricsCommandHandler(commands.Cog):
 
         client: GeniusAPIClient = self.bot.genius
         title, artist = None,None
-        before_song = song + ""
+        before_song = song or "" + ""
         if not song: # we need to get current song
             title = player.queue.current_track.title
-            artist = player.queue.current_track.author.strip("- Topic")
+            author = player.queue.current_track.author
+            artist = author[:-len("- Topic")] if author.endswith("- Topic") else author
         else:
             if not re.match(URL_REGEX, song):
                 song = "ytsearch:" + song
@@ -81,17 +86,18 @@ class LyricsCommandHandler(commands.Cog):
                 else:
                     title = before_song
                     artist = "Unknown"
-            except:
+            except Exception as e:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
+                print(e)
                 return
 
         try:
             title = remove_brackets(title)
             try:
-                song = client.get_lyrics(title + " " + artist)
+                song = client.get_lyrics(unidecode(title) + " " + unidecode(artist))
             except:
-                song = client.get_lyrics(title)
+                song = client.get_lyrics(unidecode(title))
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
             title = title + " by " + artist
         except Exception as e:

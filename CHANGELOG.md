@@ -1,6 +1,15 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.4.0a2
+Another alpha pre-release of the quiz update. This update fixes some major bugs.
+- Fixed volume command (it was completely broken)
+- Added "quiz checks" - you cannot use commands during the quiz (I mean commands related to music), see Issue [#20](https://github.com/konradsic/dj-cloudy/issues/20)
+- Fixed djRole checks in buttons [#15](https://github.com/konradsic/dj-cloudy/issues/15)
+
+Beta will be coming soon and will fix bugs and bring new functionality!
+
+
 ## Version 1.4.0a1
 This is the first alpha release of the `1.4.0` upcoming version. It adds the music quiz functionality, read more about it down below
 

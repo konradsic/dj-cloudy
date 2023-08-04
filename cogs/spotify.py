@@ -8,7 +8,7 @@ from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils.regexes import URL_REGEX
 from utils.errors import NoPlayerFound
-from utils.base_utils import convert_to_double, double_to_int, get_config
+from utils.base_utils import convert_to_double, double_to_int, get_config, quiz_check
 from utils import logger
 from wavelink.ext import spotify
 from music.core import MusicPlayer
@@ -23,6 +23,7 @@ class SpotifyExtensionCog(commands.Cog):
     @app_commands.describe(query="Song or album you want to play")
     async def spotify_command(self, interaction: discord.Interaction, query: str):
         await interaction.response.defer(thinking=True)
+        if not await quiz_check(self.bot, interaction, self.logger): return
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
