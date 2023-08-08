@@ -139,13 +139,28 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         try: music_player.queue.cleanup() # emptying the queue for sure
         except: pass
         
-        game = QuizBuilder(rounds, songs, players, 60, music_player, [20, 40, 50], interaction, self.bot) 
+        game = QuizBuilder(rounds, songs, players, 60, music_player, [20, 40, 50], interaction, self.bot)
+        try:
+            self.bot.quiz_obj[str(interaction.guild.id)] = game
+        except:
+            self.bot.quiz_obj = {}
+            self.bot.quiz_obj[str(interaction.guild.id)] = game
+        
         # NOTE: passing "interaction" lets the QuizBuilder run itself without code here
         await game.run() # game loop - run rounds
+        
+    @app_commands.command(name="end", description="Forces stop of the music quiz. Requires DJ permissions")
+    async def quiz_end_command(self, interaction: discord.Interaction):
+        if not await djRole_check(interaction, self.logger): return
+        game = self.bot.quiz_obj[str(interaction.guild.id)]
+        await game.stop()
+        del self.bot.quiz_obj[str(interaction.guild.id)]
+        await interaction.response.send_message(embed=discord.Embed(description=f"{emoji.TICK.string} Success!", color=BASE_COLOR), ephemeral=True)
 
 
 
 async def setup(bot):
     help_utils.register_command("quiz start", "Start a music quiz. Requires DJ permissions", "Music quiz", [("rounds", "Number of rounds", True)])
+    help_utils.register_command("quiz end", "Forces stop of the music quiz. Requires DJ permissions", "Music quiz")
     await bot.add_cog(MusicQuizCog(bot),
-                      guilds=[discord.Object(id=g.id) for g in bot.guilds])
+                      guilds=bot.guilds)

@@ -14,6 +14,7 @@ from utils.colors import BASE_COLOR
 
 from .random_song import (many_songs_from_collection, song_from_artist,
                           song_from_collection)
+from utils import emoji
 
 PUNCTUATION = [".", ",", "&", "-", "'", "\"", ":", ";", "`", "?", "/"]
 
@@ -137,6 +138,7 @@ class QuizBuilder():
         self.bot = bot
         self.player = player
         self.player.queue.add(*self.songs)
+        self.is_stopped = False
         
         
     @property
@@ -154,6 +156,7 @@ class QuizBuilder():
         for i in range(len(self.rounds)):
             cur_round = self.current_round
             await self.run_round(cur_round, i + 1)
+            if self.is_stopped: return
             # round results
             embed = discord.Embed(description="Lets look at the results (next round starting soon)", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
             embed.set_author(name="Round ended!", icon_url=self.bot.user.avatar.url)
@@ -204,6 +207,7 @@ class QuizBuilder():
         before_time = 0
         
         for k,v in list(round_events.items())[:-1]:
+            if self.is_stopped: return
             await asyncio.sleep(k-before_time)
             before_time = k
             if k == stages[0] or k == stages[1]:
@@ -218,9 +222,24 @@ class QuizBuilder():
             await msg.edit(embed=embed, view=ui)
 
         await asyncio.sleep(round_.time-before_time)
+        if self.is_stopped:
+            return
         _cache = await self.bot.quiz_cache.get(str(self.interaction.guild.id))
         _cache = list(_cache.items())[:-4]
         for k,v in _cache:
             self.player_mapping_points[k] += v
         
         return
+    
+    async def stop(self):
+        # wipe up cache and bot.quizzes
+        await self.bot.quiz_cache.remove(str(self.interaction.guild.id))
+        del self.bot.quizzes[str(self.interaction.guild.id)]
+        
+        self.is_stopped = True # returns from run_round -> and then run
+        
+        await self.interaction.channel.send(embed=discord.Embed(
+            description=f"{emoji.TICK.string} Quiz ended! [forced]",
+            color=BASE_COLOR
+        ))
+    
