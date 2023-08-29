@@ -8,6 +8,7 @@ from discord.ext import commands
 from utils import help_utils
 from utils.colors import BASE_COLOR
 from utils.base_utils import get_nodes, basic_auth
+from utils import emoji
 
 class MiscCommands(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:
@@ -64,15 +65,50 @@ class MiscCommands(commands.Cog):
         embed.add_field(name="Nodes data", value=node_data, inline=False)
         embed.add_field(name="Players data", value=players_data, inline=False)
         embed.add_field(name="Bot informations", 
-            value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nCreated by: [Konradoo](https://github.com/konradsic)\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
+            value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.set_footer(text=f"Requested by {interaction.user} | Licensed under the MIT License")
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        
+    @app_commands.command(name="credits", description="Display credits")
+    async def credits_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
+        
+        embed = discord.Embed(description="A list of people who are very proud to be a part of the DJ Cloudy team.",
+                              color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+        embed.set_author(name="Credits", icon_url=self.bot.user.avatar.url)
+        embed.set_footer(text="Thanks to all people from our team <3")
+        
+        DEVELOPERS = [958029521565679646]
+        SPONSORS = [508661400089002004]
+        TESTERS = [997874629379117086, 958029521565679646]
+        
+        devlen = len(DEVELOPERS)
+        sponsorlen = len(SPONSORS)
+        testlen = len(TESTERS)
+        
+        string_devs = "\n".join(f"<@{dev}>" for dev in DEVELOPERS)
+        string_sponsors = "\n".join(f"<@{sponsor}>" for sponsor in SPONSORS)
+        string_testers = "\n".join(f"<@{tester}>" for tester in TESTERS)
+        
+        dev_text_singular     = "*This person codes the bot*"
+        dev_text_plural       = "*These people code the bot*"
+        sponsor_text_singular = "*This person sponsors the DJ Cloudy project*"
+        sponsor_text_plural   = "*These people sponsor the DJ Cloudy project*"
+        tester_text_singular  = "*This person test the bot to ensure everything is running correctly*"
+        tester_text_plural    = "*These people test the bot to ensure everything is running correctly*"
+        
+        embed.add_field(name=f"{emoji.DEVELOPER.string} Developer{'s' if len(DEVELOPERS) > 1 else ''}", value=f"\n{dev_text_singular if devlen == 1 else dev_text_plural}\n{string_devs}", inline=False)
+        embed.add_field(name=f"{emoji.SPONSOR.string} Sponsor{'s' if len(SPONSORS) > 1 else ''}", value=f"\n{sponsor_text_singular if sponsorlen == 1 else sponsor_text_plural}\n{string_sponsors}", inline=False)
+        embed.add_field(name=f"{emoji.TESTER.string} Tester{'s' if len(TESTERS) > 1 else ''}", value=f"\n{tester_text_singular if testlen == 1 else tester_text_plural}\n{string_testers}", inline=False)
+
         await interaction.followup.send(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("ping", "Returns latency and uptime of the bot", "Miscellaneous")
     help_utils.register_command("botinfo", "Gathers most of informations about the bot and Wavelink nodes", "Miscellaneous")
+    help_utils.register_command("credits", "Display credits", "Miscellaneous")
     await bot.add_cog(
         MiscCommands(bot),
         guilds = [discord.Object(id=g.id) for g in bot.guilds]
