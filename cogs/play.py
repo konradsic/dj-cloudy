@@ -14,6 +14,7 @@ from utils.errors import NoPlayerFound, NoTracksFound, CacheExpired, CacheNotFou
 from utils.regexes import URL_REGEX
 from utils.base_utils import progressbar_emojis, get_length, limit_string_to, quiz_check
 from utils.buttons import PlayButtonsMenu
+from utils.base_utils import djRole_check
 
 logging = logger.Logger().get("cogs.play")
 
@@ -58,13 +59,14 @@ async def query_complete(
     current: str
 ) -> t.List[app_commands.Choice[str]]:
     query = current.strip("<>")
+    params = interaction.namespace
+    source = params.source
+    
     if current == "":
-        query = "ytsearch:Summer hits 2022"
+        query = "scsearch:Summer hits 2022"
     elif not re.match(URL_REGEX, current):
-        query = "ytsearch:{}".format(current)
+        query = f"{source}:{current}"
     try:
-        if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
-            query = query[2:]
         while True:
             tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
             if not tracks: continue
@@ -90,9 +92,15 @@ class PlayCommand(commands.Cog):
         self.logger = logger
 
     @app_commands.command(name="play", description="Plays music")
-    @app_commands.describe(query="What song to play")
+    @app_commands.describe(source="From what source to search. Ignored when link is pasted", query="What song to play. For spotify tracks use /spotify",
+                           play_force="Required DJ permissions. Interrupts current playing track and plays this now.", put_force="Requires DJ permissions. Puts this song after currently playing track")
     @app_commands.autocomplete(query=query_complete)
-    async def play_command(self, interaction: discord.Interaction, query: str):
+    @app_commands.choices(source=[
+        app_commands.Choice(name="SoundCloud Search", value="scsearch"),
+        app_commands.Choice(name="YouTube search", value="ytsearch"),
+        app_commands.Choice(name="Link", value="link")
+    ])
+    async def play_command(self, interaction: discord.Interaction, source: str, query: str, play_force: bool=False, put_force: bool=False):
         await interaction.response.defer(ephemeral=False)
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
@@ -108,7 +116,26 @@ class PlayCommand(commands.Cog):
             player.bound_channel = interaction.channel
 
         query = query.strip("<>")
-        tracks = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=query)
+        if not re.match(URL_REGEX, query) and source in ("ytsearch", "scsearch"):
+            query = source + ":" + query
+        
+        counter = 0
+        counter_max = 100
+        
+        while True:
+            counter += 1
+            tracks = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=query)
+            
+            try: 
+                tracks[0]
+                break
+            except: pass
+            
+            if counter == counter_max: 
+                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+            
         # Song cache saving
         track = tracks[0]
         try:
@@ -122,16 +149,21 @@ class PlayCommand(commands.Cog):
                     "length": track.length,
                     "id": track.identifier
                 })
+        # put force and play force
+        if put_force or play_force:
+            await interaction.followup.send(embed=discord.Embed(
+                description=f"Passed arguments `put_force={put_force}`, `play_force={play_force}`, checking DJ permissions...", 
+                color=BASE_COLOR
+            ))
+            if not await djRole_check(interaction, self.logger): return
+            if play_force and put_force:
+                await interaction.followup.send(embed=discord.Embed(
+                    description=":bulb: Optimization tip: `put_force` and `play_force` are both `True` although only `play_force` could be.",
+                    color=BASE_COLOR
+                ))
+                put_force = False
         
-        await player.add_tracks(interaction, [track])
-        try:
-            pass
-        except Exception as e:
-            if isinstance(e, NoTracksFound):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
-                await interaction.followup.send(embed=embed, ephemeral=True)
-                return "failed"
-            self.logger.error(f"Exception occured -- {e.__class__.__name__}: {str(e)}")
+        await player.add_tracks(interaction, [track], put_force, play_force)
             
     @app_commands.command(name="nowplaying", description="Get currently playing track info in a nice embed")
     @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")
@@ -239,7 +271,12 @@ class PlayCommand(commands.Cog):
             return
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("play", "Plays music", "Music", [("query","What song to play",True)])
+    help_utils.register_command("play", "Plays music", "Music", [
+        ("source", "From what source to search. Ignored when link is pasted", True),
+        ("query","What song to play. For spotify tracks use /spotify",True),
+        ("play_force", "Required DJ permissions. Interrupts current playing track and plays this now.", False),
+        ("put_force", "Requires DJ permissions. Puts this song after currently playing track", False)
+    ])
     help_utils.register_command("nowplaying", "Get currently playing track info in a nice embed", "Music", 
                                 [("hidden", "Wherever to hide the message or not (it will be visible only to you)", False)])
     help_utils.register_command("grab", "Grab currently playing song to your Direct Messages", "Music")

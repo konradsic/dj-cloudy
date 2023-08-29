@@ -40,11 +40,21 @@ class MusicPlayer(wavelink.Player):
         except KeyError:
             pass
 
-    async def add_tracks(self, interaction: discord.Interaction, tracks: list):
+    async def add_tracks(self, interaction: discord.Interaction, tracks: list,
+                         put_force: bool, play_force: bool):
+                         # ^ put_force, play_force - new in 1.4.0
         if not tracks:
             raise NoTracksFound
 
-        self.queue.add(*tracks)
+        if not (put_force or play_force):
+            self.queue.add(*tracks)
+            
+        if put_force or play_force:
+            current = self.queue.position
+            copy = self.queue._queue.copy()
+            new_queue = copy.insert(current+1, tracks[0])
+            self.queue._queue = new_queue
+            
         if len(tracks) >= 2:
             total_duration = get_length(sum([t.duration for t in tracks]))
             embed = discord.Embed(title="<:play_button:1028004869019279391> Queue extended", description=f"You extended the queue by **{len(tracks)} tracks** of duration `{total_duration}`", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
@@ -54,8 +64,9 @@ class MusicPlayer(wavelink.Player):
             if not self.is_playing():
                 await self.start_playback(interaction)
             return
+        
         track = tracks[0]
-        if not self.is_playing():
+        if not self.is_playing() or play_force:
             embed = discord.Embed(
                 title="<:play_button:1028004869019279391> Now playing",
                 color = BASE_COLOR,
@@ -73,7 +84,13 @@ class MusicPlayer(wavelink.Player):
             embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
-        if self.is_playing():
+            
+            # play_force
+            if play_force:
+                # play NOW
+                await self.stop()
+            
+        if self.is_playing() or put_force:
             embed = discord.Embed(
                 title = "<:play_button:1028004869019279391> Added song to the queue",
                 color = BASE_COLOR,
@@ -99,6 +116,9 @@ class MusicPlayer(wavelink.Player):
             for upcoming in upc_tracks:
                 to_end += upcoming.duration
             to_end = round(to_end/1000)
+            if put_force:
+                print(self.queue._queue)
+                to_end = round((self.queue.current_track.duration-self.position)/1000)
             durm, durs = divmod(to_end,60)
             durh, durm = divmod(durm, 60)
             durs, durm, durh = math.floor(durs), math.floor(durm), math.floor(durh)
@@ -107,10 +127,12 @@ class MusicPlayer(wavelink.Player):
             durs = convert_to_double(durs)
             embed.add_field(name="Estimated time until playback", value=f"`{str(durh) + ':' if int(durh) != 0 else ''}{durm}:{durs}`")
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+        
         await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
 
-        if not self.is_playing():
+        if not self.is_playing() and not play_force:
             await self.start_playback(interaction)
+            
 
     async def start_playback(self, interaction: discord.Interaction=None): # interaction used for logging info
         try:
