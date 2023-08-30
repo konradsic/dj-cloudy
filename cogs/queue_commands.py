@@ -12,6 +12,7 @@ from utils.colors import BASE_COLOR
 from utils.buttons import PlayButtonsMenu, EmbedPaginator, SkipVotingMenu
 from utils.base_utils import get_length, djRole_check, quiz_check
 from utils import logger
+from utils import emoji
  
 
 @logger.LoggerApplication
@@ -64,7 +65,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
                 upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
                 upcoming_field = "".join(e + "\n" for e in upcoming_field)
                 embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
-            embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`", inline=False)
+            embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.shuffle_mode_state)}`", inline=False)
             await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
             return
         
@@ -74,7 +75,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         length = sum([t.duration for t in player.queue.get_tracks()])
         length = get_length(length)
         fields = [
-            f"**{i}.** [{t.title}]({t.uri}) `[{get_length(t.duration)}]`{' **now playing**' if t == current else ''}\n"
+            f"{'**Now playing:** ' if t == current else ''}**{i}.** [{t.title}]({t.uri}) `[{get_length(t.duration)}]`\n"
             for i,t in enumerate(history + [current] + upcoming, start=1)
         ]
         num_fields = len(fields)//6
@@ -104,7 +105,13 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user))
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
-    async def queue_shuffle_subcommand(self, interaction: discord.Interaction):
+    @app_commands.describe(shuffle_mode_state="Turn on/off shuffle mode")
+    @app_commands.choices(shuffle_mode_state=[
+        app_commands.Choice(name="ON", value=1),
+        app_commands.Choice(name="OFF", value=-1),
+        app_commands.Choice(name="TOGGLE", value=0)
+    ])
+    async def queue_shuffle_subcommand(self, interaction: discord.Interaction, shuffle_mode_state: int=-2):
         await interaction.response.defer(thinking=True)
         # djRole check
         if not await djRole_check(interaction, self.logger): return
@@ -129,8 +136,24 @@ class QueueCommands(commands.GroupCog, name="queue"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
-        player.queue.shuffle()
-        embed = discord.Embed(description=f"<:shuffle_button:1028926038153117727> Queue has been successfully shuffled",color=BASE_COLOR)
+        if shuffle_mode_state not in (-1, 0, 1):
+            player.queue.shuffle()
+            embed = discord.Embed(description=f"<:shuffle_button:1028926038153117727> Queue has been successfully shuffled",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed)
+            return
+        
+        # shuffle mode
+        if shuffle_mode_state in (0, 1):
+            player.shuffle_mode_state = shuffle_mode_state
+        if shuffle_mode_state == -1:
+            mode = player.shuffle_mode_state
+            new_state = 1 if mode == 0 else 0
+            player.shuffle_mode_state = new_state
+            
+        embed = discord.Embed(
+            description=f"{emoji.SHUFFLE.string} Shuffle mode set to `{bool(player.shuffle_mode_state)}`",
+            color=BASE_COLOR
+        )
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")

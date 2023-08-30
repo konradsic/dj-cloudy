@@ -33,6 +33,7 @@ class MusicPlayer(wavelink.Player):
         self.queue = Queue()
         self.bound_channel = None
         self.eq_levels = [.0,] * 15
+        self.shuffle_mode_state = 0
 
     async def teardown(self):
         try:
