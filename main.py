@@ -174,7 +174,12 @@ bot = DJ_Cloudy()
 
 # error handling
 @bot.tree.error
-async def on_command_exception(interaction, error):
+async def on_command_exception(interaction: discord.Interaction, error: Exception):
+    # suppress common errors
+    if str(error).endswith("AttributeError: 'Queue' object has no attribute 'loop'"):
+        return
+    
+    # print error and send
     colorama.init(autoreset=False)
     main_logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}{Style.RESET_ALL}\n{Fore.RED}{traceback.format_exc()}")
     colorama.init(autoreset=True)

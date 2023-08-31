@@ -42,7 +42,7 @@ class MusicPlayer(wavelink.Player):
             pass
 
     async def add_tracks(self, interaction: discord.Interaction, tracks: list,
-                         put_force: bool, play_force: bool):
+                         put_force: bool=False, play_force: bool=False, *, spotify: bool=False):
                          # ^ put_force, play_force - new in 1.4.0
         if not tracks:
             raise NoTracksFound
@@ -75,13 +75,17 @@ class MusicPlayer(wavelink.Player):
             )
             dur = get_length(track.duration)
             try: # add thumbnail
-                embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
+                if spotify: embed.set_thumbnail(url=track.images[0])
+                else: embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
             except:
                 try:
                     embed.set_thumbnail(url=track.images[0])
                 except: pass
-            embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
-            embed.add_field(name="Author", value=track.author)
+            title = track.title
+            if spotify: title = f"{'E ' if track.explicit else ''}{title}"
+            embed.add_field(name="Track title", value=f"[**{title}**]({track.uri if not spotify else 'https://open.spotify.com/track/' + track.uri.split(':')[2]})", inline=False)
+            if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
+            else: embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
@@ -100,15 +104,21 @@ class MusicPlayer(wavelink.Player):
             dur = get_length(track.duration)
             
             try: # add thumbnail
-                embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
+                if spotify: embed.set_thumbnail(url=track.images[0])
+                else: embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
             except:
                 try:
                     embed.set_thumbnail(url=track.images[0])
                 except: pass
-            embed.add_field(name="Track title", value=f"[**{track.title}**]({track.uri})", inline=False)
-            embed.add_field(name="Author", value=track.author)
+                
+            title = track.title
+            if spotify: title = f"{'E ' if track.explicit else ''}{title}"
+            embed.add_field(name="Track title", value=f"[**{title}**]({track.uri if not spotify else 'https://open.spotify.com/track/' + track.uri.split(':')[2]})", inline=False)
+            if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
+            else: embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
+            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             # calculating estimated time to play this song
             current_pos = self.position
             current_len = self.queue.current_track.duration

@@ -56,13 +56,13 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             if history:
-                history_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(history, 1)]
+                history_field = [f"`{i}. ` [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) [{get_length(t.duration)}]" for i,t in enumerate(history, 1)]
                 history_field = "".join(e + "\n" for e in history_field)
                 embed.add_field(name="Before tracks", value=history_field, inline=False)
             if current:
-                embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri}) [{get_length(current.duration)}]")
+                embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri if not isinstance(current, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + current.uri.split(':')[2]}) [{get_length(current.duration)}]")
             if upcoming:
-                upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
+                upcoming_field = [f"`{i}. ` [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
                 upcoming_field = "".join(e + "\n" for e in upcoming_field)
                 embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
             embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.shuffle_mode_state)}`", inline=False)
@@ -75,7 +75,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         length = sum([t.duration for t in player.queue.get_tracks()])
         length = get_length(length)
         fields = [
-            f"{'**Now playing:** ' if t == current else ''}**{i}.** [{t.title}]({t.uri}) `[{get_length(t.duration)}]`\n"
+            f"{'**Now playing:** ' if t == current else ''}**{i}.** [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) `[{get_length(t.duration)}]`\n"
             for i,t in enumerate(history + [current] + upcoming, start=1)
         ]
         num_fields = len(fields)//6
@@ -101,7 +101,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embeds[-1].set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
             embeds[-1].add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embeds[-1].add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`", inline=False)
+            embeds[-1].add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.shuffle_mode_state)}`", inline=False)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user))
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")

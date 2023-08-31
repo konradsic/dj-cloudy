@@ -1,17 +1,69 @@
 import datetime
+import re
+import typing as t
 
 import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
-from utils.colors import BASE_COLOR
-from utils.regexes import URL_REGEX
-from utils.errors import NoPlayerFound
-from utils.base_utils import convert_to_double, double_to_int, get_config, quiz_check
-from utils import logger
 from wavelink.ext import spotify
+
 from music.core import MusicPlayer
+from utils import emoji, help_utils, logger
+from utils.base_utils import (convert_to_double, double_to_int, get_config,
+                              get_length, limit_string_to, quiz_check)
+from utils.colors import BASE_COLOR
+from utils.errors import NoPlayerFound
+from utils.regexes import URL_REGEX
+
+logging = logger.Logger("cogs.spotify")
+
+number_complete = {
+    0: "🥇 ",
+    1: "🥈 ",
+    2: "🥉 ",
+    3: "4. ",
+    4: "5. ",
+    5: "6. ",
+    6: "7. ",
+    7: "8. ",
+    8: "9. ",
+    9: "10. ",
+}
+
+async def spotify_query_complete(
+    interaction: discord.Interaction, 
+    current: str
+) -> t.List[app_commands.Choice[str]]:
+    search_type = interaction.namespace.search_type
+    query = current.strip("<>")
+    counter = 0
+    try:
+        while True:
+            counter += 1
+            if counter == 101: break
+            tracks = await spotify.SpotifyTrack.search(query, node=wavelink.NodePool.get_connected_node())
+            if not tracks: continue
+            break
+        if not tracks:
+            return []
+
+        if search_type == "track":
+            return [app_commands.Choice(name =
+                    limit_string_to(
+                        f"{number_complete[i]}{'[E] ' if track.explicit else ''}{track.title} (by {', '.join(track.artists)}) [{get_length(track.length)}]",
+                        100), value=track.uri)
+                    for i,track in enumerate(tracks[:10])
+                   ]
+        return [app_commands.Choice(
+            name=limit_string_to(f"📁 {search_type.capitalize()} ({len(tracks)} tracks, {get_length(sum([t.length for t in tracks]))})", 100),
+            value=current
+        )]
+            
+    except Exception as e:
+        if e.__class__.__name__ == "LoadTrackError": return []
+        logging.error(f"Error: {e.__class__.__name__} - {str(e)}")
+        return []
 
 @logger.LoggerApplication
 class SpotifyExtensionCog(commands.Cog):
@@ -19,9 +71,15 @@ class SpotifyExtensionCog(commands.Cog):
         self.bot = bot
         self.logger = logger
 
-    @app_commands.command(name="spotify", description="Play a spotify track or album")
-    @app_commands.describe(query="Song or album you want to play")
-    async def spotify_command(self, interaction: discord.Interaction, query: str):
+    @app_commands.command(name="spotify", description="Play a spotify track or playlist")
+    @app_commands.describe(query="Song or album you want to play", search_type="What to search for (playlist/album/track)")
+    @app_commands.autocomplete(query=spotify_query_complete)
+    @app_commands.choices(search_type=[
+        app_commands.Choice(name="Playlist", value="playlist"),
+        app_commands.Choice(name="Album", value="album"),
+        app_commands.Choice(name="Track", value="track")
+    ])
+    async def spotify_command(self, interaction: discord.Interaction, search_type: str, query: str):
         await interaction.response.defer(thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
@@ -42,35 +100,22 @@ class SpotifyExtensionCog(commands.Cog):
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
             player.bound_channel = interaction.channel
+        
         query = query.strip("<>")
-        parts = query.split("/")
-        return_first = -1
-        type_of_query = None
-        for part in parts:
-            if part.lower() == "track":
-                return_first = True
-                type_of_query = spotify.SpotifySearchType.track
-            elif part.lower() == "playlist":
-                return_first = False
-                spotify.SpotifySearchType.playlist
-        if return_first == -1:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> To play a Spotify track enter a valid playlist/track URL",color=BASE_COLOR)
-            await interaction.followup.send(embed=embed, ephemeral=True)
-            return
+        track = await spotify.SpotifyTrack.search(query, node=wavelink.NodePool.get_connected_node())
+        
         try:
-            results = await spotify.SpotifyTrack.search(query=query, type=type_of_query, return_first=return_first)
+            if search_type == "track":
+                tracks = [track[0]]
+            elif search_type == "album" or search_type == "playlist":
+                tracks = track
         except:
-            results = await spotify.SpotifyTrack.search(query=query, type=spotify.SpotifySearchType.album, return_first=return_first)
+            await interaction.followup.send(embed=discord.Embed(
+                description=f"{emoji.XMARK.string} No tracks were found, try again", color=BASE_COLOR
+            ))
         
-        if isinstance(results, spotify.SpotifyTrack):
-            results = [results]
-            
-        # make this "compatible" with the YouTubeTrack args
-        for i,result in enumerate(results):
-            results[i].author = " ".join(author for author in result.artists)
-        
-        await player.add_tracks(interaction, results)
-        self.logger.info("Spotify search executed successfully - added query to queue")
+        await player.add_tracks(interaction, tracks, spotify=True)
+
 
 async def setup(bot):
     help_utils.register_command("spotify", "Play a spotify track or album", "Extensions/Plugins", [("query","Song or album you want to play",True)])

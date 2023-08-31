@@ -191,18 +191,26 @@ class PlayCommand(commands.Cog):
 
         current = player.queue.current_track
         duration = get_length(current.duration)
-        author = current.author
+        spotify = False
+        try:
+            author = current.author
+        except:
+            autor = ", ".join(current.artists)
         link = current.uri
+        if spotify: link = "https://open.spotify.com/track/" + current.uri.split(":")[2]
         rep = player.queue.repeat.string_mode
 
         thumb = f"https://img.youtube.com/vi/{current.identifier}/maxresdefault.jpg"
+        if spotify: thumb = current.images[0]
         embed = discord.Embed(
             title="<:play_button:1028004869019279391> Currently playing track informations", 
             description="Here you can view informations about currently playing track", 
             timestamp=datetime.datetime.utcnow(), 
             color=BASE_COLOR
         )
-        embed.add_field(name="Track title", value=f"[**{current.title}**]({link})", inline=False)
+        title = current.title
+        if spotify: title = f"{'E ' if current.explicit else ''}{title}"
+        embed.add_field(name="Track title", value=f"[**{title}**]({link})", inline=False)
         embed.add_field(name="Author / Artist", value=author, inline=True)
         embed.add_field(name="Data requested by", value=interaction.user.mention, inline=True)
         embed.add_field(name="Next up", 
@@ -244,20 +252,26 @@ class PlayCommand(commands.Cog):
 
         song = player.queue.current_track
         embed = discord.Embed(
-            description="You wanted it, you got it!",
             color = BASE_COLOR,
             timestamp = datetime.datetime.utcnow()
         )
         embed.set_author(name="Song grabbed", icon_url=interaction.user.display_avatar.url)
-        try: # add thumbnail
-            embed.set_thumbnail(url=f"https://img.youtube.com/vi/{song.identifier}/maxresdefault.jpg")
+        spotify = False
+        try: song.author
         except:
-            try:
-                embed.set_thumbnail(url=song.images[0])
-            except: pass
-        embed.set_footer(text="https://github.com/konradsic/dj-cloudy", icon_url=self.bot.user.display_avatar.url)
-        embed.add_field(name="Song title", value=f"[{song.title}]({song.uri})", inline=False)
-        embed.add_field(name="Author / Artist", value=song.author)
+            spotify = True
+        
+        try: # add thumbnail
+            if spotify: embed.set_thumbnail(song.images[0])
+            else: embed.set_thumbnail(url=f"https://img.youtube.com/vi/{song.identifier}/maxresdefault.jpg")
+        except:
+            pass
+        title = song.title
+        if spotify: title = f"{'E ' if song.explicit else ''}{title}"
+        embed.set_footer(text="Have a nice day :D", icon_url=self.bot.user.display_avatar.url)
+        embed.add_field(name="Song title", value=f"[{title}]({song.uri if not spotify else 'https://open.spotify.com/track/' + song.uri.split(':')[2]})", inline=False)
+        if spotify: embed.add_field(name="Artist(s)", value=", ".join(song.artists))
+        else: embed.add_field(name="Author", value=song.author)
         embed.add_field(name="Duration", value=f"`{get_length(song.duration)}`")
         embed.add_field(name="Channel", value=f"<#{interaction.channel.id}>")
         embed.add_field(name="Guild", value=interaction.guild.name)

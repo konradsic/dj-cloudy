@@ -288,4 +288,3 @@ async def quiz_check(
         await interaction.followup.send(embed=embed)
         
     return False
-    
