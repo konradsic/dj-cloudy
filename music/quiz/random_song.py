@@ -111,9 +111,29 @@ def new_songs_top1000():
         
     return res
     
-songs = new_songs_top1000()
+async def fetch_2022_top100():
+    url = "https://www.billboard.com/charts/year-end/hot-100-songs/"
+    request = requests.get(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",}).text
 
-async def random_songs_new(num: int, limit: int = 1000):
+    soup = BeautifulSoup(request, "html.parser")
+    div = soup.find("div", {"class": "chart-results-list // u-padding-b-250"})
+    divs = div.find_all("div", {"class": "o-chart-results-list-row-container"})
+    
+    parsed = []
+    for elem in divs:
+        inner = elem.find("ul", {"class": "o-chart-results-list-row"})
+        text_elem = inner.find("li", {"class": "lrv-u-width-100p"}).find("ul").find("li", {"class": "o-chart-results-list__item"})
+        title = text_elem.find("h3").get_text().strip()
+        author = text_elem.find("span").get_text().strip()
+        res = title + "-" + author
+        parsed.append(res.strip())
+        print(res.strip())
+    
+    return parsed
+
+songs = fetch_2022_top100()     
+
+async def random_songs_new(num: int, limit: int = 100):
     songs_collection = songs[:limit]
     ret = []
     indices = []
