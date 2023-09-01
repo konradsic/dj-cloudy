@@ -14,6 +14,7 @@ from utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
 from utils.base_utils import convert_to_double, get_length
 from music.queue import Queue
 from utils.base_utils import RepeatMode
+from utils.configuration import ConfigurationHandler
 
 logger = log.Logger().get("music.core.MusicPlayer")
 
@@ -159,11 +160,47 @@ class MusicPlayer(wavelink.Player):
             self.logger.info(f"playing next track (repeat set to {self.queue.repeat.string_mode}, guild {self.guild.id})")
             next_track = self.queue.get_next_track()
             self.logger.debug(f"Next track: {next_track}")
-            await self.play(next_track)
+            # announceTracks
+            print("channel check")
+            print(self.bound_channel.id)
+            if self.bound_channel:
+                announceTracks = ConfigurationHandler(str(self.bound_channel.guild.id), user=False).data["announceTracks"]["value"] # user=False, because guild
+                print(announceTracks)
+                if announceTracks:
+                    track = next_track
+                    embed = discord.Embed(
+                        title="<:play_button:1028004869019279391> Now playing",
+                        color = BASE_COLOR,
+                        timestamp = datetime.datetime.utcnow()
+                    )
+                    dur = get_length(track.duration)
+                    spotify = False
+                    try: track.author # one of params that are not in wavelink.ext.spotify.SpotifyTrack class
+                    except: spotify = True
+                    
+                    try: # add thumbnail
+                        if spotify: embed.set_thumbnail(url=track.images[0])
+                        else: embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
+                    except:
+                        try:
+                            embed.set_thumbnail(url=track.images[0])
+                        except: pass
+                    title = track.title
+                    if spotify: title = f"{'E ' if track.explicit else ''}{title}"
+                    embed.add_field(name="Track title", value=f"[**{title}**]({track.uri if not spotify else 'https://open.spotify.com/track/' + track.uri.split(':')[2]})", inline=False)
+                    if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
+                    else: embed.add_field(name="Author", value=track.author)
+                    embed.add_field(name="Duration", value=f"`{dur}`")
+                    embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+                    # send
+                    await self.bound_channel.send(embed=embed)
+
         except QueueIsEmpty:
             return False
         except IndexError:
             return False
+
+        await self.play(next_track)
 
     async def play_first_track(self):
         try:

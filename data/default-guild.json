@@ -10,5 +10,9 @@
     "inactiveTimeout": {
         "value": 10,
         "type": "int"
+    },
+    "announceTracks": {
+        "value": true,
+        "type": "bool"
     }
 }

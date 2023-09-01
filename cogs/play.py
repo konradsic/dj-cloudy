@@ -32,23 +32,24 @@ number_complete = {
 }
 
 def compose_progressbar(progress, end):
-    perc = round(progress/end*20) # there will be 20 emoji progressbars
+    PROGRESSBAR_LENGTH = 15
+    perc = math.ceil(progress/end*PROGRESSBAR_LENGTH) # there will be 20 emoji progressbars
     bar = ""
     if perc in [0,1]: 
         bar += progressbar_emojis["bar_left_nofill"]
-        bar += f"{progressbar_emojis['bar_mid_nofill'] * 10}"
+        bar += f"{progressbar_emojis['bar_mid_nofill'] * (PROGRESSBAR_LENGTH-2)}"
         bar += progressbar_emojis["bar_right_nofill"]
-        return bar # its just... short bar now
+        return bar 
     else:
         bar += progressbar_emojis["bar_left_fill"]
     midbars = perc-2 # first and last
     # add midbars
     bar += f"{progressbar_emojis['bar_mid_fill'] * midbars}"
-    if midbars < 18:
+    if midbars < (PROGRESSBAR_LENGTH-2):
         bar += progressbar_emojis["bar_mid_halffill"]
     # add remaining bars
-    bar += f"{progressbar_emojis['bar_mid_nofill'] * (18-midbars)}"
-    if perc == 20:
+    bar += f"{progressbar_emojis['bar_mid_nofill'] * (PROGRESSBAR_LENGTH-2-midbars)}"
+    if perc == PROGRESSBAR_LENGTH:
         bar += progressbar_emojis["bar_right_fill"]
         return bar
     bar += progressbar_emojis["bar_right_nofill"]
@@ -195,13 +196,14 @@ class PlayCommand(commands.Cog):
         try:
             author = current.author
         except:
-            autor = ", ".join(current.artists)
+            author = ", ".join(current.artists)
+            spotify = True
         link = current.uri
         if spotify: link = "https://open.spotify.com/track/" + current.uri.split(":")[2]
         rep = player.queue.repeat.string_mode
 
-        thumb = f"https://img.youtube.com/vi/{current.identifier}/maxresdefault.jpg"
-        if spotify: thumb = current.images[0]
+        try: thumb = f"https://img.youtube.com/vi/{current.identifier}/maxresdefault.jpg"
+        except: thumb = current.images[0]
         embed = discord.Embed(
             title="<:play_button:1028004869019279391> Currently playing track informations", 
             description="Here you can view informations about currently playing track", 
@@ -213,8 +215,10 @@ class PlayCommand(commands.Cog):
         embed.add_field(name="Track title", value=f"[**{title}**]({link})", inline=False)
         embed.add_field(name="Author / Artist", value=author, inline=True)
         embed.add_field(name="Data requested by", value=interaction.user.mention, inline=True)
+        upcoming_url = player.queue.upcoming_tracks[0].uri
+        if spotify: upcoming_url = 'https://open.spotify.com/track/' + upcoming_url.split(':')[2]
         embed.add_field(name="Next up", 
-            value=f"{'No upcoming track' if not player.queue.upcoming_tracks else f'[{player.queue.upcoming_tracks[0].title}]({player.queue.upcoming_tracks[0].uri})'}"
+            value=f"{'No upcoming track' if not player.queue.upcoming_tracks else f'[{player.queue.upcoming_tracks[0].title}]({upcoming_url})'}"
         )
         embed.add_field(name="Duration", value=f"{compose_progressbar(player.position, current.duration)} `{get_length(player.position)}/{duration}`", inline=False)    
         embed.add_field(name="Repeat mode", value=f"`{rep}`", inline=False)
