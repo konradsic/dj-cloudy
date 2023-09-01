@@ -161,11 +161,8 @@ class MusicPlayer(wavelink.Player):
             next_track = self.queue.get_next_track()
             self.logger.debug(f"Next track: {next_track}")
             # announceTracks
-            print("channel check")
-            print(self.bound_channel.id)
             if self.bound_channel:
                 announceTracks = ConfigurationHandler(str(self.bound_channel.guild.id), user=False).data["announceTracks"]["value"] # user=False, because guild
-                print(announceTracks)
                 if announceTracks:
                     track = next_track
                     embed = discord.Embed(
