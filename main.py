@@ -6,7 +6,7 @@ A Discord bot that adds music functionality to your server.
 """
 #######################################################################
 
-__version__ = "1.4.0a2"
+__version__ = "1.4.0b"
 __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 

@@ -4,7 +4,9 @@ import random
 import wavelink
 from typing import Literal
 import asyncio
-
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+from utils.base_utils import get_config
 
 def get_top100_artists_cache():
     artists = []
@@ -111,7 +113,7 @@ def new_songs_top1000():
         
     return res
     
-async def fetch_2022_top100():
+def fetch_2022_top100():
     url = "https://www.billboard.com/charts/year-end/hot-100-songs/"
     request = requests.get(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 5.0; rv:10.0) Gecko/20100101 Firefox/10.0",}).text
 
@@ -127,11 +129,15 @@ async def fetch_2022_top100():
         author = text_elem.find("span").get_text().strip()
         res = title + "-" + author
         parsed.append(res.strip())
-        print(res.strip())
     
     return parsed
 
-songs = fetch_2022_top100()     
+songs = fetch_2022_top100()
+cfg = get_config()["extensions"]["spotify"]
+spotify_client = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+    client_id=cfg["client_id"], 
+    client_secret=cfg["client_secret"]
+))
 
 async def random_songs_new(num: int, limit: int = 100):
     songs_collection = songs[:limit]
@@ -144,7 +150,8 @@ async def random_songs_new(num: int, limit: int = 100):
     # wavelink req    
     for idx in indices:
         node: wavelink.Node = wavelink.NodePool.get_connected_node()
-        tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{songs_collection[idx].lower()}")
+        track_url = spotify_client.search(songs_collection[idx], 1)["tracks"]["items"][0]["external_urls"]["spotify"]
+        tracks = await wavelink.ext.spotify.SpotifyTrack.search(query=track_url, node=wavelink.NodePool.get_connected_node())
         track = tracks[0]
         ret.append(track)
         

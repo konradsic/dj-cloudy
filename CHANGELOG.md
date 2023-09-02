@@ -1,6 +1,25 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.4.0b
+I'm proud to announce the open beta of 1.4.0! This brings a lot of functionality and bug fixes.
+
+Tracking all commits and issues here's a list of what has been implemented:
+- Added `/credits` command to display devs, testers and sponsors
+- `/play` command - added `put_force`, `play_force`, `source` parameters, so you can force play the track and select source of the track (yt/sc/link)
+- Queue shuffle-mode - it re-shuffles when the queue ends
+- `announceTracks` config - will send an embed with currently playing track info when one starts
+- New quiz songs list - top songs of 2022 (billboard.com)
+- Spotify update - from now there is full support for spotify tracks, albums and playlists! Also if a song is explicit it will be marked with an [E] before song name 
+- Quiz end command
+
+**What I have not implemented, that is planned to arrive in the stable version**
+- Ranking at the end of quiz
+- Track blacklist (or atleast `allowExplicit` config for spotify tracks) [#18](https://github.com/konradsic/dj-cloudy/issues/18)
+- more autocomplete fields [#24](https://github.com/konradsic/dj-cloudy/issues/24)
+- bring back YT support [#29](https://github.com/konradsic/dj-cloudy/issues/29)
+- QoL [#25](https://github.com/konradsic/dj-cloudy/issues/25) (auto bug report, `/play` more user friendly)
+
 ## Version 1.4.0a2
 Another alpha pre-release of the quiz update. This update fixes some major bugs.
 - Fixed volume command (it was completely broken)

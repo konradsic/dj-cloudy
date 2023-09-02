@@ -65,7 +65,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
                 upcoming_field = [f"`{i}. ` [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
                 upcoming_field = "".join(e + "\n" for e in upcoming_field)
                 embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
-            embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.shuffle_mode_state)}`", inline=False)
+            embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`", inline=False)
             await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
             return
         
@@ -101,7 +101,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embeds[-1].set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
             embeds[-1].add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embeds[-1].add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.shuffle_mode_state)}`", inline=False)
+            embeds[-1].add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`", inline=False)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user))
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")
@@ -144,14 +144,14 @@ class QueueCommands(commands.GroupCog, name="queue"):
         
         # shuffle mode
         if shuffle_mode_state in (0, 1):
-            player.shuffle_mode_state = shuffle_mode_state
+            player.queue.shuffle_mode_state = shuffle_mode_state
         if shuffle_mode_state == -1:
-            mode = player.shuffle_mode_state
+            mode = player.queue.shuffle_mode_state
             new_state = 1 if mode == 0 else 0
-            player.shuffle_mode_state = new_state
+            player.queue.shuffle_mode_state = new_state
             
         embed = discord.Embed(
-            description=f"{emoji.SHUFFLE.string} Shuffle mode set to `{bool(player.shuffle_mode_state)}`",
+            description=f"{emoji.SHUFFLE.string} Shuffle mode set to `{bool(player.queue.shuffle_mode_state)}`",
             color=BASE_COLOR
         )
         await interaction.followup.send(embed=embed)
@@ -367,7 +367,5 @@ async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("skipto", "Move the player to the specified position in the queue", "Music", arguments=[("position", "Position in the queue between 1 and queue length", True)])
     help_utils.register_command("voteskip", "If you don't have DJ perms, this will make a voting for skip", "Music")
     
-    await bot.add_cog(QueueCommands(bot),
-                      guilds=[discord.Object(id=g.id) for g in bot.guilds])
-    await bot.add_cog(OtherQueueCommands(bot),
-                      guilds=[discord.Object(id=g.id) for g in bot.guilds])
+    await bot.add_cog(QueueCommands(bot))
+    await bot.add_cog(OtherQueueCommands(bot))

@@ -135,5 +135,4 @@ class SeekAndRestartCog(commands.Cog):
 async def setup(bot):
     help_utils.register_command("seek", "Seek the player to given position", "Music", [("position","Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s",False)])
     help_utils.register_command("restart", "Restart current playing track (similiar to seek position: 0:00)", "Music")
-    await bot.add_cog(SeekAndRestartCog(bot),
-                guilds=[discord.Object(id=g.id) for g in bot.guilds])
+    await bot.add_cog(SeekAndRestartCog(bot))

@@ -10,6 +10,7 @@ class Queue:
         self._queue = []
         self.position = 0
         self.repeat: Repeat = Repeat()
+        self.shuffle_mode_state = 0
     
     @property
     def is_empty(self):
@@ -59,6 +60,8 @@ class Queue:
         if self.position > len(self._queue) -1:
             if self.repeat.mode == RepeatMode.REPEAT_QUEUE:
                 self.position = 0
+                if self.shuffle_mode_state == True:
+                    self.shuffle()
 
         return self._queue[self.position]
 

@@ -110,6 +110,5 @@ async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("botinfo", "Gathers most of informations about the bot and Wavelink nodes", "Miscellaneous")
     help_utils.register_command("credits", "Display credits", "Miscellaneous")
     await bot.add_cog(
-        MiscCommands(bot),
-        guilds = [discord.Object(id=g.id) for g in bot.guilds]
+        MiscCommands(bot)
     )

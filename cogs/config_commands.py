@@ -238,4 +238,4 @@ async def setup(bot):
     help_utils.register_command("config reset-value", "Reset configuration value for given key", "Configuration",
         [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True),
          ("key", "Key you want to reset value for", True)])
-    await bot.add_cog(ConfigCog(bot), guilds=bot.guilds)
+    await bot.add_cog(ConfigCog(bot))

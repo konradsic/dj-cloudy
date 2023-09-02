@@ -521,4 +521,4 @@ async def setup(bot):
     help_utils.register_command("playlists view-playlist", "View playlist's content (for your playlist or anybody else)", "Playlist system", [("name_or_id", "Name of the playlist", True),("user","(optional) User to get the playlist from",False)])
     help_utils.register_command("playlists rename", "Rename playlist to given name", "Playlist system", 
         [("name_or_id", "Name or ID of playlist you want to rename", True), ("new_name","New name of the playlist you want to rename",True)])
-    await bot.add_cog(PlaylistGroupCog(bot), guilds=bot.guilds)
+    await bot.add_cog(PlaylistGroupCog(bot))

@@ -65,4 +65,4 @@ class StatusChangerCog(commands.Cog):
     
         
 async def setup(bot):
-    await bot.add_cog(StatusChangerCog(bot), guilds=bot.guilds)
+    await bot.add_cog(StatusChangerCog(bot))

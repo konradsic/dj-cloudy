@@ -74,5 +74,4 @@ class VolumeController(commands.Cog):
 
 async def setup(bot):
     help_utils.register_command("volume", "Set or get current playback volume", category="Music", arguments=[("value", "Value to set the volume to", False)])
-    await bot.add_cog(VolumeController(bot),
-                      guilds=[discord.Object(id=g.id) for g in bot.guilds])
+    await bot.add_cog(VolumeController(bot))

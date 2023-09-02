@@ -299,6 +299,5 @@ async def setup(bot: commands.Bot) -> None:
                                 [("hidden", "Wherever to hide the message or not (it will be visible only to you)", False)])
     help_utils.register_command("grab", "Grab currently playing song to your Direct Messages", "Music")
     await bot.add_cog(
-        PlayCommand(bot),
-        guilds =[discord.Object(id=g.id) for g in bot.guilds]
+        PlayCommand(bot)
     )

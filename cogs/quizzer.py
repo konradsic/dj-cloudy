@@ -106,7 +106,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         except: pass
 
         songs = await random_song.random_songs_new(rounds)
-        genres = f"`[📂]` Top 1000 songs of all time"
+        genres = f"`[📂]` Top 100 songs of 2022"
             
         if not songs:
             embed = discord.Embed(description=f"{emoji.XMARK.string} No songs were found with given criteria. Try again", color=BASE_COLOR)
@@ -162,5 +162,4 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
 async def setup(bot):
     help_utils.register_command("quiz start", "Start a music quiz. Requires DJ permissions", "Music quiz", [("rounds", "Number of rounds", True)])
     help_utils.register_command("quiz end", "Forces stop of the music quiz. Requires DJ permissions", "Music quiz")
-    await bot.add_cog(MusicQuizCog(bot),
-                      guilds=bot.guilds)
+    await bot.add_cog(MusicQuizCog(bot))

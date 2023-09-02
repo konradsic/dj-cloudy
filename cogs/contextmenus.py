@@ -198,4 +198,4 @@ class ContextMenusCog(commands.Cog):
         await interaction.followup.send(embed=discord.Embed(description=f"<:tick:1028004866662084659> Success, added {member.name}'s starred playlist to yours", color=BASE_COLOR),ephemeral=True)
 
 async def setup(bot):
-    await bot.add_cog(ContextMenusCog(bot), guilds=bot.guilds)
+    await bot.add_cog(ContextMenusCog(bot))

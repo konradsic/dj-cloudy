@@ -27,8 +27,15 @@ class EventHandlerCog(commands.Cog):
     async def on_guild_join(self, guild):
         try:
             # sync commands with the new guild
-            await self.bot.tree.sync(guild=guild)
+            self.logger.info("Guild added, re-syncing tree...")
+            await self.bot.tree.sync()
             self.logger.info(f"GUILD_JOIN : {guild.id} -> synced application tree")
+            for channel in guild.channels:
+                if isinstance(channel, discord.TextChannel):
+                    try:
+                        await channel.send("Hi")
+                        break
+                    except: pass
         except Exception as e:
             self.logger.error(f"GUILD_JOIN : failed to sync with guild {guild.id}. Error - {e.__class__.__name__}: {str(e)}")
         
@@ -43,5 +50,4 @@ class EventHandlerCog(commands.Cog):
     
     
 async def setup(bot):
-    await bot.add_cog(EventHandlerCog(bot),
-                guilds=[discord.Object(g.id) for g in bot.guilds])
+    await bot.add_cog(EventHandlerCog(bot))

@@ -238,4 +238,4 @@ async def setup(bot):
     help_utils.register_command("equalizers advanced", "Advanced, 15-band equalizer allows you to change values as you want. Have fun!", "Playback modifiers", [("band", "A hertz band you want to apply the gain on", True),("gain", "A float-like gain",True)])
     help_utils.register_command("equalizers reset", "Reset applied equalizers", "Playback modifiers")
     await bot.add_cog(FiltersCog(bot), guilds=bot.guilds)
-    await bot.add_cog(EqualizersCog(bot), guilds=bot.guilds)
+    await bot.add_cog(EqualizersCog(bot))

@@ -36,5 +36,4 @@ class ChangelogCommand(commands.Cog):
 
 async def setup(bot):
     help_utils.register_command("changelog", "Display latest changes to the bot", "Miscellaneous")
-    await bot.add_cog(ChangelogCommand(bot),
-                      guilds=[discord.Object(id=g.id) for g in bot.guilds])
+    await bot.add_cog(ChangelogCommand(bot))

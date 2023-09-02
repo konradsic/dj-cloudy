@@ -119,4 +119,4 @@ class SpotifyExtensionCog(commands.Cog):
 
 async def setup(bot):
     help_utils.register_command("spotify", "Play a spotify track or album", "Extensions/Plugins", [("query","Song or album you want to play",True)])
-    await bot.add_cog(SpotifyExtensionCog(bot), guilds=bot.guilds)
+    await bot.add_cog(SpotifyExtensionCog(bot))

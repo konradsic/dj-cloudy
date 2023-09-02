@@ -132,6 +132,5 @@ class LyricsCommandHandler(commands.Cog):
 async def setup(bot):
     help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Music", [("song","Song you want lyrics for", False)])
     await bot.add_cog(
-        LyricsCommandHandler(bot),
-        guilds =[discord.Object(id=g.id) for g in bot.guilds]
+        LyricsCommandHandler(bot)
     )

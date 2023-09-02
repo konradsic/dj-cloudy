@@ -205,5 +205,4 @@ class VC_Handler(commands.Cog):
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("connect", "Connects to your voice channel", "Music")
     help_utils.register_command("disconnect", "Disconnects from channel that bot is in", "Music")
-    await bot.add_cog(VC_Handler(bot),
-                      guilds=[discord.Object(id=g.id) for g in bot.guilds])
+    await bot.add_cog(VC_Handler(bot))

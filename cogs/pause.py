@@ -82,6 +82,5 @@ async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("pause", "Pauses current playing track", "Music")
     help_utils.register_command("resume", "Resumes paused playback", "Music")
     await bot.add_cog(
-        PlayPauseCommands(bot),
-        guilds = [discord.Object(id=g.id) for g in bot.guilds]
+        PlayPauseCommands(bot)
     )

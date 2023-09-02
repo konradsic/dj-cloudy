@@ -52,7 +52,7 @@ class Round():
         
         # from song -> title and artist
         self.song_title: str = cleanup(self.song.title)
-        self.song_artist: str = self.song.author
+        self.song_artist: str = self.song.artists[0]
         
         # setups
         self.revealed_letters: List[int] = [] # indices
