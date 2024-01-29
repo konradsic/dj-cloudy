@@ -62,13 +62,13 @@ def get_nodes():
     return wavelink.NodePool.get_connected_node()
 
 progressbar_emojis = {
-    "bar_left_nofill": "<:progressbarleftnofill:1030469955512193025>",
-    "bar_left_fill": "<:progressbarleftfill:1030469953754775552>",
-    "bar_mid_fill": "<:progressbarmidfullfill:1030469957592563712>",
-    "bar_mid_halffill": "<:progressbarmidhalffill:1030469959232536606>",
-    "bar_mid_nofill": "<:progressbarmidnofill:1030469960553746552>",
-    "bar_right_nofill": "<:progressbarrightnofill:1030469964383133777>",
-    "bar_right_fill": "<:progressbarrightfill:1030469962583785552>"
+    "bar_left_nofill": emoji.PROGRESSBAR_LEFT_EMPTY.mention,
+    "bar_left_fill": emoji.PROGRESSBAR_LEFT_FILL.mention,
+    "bar_mid_fill": emoji.PROGRESSBAR_MID_FILL.mention,
+    "bar_mid_halffill": emoji.PROGRESSBAR_MID_HALF.mention,
+    "bar_mid_nofill": emoji.PROGRESSBAR_MID_EMPTY.mention,
+    "bar_right_nofill": emoji.PROGRESSBAR_RIGHT_EMPTY.mention,
+    "bar_right_fill": emoji.PROGRESSBAR_RIGHT_FILL.mention
 }
 
 def basic_auth(name: str, string: str, user: discord.User):

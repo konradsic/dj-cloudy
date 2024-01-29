@@ -9,6 +9,10 @@ class DJCloudyEmoji():
     def string(self):
         return self.__str__()
     
+    @property
+    def mention(self):
+        return self.__str__()
+    
     @classmethod
     def from_id(cls, emoji_id: str, bot: discord.Client):
         emoji: discord.Emoji = bot.get_emoji(int(emoji_id))
@@ -48,10 +52,10 @@ VOLUME_MID   = DJCloudyEmoji.from_mention("<:volume_medium:1029437731354460270>"
 VOLUME_LOW   = DJCloudyEmoji.from_mention("<:volume_low:1029437729265688676>")
 VOLUME_MUTED = DJCloudyEmoji.from_mention("<:volume_none:1029437733631967233>")
 
-PROGRESSBAR_LEFT_FILL   = DJCloudyEmoji.from_mention("<:progressbarleftnofill:1030469955512193025>")
-PROGRESSBAR_LEFT_EMPTY  = DJCloudyEmoji.from_mention("<:progressbarleftfill:1030469953754775552>")
-PROGRESSBAR_MID_FILL    = DJCloudyEmoji.from_mention("<:progressbarmidfullfill:1030469957592563712>")
-PROGRESSBAR_MID_HALF    = DJCloudyEmoji.from_mention("<:progressbarmidhalffill:1030469959232536606>")
-PROGRESSBAR_MID_EMPTY   = DJCloudyEmoji.from_mention("<:progressbarmidnofill:1030469960553746552>")
-PROGRESSBAR_RIGHT_FILL  = DJCloudyEmoji.from_mention("<:progressbarrightnofill:1030469964383133777>")
-PROGRESSBAR_RIGHT_EMPTY = DJCloudyEmoji.from_mention("<:progressbarrightfill:1030469962583785552>")
+PROGRESSBAR_LEFT_FILL   = DJCloudyEmoji.from_mention("<:progress_start_full:1201526967778947183>")
+PROGRESSBAR_LEFT_EMPTY  = DJCloudyEmoji.from_mention("<:progress_start_empty:1201526964448661525>")
+PROGRESSBAR_MID_FILL    = DJCloudyEmoji.from_mention("<:progress_mid_full:1201526960933843065>")
+PROGRESSBAR_MID_HALF    = DJCloudyEmoji.from_mention("<:progress_mid_half:1201526963379122226>")
+PROGRESSBAR_MID_EMPTY   = DJCloudyEmoji.from_mention("<:progress_mid_empty:1201526959201599558>")
+PROGRESSBAR_RIGHT_FILL  = DJCloudyEmoji.from_mention("<:progress_end_full:1201526957637116015>")
+PROGRESSBAR_RIGHT_EMPTY = DJCloudyEmoji.from_mention("<:progress_end_empty:1201526954759823400>")
