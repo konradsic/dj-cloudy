@@ -5,7 +5,7 @@ from cogs.config_commands import ConfigCog
 from cogs.eq_and_filters import EqualizersCog, FiltersCog
 from cogs.events import EventHandlerCog
 from cogs.play import PlayCommand
-from cogs.playlist_adapter import PlaylistGroupCog
+from cogs.playlists import PlaylistGroupCog
 from cogs.queue_commands import QueueCommands
 from cogs.seeking import SeekAndRestartCog
 from cogs.spotify import SpotifyExtensionCog

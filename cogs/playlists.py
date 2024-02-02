@@ -20,6 +20,7 @@ from utils.errors import (NoPlayerFound, PlaylistCreationError,
                           PlaylistGetError, PlaylistRemoveError,
                           CacheExpired, CacheNotFound)
 from utils.regexes import URL_REGEX
+from utils import emoji
 
 logger_instance = logger.Logger().get("cogs.playlist_adapter")
 
@@ -309,7 +310,6 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         # find the playlist
         found = None
-        starred = False
         for p in handler.playlists:
             if p['name'].lower() == name_or_id.lower() or p['id'].lower() == name_or_id.lower():
                 found = p
@@ -321,7 +321,6 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             found = {"tracks": handler.data["starred-playlist"]}
             playlist_id = None
             playlist_name = "STARRED"
-            starred = True
         if not found:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to get playlist with name/id `{name_or_id}`. Make sure that the name is a name of __your__ playlist",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
@@ -336,7 +335,13 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-
+        # Fixes issue #37: no song validation
+        validation = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=song)
+        if not validation:
+            embed = discord.Embed(
+                description=f"{emoji.XMARK.mention} No songs found with query `{song}`", color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
         try:
             handler.add_to_playlist(name_or_id.lower(), song)
         except:
