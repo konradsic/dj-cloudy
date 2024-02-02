@@ -215,11 +215,20 @@ class PlayCommand(commands.Cog):
         embed.add_field(name="Track title", value=f"[**{title}**]({link})", inline=False)
         embed.add_field(name="Author / Artist", value=author, inline=True)
         embed.add_field(name="Data requested by", value=interaction.user.mention, inline=True)
-        upcoming_url = player.queue.upcoming_tracks[0].uri
-        if spotify: upcoming_url = 'https://open.spotify.com/track/' + upcoming_url.split(':')[2]
-        embed.add_field(name="Next up", 
-            value=f"{'No upcoming track' if not player.queue.upcoming_tracks else f'[{player.queue.upcoming_tracks[0].title}]({upcoming_url})'}"
-        )
+        upcoming = player.queue.upcoming_track
+        if upcoming: 
+            upcoming_url = player.queue.upcoming_track.uri
+            if spotify: upcoming_url = 'https://open.spotify.com/track/' + upcoming_url.split(':')[2]
+            embed.add_field(name="Next up", 
+                value=f"[{player.queue.upcoming_tracks[0].title}]({upcoming_url})",
+                inline=False
+            )
+        else:
+            embed.add_field(
+                name="Next up",
+                value="No upcoming tracks",
+                inline=False
+            )
         embed.add_field(name="Duration", value=f"{compose_progressbar(player.position, current.duration)} `{get_length(player.position)}/{duration}`", inline=False)    
         embed.add_field(name="Repeat mode", value=f"`{rep}`", inline=False)
         try:

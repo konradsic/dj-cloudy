@@ -46,6 +46,18 @@ class Queue:
     @property
     def track_history(self):
         return self._queue[:self.position]
+    
+    # Fix of issue #45
+    @property
+    def upcoming_track(self): # ! NOT TRACKS, ONE
+        if self.position == len(self._queue) - 1:
+            return None
+        return self._queue[self.position+1]
+    
+    def before_track(self): # ! NOT TRACKS, ONE
+        if self.position == 0:
+            return None
+        return self._queue[self.position-1]
 
     def add(self, *tracks):
         self._queue.extend(tracks)
