@@ -47,7 +47,7 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
     try:
         if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
             query = query[2:]
-        while True:
+        for i in range(20):
             tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
             if not tracks: continue
             break
@@ -108,7 +108,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 tracks.append(t)
             except Exception as e:
                 d = None
-                while True:
+                for i in range(20):
                     d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                     if not d:
                         self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")
@@ -192,7 +192,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                         total_tracks += 1
                     except Exception as e:
                         d = None
-                        while True:
+                        for i in range(20):
                             d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
                             if not d:
                                 self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
@@ -226,7 +226,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                 starred_dur += t["length"]
             except Exception as e:
                 d = None
-                while True:
+                for i in range(20):
                     d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
                     if not d:
                         self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
@@ -350,7 +350,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             return
         
         # get song data
-        while True:
+        for i in range(20):
             track = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=song)
             if not track: continue
             track = track[0]
@@ -458,7 +458,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             for song in res['tracks']:
                 # to prevent errors we infinite request over the track if it fails, 
                 # otherwise we break out of the loop
-                while True:
+                for i in range(20):
                     query = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                     if not query:
                         self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")
@@ -478,7 +478,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             for song in res['tracks']:
                 # to prevent errors we infinite request over the track if it fails, 
                 # otherwise we break out of the loop
-                while True:
+                for i in range(20):
                     query = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                     if not query:
                         self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")

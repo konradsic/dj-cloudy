@@ -49,7 +49,7 @@ class ContextMenusCog(commands.Cog):
                         total_tracks += 1
                     except Exception as e:
                         d = None
-                        while True:
+                        for i in range(20):
                             d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
                             if not d:
                                 self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
@@ -83,7 +83,7 @@ class ContextMenusCog(commands.Cog):
                 starred_dur += t["length"]
             except Exception as e:
                 d = None
-                while True:
+                for i in range(20):
                     d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
                     if not d:
                         self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
@@ -127,7 +127,7 @@ class ContextMenusCog(commands.Cog):
                     tracks.append(t)
                 except Exception as e:
                     d = None
-                    while True:
+                    for i in range(20):
                         d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
                         if not d:
                             self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")

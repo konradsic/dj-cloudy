@@ -68,7 +68,7 @@ async def query_complete(
     elif not re.match(URL_REGEX, current):
         query = f"{source}:{current}"
     try:
-        while True:
+        for i in range(20):
             tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
             if not tracks: continue
             break
@@ -123,7 +123,7 @@ class PlayCommand(commands.Cog):
         counter = 0
         counter_max = 100
         
-        while True:
+        for i in range(20):
             counter += 1
             tracks = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=query)
             

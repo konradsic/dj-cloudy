@@ -39,7 +39,7 @@ async def spotify_query_complete(
     query = current.strip("<>")
     counter = 0
     try:
-        while True:
+        for i in range(20):
             counter += 1
             if counter == 101: break
             tracks = await spotify.SpotifyTrack.search(query, node=wavelink.NodePool.get_connected_node())
