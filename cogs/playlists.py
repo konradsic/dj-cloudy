@@ -336,7 +336,10 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         # Fixes issue #37: no song validation
-        validation = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=song)
+        # Fixes issue #31: no loop for search
+        for _ in range(20):
+            validation = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=song)
+            if validation: break
         if not validation:
             embed = discord.Embed(
                 description=f"{emoji.XMARK.mention} No songs found with query `{song}`", color=BASE_COLOR)
