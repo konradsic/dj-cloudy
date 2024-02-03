@@ -2,6 +2,7 @@ import datetime
 import json
 from colorama import Fore, Style, init
 import os
+import unicodedata
 
 init(autoreset=True)
 
@@ -39,6 +40,9 @@ BYTE_CONV_RATES = {
     ("B", "MB"): 1000**2,
     ("B", "GB"): 1000**3
 }
+
+def unicode_filter(string: str):
+    return str(unicodedata.normalize("NFKD", string).encode("ascii", "ignore"))
 
 def fit_logger_cls(cls_name, length):
     if len(cls_name) <= length: return cls_name
@@ -112,6 +116,7 @@ def convert_bytes(size, fmt, goal):
     return (size / conv, goal)
 
 def save_logs(msg):
+    msg = unicode_filter(msg)
     path = config['logging-path']
     # get directory
     log_dir = path.split("/")[0]
