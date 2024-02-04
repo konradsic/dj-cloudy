@@ -1,6 +1,6 @@
 import json
 import time
-from utils.errors import (
+from lib.utils.errors import (
     DefaultProfileNotFound,
     KeyDoesNotExist,
     IncorrectValueType,

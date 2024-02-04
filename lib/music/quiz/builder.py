@@ -8,13 +8,13 @@ from typing import List, Literal
 
 import discord
 import wavelink
-from utils.buttons import SendAnswerUI
+from lib.ui.buttons import SendAnswerUI
 
-from utils.colors import BASE_COLOR
+from lib.ui.colors import BASE_COLOR
 
 from .random_song import (many_songs_from_collection, song_from_artist,
                           song_from_collection)
-from utils import emoji
+from lib.ui import emoji
 
 PUNCTUATION = [".", ",", "&", "-", "'", "\"", ":", ";", "`", "?", "/"]
 

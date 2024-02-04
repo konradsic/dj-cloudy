@@ -1,7 +1,7 @@
 import time
 import json
-from utils.base_utils import getid, AUTHENTICATED_USERS
-from utils.errors import (
+from lib.utils.base_utils import getid, AUTHENTICATED_USERS
+from lib.utils.errors import (
     PlaylistGetError,
     PlaylistCreationError,
     PlaylistRemoveError,

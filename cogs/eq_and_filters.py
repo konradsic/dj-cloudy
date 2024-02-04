@@ -5,16 +5,16 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
-from utils.colors import BASE_COLOR
-from utils.errors import NoPlayerFound
-from utils.base_utils import (
+from lib.utils import help_utils
+from lib.ui.colors import BASE_COLOR
+from lib.utils.errors import NoPlayerFound
+from lib.utils.base_utils import (
     filter_to_string, string_to_filter,
     AEQ_HZ_BANDS, djRole_check
 )
 from discord.app_commands import Choice
-from utils import logger
-from utils.base_utils import quiz_check
+from lib.logger import logger
+from lib.utils.base_utils import quiz_check
 
 @logger.LoggerApplication
 class FiltersCog(commands.GroupCog, name="filters"):

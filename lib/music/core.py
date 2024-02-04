@@ -4,17 +4,17 @@ from enum import Enum
 from time import time
 
 import discord
-import utils.logger as log
+import lib.logger.logger as log
 import wavelink
 from discord.ext import commands
-from utils.buttons import PlayButtonsMenu
-from utils.colors import BASE_COLOR
-from utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
+from lib.ui.buttons import PlayButtonsMenu
+from lib.ui.colors import BASE_COLOR
+from lib.utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
                           NoTracksFound, NoVoiceChannel, QueueIsEmpty)
-from utils.base_utils import convert_to_double, get_length
-from music.queue import Queue
-from utils.base_utils import RepeatMode
-from utils.configuration import ConfigurationHandler
+from lib.utils.base_utils import convert_to_double, get_length
+from lib.music.queue import Queue
+from lib.utils.base_utils import RepeatMode
+from lib.utils.configuration import ConfigurationHandler
 
 logger = log.Logger().get("music.core.MusicPlayer")
 

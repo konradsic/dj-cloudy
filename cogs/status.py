@@ -6,8 +6,8 @@ import asyncio
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import logger
-from utils.base_utils import get_config
+from lib.logger import logger
+from lib.utils.base_utils import get_config
 
 @logger.LoggerApplication
 class StatusChangerCog(commands.Cog):

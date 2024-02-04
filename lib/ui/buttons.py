@@ -7,14 +7,15 @@ import discord
 import wavelink
 from discord import ui
 from discord.ui import Modal, View
+from . import emoji
 
-from music import playlist
+from lib.music import playlist
 
-from . import emoji, logger
-from .base_utils import RepeatMode, djRole_check
-from .cache import JSONCacheManager
+from ..logger import logger
+from ..utils.base_utils import RepeatMode, djRole_check
+from ..utils.cache import JSONCacheManager
 from .colors import BASE_COLOR
-from .configuration import ConfigurationHandler as Config
+from ..utils.configuration import ConfigurationHandler as Config
 
 @logger.LoggerApplication
 class PlayButtonsMenu(View):

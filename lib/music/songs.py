@@ -3,7 +3,7 @@ from urllib.request import Request
 import json
 import http
 from bs4 import BeautifulSoup
-from utils import logger
+from lib.logger import logger
 import requests
 
 URL_BASE = "https://api.genius.com"

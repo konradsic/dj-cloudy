@@ -4,14 +4,13 @@ import random
 import discord
 from discord import app_commands
 from discord.ext import commands
+from lib.utils import configuration as cfg, help_utils as help_utils
 
-from utils import (
-    help_utils as help_utils, 
-    logger as logger,
-    configuration as cfg)
-from utils.colors import BASE_COLOR
-from utils.errors import IncorrectValueType
-from utils.buttons import ResetCfgConfirmation
+from lib.logger import (
+    logger as logger)
+from lib.ui.colors import BASE_COLOR
+from lib.utils.errors import IncorrectValueType
+from lib.ui.buttons import ResetCfgConfirmation
 
 
 @logger.LoggerApplication

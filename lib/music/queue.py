@@ -1,9 +1,9 @@
-from utils.errors import (
+from lib.utils.errors import (
     QueueIsEmpty
 )
 from enum import Enum
 import random
-from utils.base_utils import Repeat, RepeatMode
+from lib.utils.base_utils import Repeat, RepeatMode
 
 class Queue:
     def __init__(self):

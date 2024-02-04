@@ -5,17 +5,20 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
+from lib.logger import logger
+from lib.music.quiz import QuizBuilder
+from lib.utils import help_utils
 
-from utils import help_utils, logger, get_length
-from utils.colors import BASE_COLOR
-from utils import djRole_check
-from music.quiz import random_song, QuizBuilder
+from lib.utils import get_length
+from lib.ui.colors import BASE_COLOR
+from lib.utils import djRole_check
+from lib.music.quiz import random_song
 import difflib
 from traceback import format_exc
 import colorama
-from utils import emoji
-from music.core import MusicPlayer
-from utils.buttons import QuizButtonsUI, QuizResponseModal
+from lib.ui import emoji
+from lib.music.core import MusicPlayer
+from lib.ui.buttons import QuizButtonsUI, QuizResponseModal
 import asyncio
 
 logging = logger.Logger(__name__)

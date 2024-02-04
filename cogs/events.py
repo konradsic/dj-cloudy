@@ -3,9 +3,10 @@ import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils, logger, base_utils
-from utils.colors import BASE_COLOR
-from music import songs
+from lib.utils import base_utils, help_utils
+from lib.logger import logger
+from lib.ui.colors import BASE_COLOR
+from lib.music import songs
 
 @logger.LoggerApplication
 class EventHandlerCog(commands.Cog):

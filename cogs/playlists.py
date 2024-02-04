@@ -9,18 +9,19 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
+from lib.utils import help_utils
 
-from music import playlist
-from music.core import MusicPlayer
-from utils import help_utils, logger
-from utils.base_utils import get_length, limit_string_to, djRole_check, quiz_check
-from utils.buttons import EmbedPaginator
-from utils.colors import BASE_COLOR
-from utils.errors import (NoPlayerFound, PlaylistCreationError,
+from lib.music import playlist
+from lib.music.core import MusicPlayer
+from lib.logger import logger
+from lib.utils.base_utils import get_length, limit_string_to, djRole_check, quiz_check
+from lib.ui.buttons import EmbedPaginator
+from lib.ui.colors import BASE_COLOR
+from lib.utils.errors import (NoPlayerFound, PlaylistCreationError,
                           PlaylistGetError, PlaylistRemoveError,
                           CacheExpired, CacheNotFound)
-from utils.regexes import URL_REGEX
-from utils import emoji
+from lib.utils.regexes import URL_REGEX
+from lib.ui import emoji
 
 logger_instance = logger.Logger().get("cogs.playlist_adapter")
 

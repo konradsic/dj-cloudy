@@ -3,11 +3,11 @@ import datetime
 import discord
 from discord import app_commands
 import wavelink
-from utils import help_utils
+from lib.utils import help_utils
 from discord.ext import commands
-from utils.colors import BASE_COLOR
-from utils.base_utils import djRole_check, quiz_check
-from utils import logger
+from lib.ui.colors import BASE_COLOR
+from lib.utils.base_utils import djRole_check, quiz_check
+from lib.logger import logger
 
 @logger.LoggerApplication
 class RepeatCommands(commands.Cog):

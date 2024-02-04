@@ -6,13 +6,14 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from music.core import MusicPlayer
-from utils import help_utils, logger
-from utils.colors import BASE_COLOR
-from utils.buttons import PlayButtonsMenu, EmbedPaginator, SkipVotingMenu
-from utils.base_utils import get_length, djRole_check, quiz_check
-from utils import logger
-from utils import emoji
+from lib.utils import help_utils
+from lib.music.core import MusicPlayer
+from lib.logger import logger
+from lib.ui.colors import BASE_COLOR
+from lib.ui.buttons import PlayButtonsMenu, EmbedPaginator, SkipVotingMenu
+from lib.utils.base_utils import get_length, djRole_check, quiz_check
+from lib.logger import logger
+from lib.ui import emoji
  
 
 @logger.LoggerApplication

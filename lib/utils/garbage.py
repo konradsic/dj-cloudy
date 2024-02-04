@@ -1,7 +1,7 @@
 import gc
 import threading
 import time
-from . import logger
+from ..logger import logger
 import asyncio
 
 @logger.LoggerApplication

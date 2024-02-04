@@ -7,13 +7,14 @@ import wavelink
 from discord import app_commands
 from discord.ext import commands
 from wavelink.ext import spotify
+from lib.utils import help_utils
 
-from music.core import MusicPlayer
-from utils import help_utils, logger
-from utils.base_utils import get_config, djRole_check, quiz_check
-from utils.colors import BASE_COLOR
-from utils.configuration import ConfigurationHandler
-from utils.errors import NoPlayerFound
+from lib.music.core import MusicPlayer
+from lib.logger import logger
+from lib.utils.base_utils import get_config, djRole_check, quiz_check
+from lib.ui.colors import BASE_COLOR
+from lib.utils.configuration import ConfigurationHandler
+from lib.utils.errors import NoPlayerFound
 
 logging = logger.Logger().get("cogs.vc_handle")
 

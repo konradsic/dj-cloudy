@@ -7,14 +7,15 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from music.core import MusicPlayer
-from utils import help_utils, logger
-from utils.colors import BASE_COLOR
-from utils.errors import NoPlayerFound, NoTracksFound, CacheExpired, CacheNotFound
-from utils.regexes import URL_REGEX
-from utils.base_utils import progressbar_emojis, get_length, limit_string_to, quiz_check
-from utils.buttons import PlayButtonsMenu
-from utils.base_utils import djRole_check
+from lib.utils import help_utils
+from lib.music.core import MusicPlayer
+from lib.logger import logger
+from lib.ui.colors import BASE_COLOR
+from lib.utils.errors import NoPlayerFound, NoTracksFound, CacheExpired, CacheNotFound
+from lib.utils.regexes import URL_REGEX
+from lib.utils.base_utils import progressbar_emojis, get_length, limit_string_to, quiz_check
+from lib.ui.buttons import PlayButtonsMenu
+from lib.utils.base_utils import djRole_check
 
 logging = logger.Logger().get("cogs.play")
 

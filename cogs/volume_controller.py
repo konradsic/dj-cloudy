@@ -4,11 +4,11 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
-from utils.colors import BASE_COLOR
-from utils.configuration import ConfigurationHandler
-from utils.base_utils import djRole_check, quiz_check
-from utils import logger
+from lib.utils import help_utils
+from lib.ui.colors import BASE_COLOR
+from lib.utils.configuration import ConfigurationHandler
+from lib.utils.base_utils import djRole_check, quiz_check
+from lib.logger import logger
 # from music.core import some-import
 
 @logger.LoggerApplication

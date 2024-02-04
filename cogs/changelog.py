@@ -3,8 +3,8 @@ import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
-from utils.colors import BASE_COLOR
+from lib.utils import help_utils
+from lib.ui.colors import BASE_COLOR
 
 class ChangelogCommand(commands.Cog):
     def __init__(self, bot):

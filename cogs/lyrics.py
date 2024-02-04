@@ -6,18 +6,18 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
-from utils.buttons import EmbedPaginator
-from utils.colors import BASE_COLOR
-from utils.regexes import URL_REGEX
-from utils import logger
-from music.songs import (
+from lib.utils import help_utils
+from lib.ui.buttons import EmbedPaginator
+from lib.ui.colors import BASE_COLOR
+from lib.utils.regexes import URL_REGEX
+from lib.logger import logger
+from lib.music.songs import (
     GeniusAPIClient, 
     SearchResponse, 
     GeniusSong
 )
 from unidecode import unidecode
-from utils.base_utils import quiz_check
+from lib.utils.base_utils import quiz_check
 
 def remove_brackets(string):
     replace_matcher = {

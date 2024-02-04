@@ -4,13 +4,13 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
-from utils.colors import BASE_COLOR
-from utils.regexes import URL_REGEX
-from utils.errors import NoPlayerFound
-from utils.base_utils import convert_to_double, double_to_int, djRole_check, quiz_check
-from utils import logger
-from utils.configuration import ConfigurationHandler
+from lib.utils import help_utils
+from lib.ui.colors import BASE_COLOR
+from lib.utils.regexes import URL_REGEX
+from lib.utils.errors import NoPlayerFound
+from lib.utils.base_utils import convert_to_double, double_to_int, djRole_check, quiz_check
+from lib.logger import logger
+from lib.utils.configuration import ConfigurationHandler
 
 @logger.LoggerApplication
 class SeekAndRestartCog(commands.Cog):

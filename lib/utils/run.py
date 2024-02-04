@@ -4,7 +4,7 @@ from time import sleep
 
 from flask import Flask
 
-from utils import logger
+from lib.logger import logger
 
 app = Flask('')
 

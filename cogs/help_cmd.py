@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from utils import help_utils
-from utils.colors import BASE_COLOR
+from lib.utils import help_utils
+from lib.ui.colors import BASE_COLOR
 import datetime
 import random
 

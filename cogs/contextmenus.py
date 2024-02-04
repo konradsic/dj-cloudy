@@ -3,14 +3,14 @@ import datetime
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils.colors import BASE_COLOR
-from utils import logger
-from music import playlist
+from lib.ui.colors import BASE_COLOR
+from lib.logger import logger
+from lib.music import playlist
 import wavelink
-from utils.base_utils import get_length
+from lib.utils.base_utils import get_length
 import math
-from utils.buttons import EmbedPaginator
-from utils.errors import CacheExpired, CacheNotFound
+from lib.ui.buttons import EmbedPaginator
+from lib.utils.errors import CacheExpired, CacheNotFound
 import time
 
 @logger.LoggerApplication

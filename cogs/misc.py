@@ -5,10 +5,10 @@ import wavelink
 import time
 from discord import app_commands
 from discord.ext import commands
-from utils import help_utils
-from utils.colors import BASE_COLOR
-from utils.base_utils import get_nodes, basic_auth
-from utils import emoji
+from lib.utils import help_utils
+from lib.ui.colors import BASE_COLOR
+from lib.utils.base_utils import get_nodes, basic_auth
+from lib.ui import emoji
 
 class MiscCommands(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:

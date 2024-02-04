@@ -25,17 +25,15 @@ import wavelink
 from colorama import Fore, Style
 from discord.ext import commands
 
-from utils import logger
-from utils import preimports
-del preimports
-# ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
-from utils import (clearscreen,
+from lib.logger import logger
+## ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
+from lib.utils import (clearscreen,
                    get_application_id, get_bot_token, get_length,
                    hide_cursor, inittable, load_logger_config,
                    make_files, show_cursor, show_figlet)
-from utils.colors import BASE_COLOR
-from utils.garbage import GarbageCollector
-from utils.cache import JSONCacheManager
+from lib.ui.colors import BASE_COLOR
+from lib.utils.garbage import GarbageCollector
+from lib.utils.cache import JSONCacheManager
 
 clearscreen()
 font = show_figlet()
@@ -48,7 +46,7 @@ logger.register_cls("main.DJ_Cloudy")
 main_logger = logger.Logger("main")
 
 # import modules using logger after setting it up
-from music import playlist
+from lib.music import playlist
 
 # getting token, logger and init() colorama
 TOKEN = get_bot_token()

@@ -7,14 +7,16 @@ import wavelink
 from discord import app_commands
 from discord.ext import commands
 from wavelink.ext import spotify
+from lib.ui import emoji
+from lib.utils import help_utils
 
-from music.core import MusicPlayer
-from utils import emoji, help_utils, logger
-from utils.base_utils import (convert_to_double, double_to_int, get_config,
+from lib.music.core import MusicPlayer
+from lib.logger import logger
+from lib.utils.base_utils import (convert_to_double, double_to_int, get_config,
                               get_length, limit_string_to, quiz_check)
-from utils.colors import BASE_COLOR
-from utils.errors import NoPlayerFound
-from utils.regexes import URL_REGEX
+from lib.ui.colors import BASE_COLOR
+from lib.utils.errors import NoPlayerFound
+from lib.utils.regexes import URL_REGEX
 
 logging = logger.Logger("cogs.spotify")
 

@@ -6,7 +6,7 @@ from typing import Literal
 import asyncio
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from utils.base_utils import get_config
+from lib.utils.base_utils import get_config
 
 def get_top100_artists_cache():
     artists = []

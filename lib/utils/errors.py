@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from . import logger
+from ..logger import logger
 
 class DJCloudyException(Exception):
     def __init__(self, logger: logger.Logger, string: str=None):

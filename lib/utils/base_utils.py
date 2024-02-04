@@ -9,10 +9,10 @@ import colorama
 import json
 import requests
 import uuid
-from . import logger
+from ..logger import logger
 from .configuration import ConfigurationHandler
-from .colors import BASE_COLOR
-from . import emoji
+from ..ui.colors import BASE_COLOR
+from ..ui import emoji
 
 BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
