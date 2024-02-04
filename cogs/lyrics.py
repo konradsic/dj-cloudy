@@ -18,6 +18,7 @@ from lib.music.songs import (
 )
 from unidecode import unidecode
 from lib.utils.base_utils import quiz_check
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 def remove_brackets(string):
     replace_matcher = {
@@ -46,16 +47,16 @@ class LyricsCommandHandler(commands.Cog):
         if song is None:
             voice = interaction.user.voice
             if not voice:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if not (player := self.bot.node.get_player(interaction.guild.id)):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -63,7 +64,7 @@ class LyricsCommandHandler(commands.Cog):
                 playing = player.is_playing()
                 if not playing: raise Exception
             except:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `noSong`: Nothing is playing and the `song` argument is also `None`",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `noSong`: Nothing is playing and the `song` argument is also `None`")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
@@ -87,7 +88,7 @@ class LyricsCommandHandler(commands.Cog):
                     title = before_song
                     artist = "Unknown"
             except Exception as e:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 print(e)
                 return
@@ -101,7 +102,7 @@ class LyricsCommandHandler(commands.Cog):
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
             title = title + " by " + artist
         except Exception as e:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song")
             await interaction.followup.send(embed=embed, ephemeral=True)
             print(e.__class__.__name__, str(e))
             return
@@ -121,11 +122,10 @@ class LyricsCommandHandler(commands.Cog):
         
         embeds = []
         for i,group in enumerate(lyric_groups,1):
-            embeds.append(discord.Embed(
+            embeds.append(NormalEmbed(
                 title = f"Displaying lyrics for {title}",
                 description="".join(e + "\n" for e in group),
-                color=BASE_COLOR,
-                timestamp=datetime.datetime.utcnow()
+                timestamp=True
             ).set_footer(text="Page {}/{}".format(i, len(lyric_groups))).set_thumbnail(url=self.bot.user.display_avatar.url))
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 1000, interaction.user))
 

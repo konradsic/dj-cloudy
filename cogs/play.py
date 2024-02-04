@@ -16,6 +16,7 @@ from lib.utils.regexes import URL_REGEX
 from lib.utils.base_utils import progressbar_emojis, get_length, limit_string_to, quiz_check
 from lib.ui.buttons import PlayButtonsMenu
 from lib.utils.base_utils import djRole_check
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 logging = logger.Logger().get("cogs.play")
 
@@ -110,7 +111,7 @@ class PlayCommand(commands.Cog):
                 raise NoPlayerFound("There is no player connected in this guild")
         except:
             if interaction.user.voice is None:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             channel = interaction.user.voice.channel
@@ -134,7 +135,7 @@ class PlayCommand(commands.Cog):
             except: pass
             
             if counter == counter_max: 
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
@@ -153,13 +154,13 @@ class PlayCommand(commands.Cog):
                 })
         # put force and play force
         if put_force or play_force:
-            await interaction.followup.send(embed=discord.Embed(
+            await interaction.followup.send(embed=ShortEmbed(
                 description=f"Passed arguments `put_force={put_force}`, `play_force={play_force}`, checking DJ permissions...", 
                 color=BASE_COLOR
             ))
             if not await djRole_check(interaction, self.logger): return
             if play_force and put_force:
-                await interaction.followup.send(embed=discord.Embed(
+                await interaction.followup.send(embed=ShortEmbed(
                     description=":bulb: Optimization tip: `put_force` and `play_force` are both `True` although only `play_force` could be.",
                     color=BASE_COLOR
                 ))
@@ -174,20 +175,20 @@ class PlayCommand(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.is_playing():
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
@@ -205,11 +206,10 @@ class PlayCommand(commands.Cog):
 
         try: thumb = f"https://img.youtube.com/vi/{current.identifier}/maxresdefault.jpg"
         except: thumb = current.images[0]
-        embed = discord.Embed(
+        embed = NormalEmbed(
             title="<:play_button:1028004869019279391> Currently playing track informations", 
             description="Here you can view informations about currently playing track", 
-            timestamp=datetime.datetime.utcnow(), 
-            color=BASE_COLOR
+            timestamp=True, 
         )
         title = current.title
         if spotify: title = f"{'E ' if current.explicit else ''}{title}"
@@ -238,7 +238,7 @@ class PlayCommand(commands.Cog):
             try:
                 embed.set_thumbnail(url=current.images[0])
             except: pass
-        embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
+        embed.set_footer(text=FooterType.COMMANDS.value, icon_url=self.bot.user.display_avatar.url)
         await interaction.followup.send(embed=embed, ephemeral=hidden, view=PlayButtonsMenu(user=interaction.user))
 
     @app_commands.command(name="grab", description="Grab currently playing song to your Direct Messages")
@@ -247,27 +247,27 @@ class PlayCommand(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.is_playing():
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         song = player.queue.current_track
-        embed = discord.Embed(
+        embed = NormalEmbed(
             color = BASE_COLOR,
-            timestamp = datetime.datetime.utcnow()
+            timestamp = True
         )
         embed.set_author(name="Song grabbed", icon_url=interaction.user.display_avatar.url)
         spotify = False
@@ -292,9 +292,9 @@ class PlayCommand(commands.Cog):
 
         try:
             await interaction.user.send(embed=embed)
-            await interaction.followup.send(embed=discord.Embed(description="<:tick:1028004866662084659> Grabbed to your DMs!", color=BASE_COLOR))
+            await interaction.followup.send(embed=ShortEmbed(description="<:tick:1028004866662084659> Grabbed to your DMs!"))
         except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to grab, make sure your DMs are open to everyone",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to grab, make sure your DMs are open to everyone")
             await interaction.followup.send(embed=embed)
             return
 

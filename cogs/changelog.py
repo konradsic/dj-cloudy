@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 from lib.utils import help_utils
 from lib.ui.colors import BASE_COLOR
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 class ChangelogCommand(commands.Cog):
     def __init__(self, bot):
@@ -24,11 +25,11 @@ class ChangelogCommand(commands.Cog):
                     fields[-1][1] += line + "\n"
         # small changes to the last field
         fields = [fields[0]]
-        embed = discord.Embed(
+        embed = NormalEmbed(
             title="Changelog - latest changes to the bot!", 
             description="This is the changelog. It shows latest changes to the bot. Only latest changes are shown but you can view all of them [**here**](https://github.com/konradsic/dj-cloudy/blob/main/CHANGELOG.md)\n",
-            color=BASE_COLOR,
-            timestamp=datetime.datetime.utcnow()
+            timestamp=True,
+            footer=FooterType.GH_LINK
         )
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         embed.description += f"## {fields[0][0]}\n{fields[0][1]}"

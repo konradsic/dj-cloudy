@@ -15,8 +15,8 @@ class ShortEmbed(discord.Embed): # used only with description
         super().__init__(color=color, description=description, **kwargs)
         
 class NormalEmbed(discord.Embed): # normal embed, used everywhere else
-    def __init__(self, timestamp: bool, footer_add: str, replace_footer: bool, footer: FooterType=FooterType.MADE_BY, **kwargs):
-        super().__init__(color=BASE_COLOR, **kwargs)
+    def __init__(self, timestamp: bool, footer_add: str, replace_footer: bool, footer: FooterType=FooterType.MADE_BY, color=BASE_COLOR, **kwargs):
+        super().__init__(color=color, **kwargs)
         footer = footer.value + footer_add
         if replace_footer: footer = footer_add
         if footer: self.set_footer(text=footer)

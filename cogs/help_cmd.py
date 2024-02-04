@@ -5,6 +5,7 @@ from lib.utils import help_utils
 from lib.ui.colors import BASE_COLOR
 import datetime
 import random
+from lib.ui.embeds import NormalEmbed, ShortEmbed, FooterType
 
 class HelpCommand(commands.Cog):
     def __init__(self, bot):
@@ -23,12 +24,11 @@ class HelpCommand(commands.Cog):
                 categories[cmd["category"]] = [cmd]
         
         if command is None:
-            embed = discord.Embed(
+            embed = NormalEmbed(
                 title="<:commands_button:1028377812777828502> Help command - Categories", 
-                description="Here, all categories with their respective commands are shown. To get detailed info about a command, use `/help <command>`\n*My command prefix is `/`*", 
-                color=BASE_COLOR
+                description="Here, all categories with their respective commands are shown. To get detailed info about a command, use `/help <command>`\n*My command prefix is `/`*",
+                footer=FooterType.MADE_BY
             )
-            embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             for category_name, category_items in zip(categories.keys(), categories.values()):
                 embed.add_field(name=f"{category_name} ({len(category_items)})", value="".join(
@@ -40,7 +40,7 @@ class HelpCommand(commands.Cog):
         names_lower = [n['name'].lower() for n in help_commands]
         # check if the category exists
         if command.lower() not in names_lower:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Command does not exist. Use `/help` to view all commands",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Command does not exist. Use `/help` to view all commands")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -52,8 +52,7 @@ class HelpCommand(commands.Cog):
 
         command = selected_command # to make life easier
         # get the category
-        embed = discord.Embed(title=f"<:commands_button:1028377812777828502> Help for command `/{command['name']}`", description="*<> - required, [] - optional*", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
-        embed.set_footer(text="Made by Konradoo#6824, licensed under the MIT License")
+        embed = NormalEmbed(title=f"<:commands_button:1028377812777828502> Help for command `/{command['name']}`", description="*<> - required, [] - optional*", timestamp=True)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         arguments = ""
         syntax_arguments = ""

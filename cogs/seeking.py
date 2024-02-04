@@ -11,6 +11,7 @@ from lib.utils.errors import NoPlayerFound
 from lib.utils.base_utils import convert_to_double, double_to_int, djRole_check, quiz_check
 from lib.logger import logger
 from lib.utils.configuration import ConfigurationHandler
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 @logger.LoggerApplication
 class SeekAndRestartCog(commands.Cog):
@@ -27,27 +28,27 @@ class SeekAndRestartCog(commands.Cog):
                 raise NoPlayerFound("There is no player connected in this guild")
             voice = interaction.user.voice
             if not voice:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
         except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.is_playing():
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't restart when nothing is playing",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't restart when nothing is playing")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
 
         await player.seek(0) # restart
-        embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Track successfully restarted",color=BASE_COLOR)
+        embed = ShortEmbed(description=f"<:seek_button:1030534160844062790> Track successfully restarted")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="seek", description="Seek the player to given position")
@@ -61,22 +62,22 @@ class SeekAndRestartCog(commands.Cog):
                 raise NoPlayerFound("There is no player connected in this guild")
             voice = interaction.user.voice
             if not voice:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
         except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.is_playing():
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek when nothing is playing",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't seek when nothing is playing")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
 
@@ -86,17 +87,17 @@ class SeekAndRestartCog(commands.Cog):
             seekDuration = cfg.data["defaultSeekAmount"]["value"]
             if seekForward:
                 if player.position/1000+seekDuration > player.queue.current_track.length/1000:
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds",color=BASE_COLOR)
+                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds")
                     await interaction.response.send_message(embed=embed, ephemeral=True)
                     return
                 await player.seek(int(round(player.position/1000+seekDuration)*1000))
             else:
                 if player.position/1000-seekDuration < 0:
-                    embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds",color=BASE_COLOR)
+                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds")
                     await interaction.response.send_message(embed=embed, ephemeral=True)
                     return
                 await player.seek(int(round(player.position/1000-seekDuration)*1000))
-            embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Seeked {'forward' if seekForward else 'backwards'} by `{seekDuration} seconds`", color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:seek_button:1030534160844062790> Seeked {'forward' if seekForward else 'backwards'} by `{seekDuration} seconds`")
             await interaction.response.send_message(embed=embed)
             return "relative seek success!"
         h,m,s = 0,0,0
@@ -113,22 +114,22 @@ class SeekAndRestartCog(commands.Cog):
                 raise ValueError("Incorrect position format")
         except Exception as e:
             self.logger.error(f"Failed to get position parameters caused by {e.__class__.__name__}: {str(e)}")
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Invalid player position, use format [h:]m:s e.g `2:15` or `1:39:56`",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Invalid player position, use format [h:]m:s e.g `2:15` or `1:39:56`")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "incorrect position"
 
         seek_pos = ((h*3600)+(m*60)+s)*1000
         if not (0 <= int(seek_pos/1000) <= int(player.queue.current_track.length)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot seek: position out of bounds",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot seek: position out of bounds")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "incorrect position"
         try:
             await player.seek(seek_pos)
-            embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Successfully seeked to position `{str(h) + ':' if h != 0 else ''}{convert_to_double(m) if h >= 1 else m}:{convert_to_double(s)}`", color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:seek_button:1030534160844062790> Successfully seeked to position `{str(h) + ':' if h != 0 else ''}{convert_to_double(m) if h >= 1 else m}:{convert_to_double(s)}`")
             await interaction.response.send_message(embed=embed)
             return "success!"
         except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to seek, please try again",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to seek, please try again")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "seek failed"
 

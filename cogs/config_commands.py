@@ -11,7 +11,7 @@ from lib.logger import (
 from lib.ui.colors import BASE_COLOR
 from lib.utils.errors import IncorrectValueType
 from lib.ui.buttons import ResetCfgConfirmation
-
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 @logger.LoggerApplication
 class ConfigCog(commands.GroupCog, name="config"):
@@ -36,10 +36,9 @@ class ConfigCog(commands.GroupCog, name="config"):
         config = cfg.ConfigurationHandler(id=id, user=profile)
         data = config.data
 
-        embed = discord.Embed(description="Settings for this profile: key / value\n", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+        embed = NormalEmbed(description="Settings for this profile: `key` **:** `value`\n", timestamp=True, footer=FooterType.COMMANDS)
         embed.set_author(name="Your configuration profile" if profile else "This guild's configuration profile", 
                          icon_url=interaction.user.display_avatar.url if profile else interaction.guild.icon.url)
-        embed.set_footer(text="https://github.com/konradsic/dj-cloudy")
         
         description = ""
 
@@ -72,7 +71,7 @@ class ConfigCog(commands.GroupCog, name="config"):
                 foundKey = k
                 break
         if not foundKey:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -94,18 +93,18 @@ class ConfigCog(commands.GroupCog, name="config"):
                 else: 
                     value = True
         except Exception as e:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot convert value to `{valType}`",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot convert value to `{valType}`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         try:
             config.config_set(foundKey, value)
-            embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully set `{foundKey}` to `{value}`",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully set `{foundKey}` to `{value}`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         except Exception as e:
             if isinstance(e, IncorrectValueType):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to `{value}`. Please try again",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to `{value}`. Please try again")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             raise e
@@ -120,7 +119,7 @@ class ConfigCog(commands.GroupCog, name="config"):
         perms = interaction.user.resolved_permissions
         manage_guild = perms.manage_guild
         if not manage_guild:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -130,7 +129,7 @@ class ConfigCog(commands.GroupCog, name="config"):
                 foundKey = k
                 break
         if not foundKey:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -152,18 +151,18 @@ class ConfigCog(commands.GroupCog, name="config"):
                 else: 
                     value = True
         except Exception as e:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot convert value to `{valType}`",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot convert value to `{valType}`",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         try:
             config.config_set(foundKey, value)
-            embed = discord.Embed(description=f"<:tick:1028004866662084659> Successfully set `{foundKey}` to `{value}`",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully set `{foundKey}` to `{value}`",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         except Exception as e:
             if isinstance(e, IncorrectValueType):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to `{value}`. Please try again",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to `{value}`. Please try again",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             raise e
@@ -181,12 +180,12 @@ class ConfigCog(commands.GroupCog, name="config"):
         perms = interaction.user.resolved_permissions
         manage_guild = perms.manage_guild
         if (not manage_guild) and (profile == False):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         config = cfg.ConfigurationHandler(id=interaction.user.id if profile else interaction.guild.id, user=profile)
         
-        embed = discord.Embed(description="Confirm you want to reset the configuration by clicking \"Yes\"", color=BASE_COLOR)
+        embed = ShortEmbed(description="Confirm you want to reset the configuration by clicking \"Yes\"")
         
         await interaction.followup.send(embed=embed, view=ResetCfgConfirmation(1000, config, interaction.user), ephemeral=False)
         
@@ -203,7 +202,7 @@ class ConfigCog(commands.GroupCog, name="config"):
         perms = interaction.user.resolved_permissions
         manage_guild = perms.manage_guild
         if (not manage_guild) and (profile == False):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         config = cfg.ConfigurationHandler(id=interaction.user.id if profile else interaction.guild.id, user=profile)
@@ -213,14 +212,14 @@ class ConfigCog(commands.GroupCog, name="config"):
                 foundKey = k
                 break
         if not foundKey:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             config.restore_default_vaule(foundKey)
-            embed = discord.Embed(description=f"<:tick:1028004866662084659> Success! Set `{foundKey}` to default value", color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:tick:1028004866662084659> Success! Set `{foundKey}` to default value")
         except:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to default value", color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to default value")
         await interaction.followup.send(embed=embed, ephemeral=False)
 
 async def setup(bot):

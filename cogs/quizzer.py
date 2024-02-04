@@ -20,6 +20,7 @@ from lib.ui import emoji
 from lib.music.core import MusicPlayer
 from lib.ui.buttons import QuizButtonsUI, QuizResponseModal
 import asyncio
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 logging = logger.Logger(__name__)
 
@@ -90,20 +91,20 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         if (player := self.bot.node.get_player(interaction.guild.id)):    
             if str(player.channel.id) != str(voice.channel.id):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
         try:
             self.bot.quizzes[str(interaction.guild.id)]
-            embed = discord.Embed(description=f"{emoji.XMARK.string} Another quiz is already running!", color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.XMARK.string} Another quiz is already running!")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         except: pass
@@ -112,13 +113,13 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         genres = f"`[📂]` Top 100 songs of 2022"
             
         if not songs:
-            embed = discord.Embed(description=f"{emoji.XMARK.string} No songs were found with given criteria. Try again", color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.XMARK.string} No songs were found with given criteria. Try again")
             await interaction.followup.send(embed=embed)
             return
         
         starting_in = round(time.time()) + 30
         
-        quiz_embed = discord.Embed(description=f"Music quiz starting in <t:{starting_in}:R>. Click the button below to join.", color=BASE_COLOR)
+        quiz_embed = NormalEmbed(description=f"Music quiz starting in <t:{starting_in}:R>. Click the button below to join.")
         quiz_embed.set_author(name="Music Quiz!", icon_url=self.bot.user.avatar.url)
         quiz_embed.add_field(name="Songs in the quiz", value=genres)
         quiz_embed.add_field(name="Rounds", value=f"{rounds} (estimated time: `{get_length(65 * rounds * 1000)}`)")
@@ -158,7 +159,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         game = self.bot.quiz_obj[str(interaction.guild.id)]
         await game.stop()
         del self.bot.quiz_obj[str(interaction.guild.id)]
-        await interaction.response.send_message(embed=discord.Embed(description=f"{emoji.TICK.string} Success!", color=BASE_COLOR), ephemeral=True)
+        await interaction.response.send_message(embed=ShortEmbed(description=f"{emoji.TICK.string} Success!"), ephemeral=True)
 
 
 

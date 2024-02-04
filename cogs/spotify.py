@@ -17,6 +17,7 @@ from lib.utils.base_utils import (convert_to_double, double_to_int, get_config,
 from lib.ui.colors import BASE_COLOR
 from lib.utils.errors import NoPlayerFound
 from lib.utils.regexes import URL_REGEX
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 logging = logger.Logger("cogs.spotify")
 
@@ -90,13 +91,13 @@ class SpotifyExtensionCog(commands.Cog):
             voice = interaction.user.voice
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
             if interaction.user.voice is None:
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             channel = interaction.user.voice.channel
@@ -112,7 +113,7 @@ class SpotifyExtensionCog(commands.Cog):
             elif search_type == "album" or search_type == "playlist":
                 tracks = track
         except:
-            await interaction.followup.send(embed=discord.Embed(
+            await interaction.followup.send(embed=ShortEmbed(
                 description=f"{emoji.XMARK.string} No tracks were found, try again", color=BASE_COLOR
             ))
         

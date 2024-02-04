@@ -9,6 +9,7 @@ from lib.utils import help_utils
 from lib.ui.colors import BASE_COLOR
 from lib.utils.base_utils import get_nodes, basic_auth
 from lib.ui import emoji
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 class MiscCommands(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:
@@ -19,13 +20,12 @@ class MiscCommands(commands.Cog):
         if (message.content.startswith(f"<@{str(self.bot.user.id)}>") or 
             message.content.startswith(f"<@!{self.bot.user.id}>") or 
             message.content.startswith(self.bot.user.mention)):
-            embed = discord.Embed(
+            embed = NormalEmbed(
                 title="Hello! I'm DJ Cloudy",
                 description="A cool bot that will make your server better by adding music functionality. Music playback at the next level. Invite now!",
-                timestamp=datetime.datetime.utcnow(),
-                color=BASE_COLOR
+                timestamp=True,
             )
-            embed.set_footer(text="Made by Konradoo#6938 licensed under the MIT License", icon_url=self.bot.user.display_avatar.url)
+            embed.set_footer(text=FooterType.MADE_BY.value, icon_url=self.bot.user.display_avatar.url)
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.add_field(name="Why you should choose me?", value="- I am all free\n- Advanced music functions such as equalizers\n- Playlist system so you can save your favourite songs\n- Easy to use")
             embed.add_field(name="Links", value="[**Invite me!**](https://dsc.gg/dj-cloudy)\n[*Join Our Discord Server*](https://discord.gg/t6qPGdHypw)\n[GitHub Project: Report bugs, see code and more](https://github.com/konradsic/dj-cloudy)")
@@ -33,10 +33,7 @@ class MiscCommands(commands.Cog):
 
     @app_commands.command(name="ping",description="Returns latency and uptime of the bot")
     async def ping_command(self,interaction: discord.Interaction):
-        embed = discord.Embed(
-            color=BASE_COLOR, 
-            timestamp=datetime.datetime.utcnow(),
-        )
+        embed = NormalEmbed(timestamp=True, footer=FooterType.COMMANDS)
         embed.set_author(name="Pong! Here are the results", icon_url=self.bot.user.avatar)
         embed.add_field(name="<:stats_gradient:1024352560724836444> Latency", value=f"`{round(self.bot.latency*1000)}ms`")
         embed.add_field(name=":clock1: Last restart", value=f"<t:{self.bot.last_restart}:R> / <t:{self.bot.last_restart}:f>")
@@ -61,21 +58,20 @@ class MiscCommands(commands.Cog):
         else:
             players_data = "".join(f"`{i}.` Player guild: **{player.guild.id}**, playing: `{player.is_playing()}`, paused: `{player.is_paused()}`" for i,player in enumerate(players,1))
 
-        embed = discord.Embed(title="Bot informations", description="Informations gathered are below",color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+        embed = NormalEmbed(title="Bot informations", description="Informations gathered are below",timestamp=True, footer=FooterType.GH_LINK)
         embed.add_field(name="Nodes data", value=node_data, inline=False)
         embed.add_field(name="Players data", value=players_data, inline=False)
         embed.add_field(name="Bot informations", 
             value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-        embed.set_footer(text=f"Requested by {interaction.user} | Licensed under the MIT License")
         await interaction.followup.send(embed=embed, ephemeral=True)
         
     @app_commands.command(name="credits", description="Display credits")
     async def credits_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         
-        embed = discord.Embed(description="A list of people who are very proud to be a part of the DJ Cloudy team.",
-                              color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+        embed = NormalEmbed(description="A list of people who are very proud to be a part of the DJ Cloudy team.",
+                            timestamp=True)
         embed.set_author(name="Credits", icon_url=self.bot.user.avatar.url)
         embed.set_footer(text="Thanks to all people from our team <3")
         

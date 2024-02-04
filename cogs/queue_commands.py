@@ -14,6 +14,7 @@ from lib.ui.buttons import PlayButtonsMenu, EmbedPaginator, SkipVotingMenu
 from lib.utils.base_utils import get_length, djRole_check, quiz_check
 from lib.logger import logger
 from lib.ui import emoji
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
  
 
 @logger.LoggerApplication
@@ -29,21 +30,21 @@ class QueueCommands(commands.GroupCog, name="queue"):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         if player.queue.tracks == []:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if len(player.queue) <= 6:
@@ -53,8 +54,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             length = get_length(
                 sum([t.duration for t in player.queue.get_tracks()]))
 
-            embed = discord.Embed(title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
-            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            embed = NormalEmbed(title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=True)
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             if history:
                 history_field = [f"`{i}. ` [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) [{get_length(t.duration)}]" for i,t in enumerate(history, 1)]
@@ -94,12 +94,10 @@ class QueueCommands(commands.GroupCog, name="queue"):
                     break
         embeds = []
         for i, field in enumerate(res_fields, start=1):
-            embeds.append(discord.Embed(
+            embeds.append(NormalEmbed(
                 title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", 
-                timestamp=datetime.datetime.utcnow(), 
-                color=BASE_COLOR
+                timestamp=True, 
             ))
-            embeds[-1].set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
             embeds[-1].add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
             embeds[-1].add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`", inline=False)
@@ -119,27 +117,27 @@ class QueueCommands(commands.GroupCog, name="queue"):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         if player.queue.tracks == []:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         if shuffle_mode_state not in (-1, 0, 1):
             player.queue.shuffle()
-            embed = discord.Embed(description=f"<:shuffle_button:1028926038153117727> Queue has been successfully shuffled",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:shuffle_button:1028926038153117727> Queue has been successfully shuffled")
             await interaction.followup.send(embed=embed)
             return
         
@@ -151,7 +149,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             new_state = 1 if mode == 0 else 0
             player.queue.shuffle_mode_state = new_state
             
-        embed = discord.Embed(
+        embed = ShortEmbed(
             description=f"{emoji.SHUFFLE.string} Shuffle mode set to `{bool(player.queue.shuffle_mode_state)}`",
             color=BASE_COLOR
         )
@@ -165,26 +163,26 @@ class QueueCommands(commands.GroupCog, name="queue"):
         if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         elif not player.queue.tracks:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
             await interaction.followup.send(embed=embed)
             return
 
         player.queue.cleanup() # defined in music/queue.py
         await player.stop() # stop the player
-        embed = discord.Embed(description=f"<:playlist_button:1028926036181794857> Queue cleaned up successfully", color=BASE_COLOR)
+        embed = ShortEmbed(description=f"<:playlist_button:1028926036181794857> Queue cleaned up successfully")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="remove", description="Remove track with the given index from the queue")
@@ -196,33 +194,33 @@ class QueueCommands(commands.GroupCog, name="queue"):
         if not await djRole_check(interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         
         if not (1 <= index <= len(player.queue)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Index of the track is out of range",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Index of the track is out of range")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if (index-1) == player.queue.position:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> For now you cannot remove current playing track",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> For now you cannot remove current playing track")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         del player.queue._queue[index-1]
         if (index-1) < player.queue.position:
             player.queue.position -= 1
         
-        embed = discord.Embed(description=f"<:playlist_button:1028926036181794857> Successfully removed track at position `{index}`",color=BASE_COLOR)
+        embed = ShortEmbed(description=f"<:playlist_button:1028926036181794857> Successfully removed track at position `{index}`")
         await interaction.followup.send(embed=embed)
         return
 
@@ -240,27 +238,27 @@ class OtherQueueCommands(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         if not (1 <= position <= len(player.queue)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Position index is out of range",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Position index is out of range")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         player.queue.position = position - 2 # same as in previous command
         await player.stop() # stopping the player explained in skip command
-        embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Skipping to track at position `{position}`", color=BASE_COLOR)
+        embed = ShortEmbed(description=f"<:skip_button:1029418193321725952> Skipping to track at position `{position}`")
         await interaction.followup.send(embed=embed)
 
     
@@ -271,27 +269,27 @@ class OtherQueueCommands(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         elif not player.queue.upcoming_tracks:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         # we are using stop function because then the advance function will be called (from the event) and next track will be played
         await player.stop()
-        embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Successfully skipped to the next track", color=BASE_COLOR)
+        embed = ShortEmbed(description=f"<:skip_button:1029418193321725952> Successfully skipped to the next track")
         await interaction.followup.send(embed=embed)
         
     @app_commands.command(name="previous", description="Play the previous track if one exists")
@@ -301,20 +299,20 @@ class OtherQueueCommands(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         elif not player.queue.track_history:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `previous` command could not be executed because there is nothing to play that is before this track",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The `previous` command could not be executed because there is nothing to play that is before this track")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
@@ -325,7 +323,7 @@ class OtherQueueCommands(commands.Cog):
 
         player.queue.position -= 2 # explained up there
         await player.stop()
-        embed = discord.Embed(description=f"<:previous_button:1029418191274905630> Playing previous track", color=BASE_COLOR)
+        embed = ShortEmbed(description=f"<:previous_button:1029418191274905630> Playing previous track")
         await interaction.followup.send(embed=embed)
         
     @app_commands.command(name="voteskip", description="If you don't have DJ perms, this will make a voting for skip")
@@ -334,27 +332,27 @@ class OtherQueueCommands(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         elif not player.queue.upcoming_tracks:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The `skip` command could not be executed because there is nothing to skip to")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
     
         num_users = len([user for user in interaction.user.voice.channel.members if not user.bot])
         num_votes = math.ceil(num_users/2)
-        embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Voting for skip! (0/{num_votes})", color=BASE_COLOR)
+        embed = ShortEmbed(description=f"<:skip_button:1029418193321725952> Voting for skip! (0/{num_votes})")
         await interaction.followup.send(embed=embed, view=SkipVotingMenu(1200, player, num_votes, interaction.user.voice.channel, True))
 
 

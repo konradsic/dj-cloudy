@@ -10,6 +10,7 @@ from lib.utils.configuration import ConfigurationHandler
 from lib.utils.base_utils import djRole_check, quiz_check
 from lib.logger import logger
 # from music.core import some-import
+from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 @logger.LoggerApplication
 class VolumeController(commands.Cog):
@@ -25,20 +26,19 @@ class VolumeController(commands.Cog):
         voice = interaction.user.voice
         cfg = ConfigurationHandler(id=interaction.guild.id, user=False)
         if not voice:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
-                color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.is_playing():
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
@@ -50,14 +50,14 @@ class VolumeController(commands.Cog):
             if (61 <= volume <= 90): emoji = "<:volume_medium:1029437731354460270>"
             if (91 <= volume <= 1000): emoji = "<:volume_high:1029437727294361691>"
 
-            embed = discord.Embed(description=f"{emoji} Current volume is set to `{volume}%`", color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji} Current volume is set to `{volume}%`")
             await interaction.followup.send(embed=embed)
             return
         
         maxVolume = cfg.data["maxVolume"]["value"]
         if value is not None:
             if not (0 <= value <= maxVolume):
-                embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Volume value out of range! (max. `{maxVolume}`)",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Volume value out of range! (max. `{maxVolume}`)")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         if not await djRole_check(interaction, self.logger): return
@@ -68,7 +68,7 @@ class VolumeController(commands.Cog):
         if (1 <= value <= 60): emoji = "<:volume_low:1029437729265688676>"
         if (61 <= value <= 90): emoji = "<:volume_medium:1029437731354460270>"
         if (91 <= value <= 1000): emoji = "<:volume_high:1029437727294361691>"
-        embed = discord.Embed(description=f"{emoji} Volume successfully set to `{value}%`", color=BASE_COLOR)
+        embed = ShortEmbed(description=f"{emoji} Volume successfully set to `{value}%`")
         await interaction.followup.send(embed=embed)
         
 
