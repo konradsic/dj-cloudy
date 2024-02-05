@@ -19,6 +19,7 @@ from lib.music.songs import (
 from unidecode import unidecode
 from lib.utils.base_utils import quiz_check
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+import traceback
 
 def remove_brackets(string):
     replace_matcher = {
@@ -40,8 +41,8 @@ class LyricsCommandHandler(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="lyrics", description="Get lyrics for current playing or input song")
-    @app_commands.describe(song="Song you want lyrics for", hidden="Should the message be ephemeral")
-    async def lyrics_command(self, interaction: discord.Interaction, song: str = None, hidden: bool=True):
+    @app_commands.describe(song="Song you want lyrics for", raw_search="Search across genius lyrics, not parsing the title through ytsearch", hidden="Should the message be ephemeral")
+    async def lyrics_command(self, interaction: discord.Interaction, song: str = None, raw_search: bool=False, hidden: bool=True):
         if not await quiz_check(self.bot, interaction, self.logger): return
         await interaction.response.defer(ephemeral=hidden, thinking=True)
         if song is None:
@@ -69,62 +70,72 @@ class LyricsCommandHandler(commands.Cog):
                 return
 
         client: GeniusAPIClient = self.bot.genius
-        title, artist = None,None
+        title, artist = song,""
         before_song = song or "" + ""
         if not song: # we need to get current song
             title = player.queue.current_track.title
             author = player.queue.current_track.author
             artist = author[:-len("- Topic")] if author.endswith("- Topic") else author
         else:
-            if not re.match(URL_REGEX, song):
-                song = "ytsearch:" + song
-            try:
-                queried_song = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
-                if queried_song:
-                    queried_song = queried_song[0]
-                    title = queried_song.title
-                    artist = queried_song.author
-                else:
-                    title = before_song
-                    artist = "Unknown"
-            except Exception as e:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song")
-                await interaction.followup.send(embed=embed, ephemeral=True)
-                print(e)
-                return
+            if not raw_search:
+                if not re.match(URL_REGEX, song):
+                    song = "ytsearch:" + song
+                try:
+                    queried_song = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
+                    if queried_song:
+                        queried_song = queried_song[0]
+                        title = queried_song.title
+                        artist = queried_song.author
+                    else:
+                        title = before_song
+                        artist = "Unknown"
+                except Exception as e:
+                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song")
+                    await interaction.followup.send(embed=embed, ephemeral=True)
+                    print(e)
+                    return
 
         try:
-            title = remove_brackets(title)
+            title = remove_brackets(title or "")
+            genius_title, genius_author = None, None
             try:
                 song = client.get_lyrics(unidecode(title) + " " + unidecode(artist))
+                genius = client.get_song(unidecode(title) + " " + unidecode(artist))
             except:
                 song = client.get_lyrics(unidecode(title))
+                genius = client.get_song(unidecode(title))
+            print(unidecode(title))
+            genius_author = genius.artist
+            genius_title = genius.short_title
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
-            title = title + " by " + artist
+            title = f"{genius_title} by {genius_author} ({title if not raw_search else 'genius search'})"
         except Exception as e:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try inputing a different song")
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try entering a different song")
             await interaction.followup.send(embed=embed, ephemeral=True)
-            print(e.__class__.__name__, str(e))
+            traceback.print_exc()
             return
         # paginator yay
-        # split for 35 lines each
+        # split for max. 1024 characters each
+        lyrics_length = len(lyrics)
         lyrics = lyrics.split("\n")
-        if len(lyrics) <= 35:
+        if lyrics_length <= 1024:
             lyric_groups = [lyrics]
         else:
-            groups = len(lyrics)//35
-            lyric_groups = []
-            for i in range(groups):
-                lyric_groups.append(lyrics[0:35])
-                for _ in range(35):
-                    del lyrics[0]
-            lyric_groups.append(lyrics)
+            lyric_groups = [""]
+            while lyrics: # del el. 0, move to lyrics_groups
+                if len(lyric_groups[-1]) > 1024:
+                    lyric_groups[-1].strip("\n")
+                    # new
+                    lyric_groups.append("")
+                # add
+                lyric_groups[-1] += lyrics[0] + "\n"
+                del lyrics[0]
         
         embeds = []
         for i,group in enumerate(lyric_groups,1):
             embeds.append(NormalEmbed(
                 title = f"Displaying lyrics for {title}",
-                description="".join(e + "\n" for e in group),
+                description=group,
                 timestamp=True
             ).set_footer(text="Page {}/{}".format(i, len(lyric_groups))).set_thumbnail(url=self.bot.user.display_avatar.url))
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 1000, interaction.user))

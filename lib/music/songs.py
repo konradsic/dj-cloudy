@@ -125,7 +125,6 @@ class GeniusAPIClient():
         fetched_data = self._fetch(request, is_json=True)
 
         obj = SearchResponse(fetched_data)
-
         return obj
 
     def get_song(self, song: str) -> GeniusSong:
