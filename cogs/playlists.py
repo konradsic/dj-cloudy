@@ -470,7 +470,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             took_time = time.time() - start
             
             self.logger.info(f"Loaded {len(res['tracks'])} tracks in ~{took_time:.2f}s")
-            player.queue.add(*tracks)
+            player.queue.add(*zip(tracks, [interaction.user, ] * len(tracks)))
             self.logger.info(f"Playling playlist {name_or_id} at {player.guild.id} (queue replaced)")
             await player.play_first_track()
             return

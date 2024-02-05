@@ -215,7 +215,7 @@ class PlayCommand(commands.Cog):
         if spotify: title = f"{'E ' if current.explicit else ''}{title}"
         embed.add_field(name="Track title", value=f"[**{title}**]({link})", inline=False)
         embed.add_field(name="Author / Artist", value=author, inline=True)
-        embed.add_field(name="Data requested by", value=interaction.user.mention, inline=True)
+        embed.add_field(name="Song requested by", value=player.queue.current_requested.mention, inline=True)
         upcoming = player.queue.upcoming_track
         if upcoming: 
             upcoming_url = player.queue.upcoming_track.uri

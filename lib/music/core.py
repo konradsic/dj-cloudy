@@ -48,7 +48,7 @@ class MusicPlayer(wavelink.Player):
             raise NoTracksFound
 
         if not (put_force or play_force):
-            self.queue.add(*tracks)
+            self.queue.add(*zip(tracks, [interaction.user, ] * len(tracks)))
             
         if put_force or play_force:
             current = self.queue.position
