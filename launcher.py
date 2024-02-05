@@ -11,6 +11,7 @@ __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
 import asyncio
+import datetime
 import getpass
 import os
 import platform
@@ -26,14 +27,15 @@ from colorama import Fore, Style
 from discord.ext import commands
 
 from lib.logger import logger
-## ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
-from lib.utils import (clearscreen,
-                   get_application_id, get_bot_token, get_length,
-                   hide_cursor, inittable, load_logger_config,
-                   make_files, show_cursor, show_figlet)
 from lib.ui.colors import BASE_COLOR
-from lib.utils.garbage import GarbageCollector
+## ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
+from lib.utils import (clearscreen, get_application_id, get_bot_token,
+                       get_config, get_length, hide_cursor, inittable,
+                       load_logger_config, make_files, show_cursor,
+                       show_figlet)
 from lib.utils.cache import JSONCacheManager
+from lib.utils.configuration import ConfigurationHandler
+from lib.utils.garbage import GarbageCollector
 
 clearscreen()
 font = show_figlet()
@@ -201,6 +203,33 @@ async def on_command_exception(interaction: discord.Interaction, error: Exceptio
     colorama.init(autoreset=False)
     main_logger.error(f"[/{interaction.command.name} failed] {error.__class__.__name__}: {str(error)}{Style.RESET_ALL}\n{Fore.RED}{traceback.format_exc()}")
     colorama.init(autoreset=True)
+    # auto bug report
+    # check if user has it enabled
+    cfg = ConfigurationHandler(id=str(interaction.user.id), user=True)
+    if cfg.data["experimental.autoBugReport"]["value"] == True:
+        bot_config = get_config()["bot"]
+        guild_id, channel_id = bot_config["support-server-id"], bot_config["auto-bug-report-channel"]
+        # test data validation
+        cont = True
+        try:
+            guild: discord.Guild = bot.get_guild(int(guild_id))
+            channel = guild.get_channel(int(channel_id))
+        except:
+            main_logger.warn("Auto bug report: config `bot:support-server-id` or/and `bot:auto-bug-report-channel` is/are not valid")
+            cont = False
+        if cont:
+            # report bug
+            cmd_name = "/"
+            if interaction.command.parent is not None:
+                cmd_name += interaction.command.parent.name + " "
+            name = interaction.command.name.strip("/")
+            cmd_name += name
+            embed = discord.Embed(color=BASE_COLOR, title="An unexpected error occurred", timestamp=datetime.datetime.utcnow())
+            embed.add_field(name="Data", value=f"```\nGuild: {interaction.guild.name} ({interaction.guild.id})\nChannel: #{interaction.channel.name} ({interaction.channel.id})\nUser: @{interaction.user.name} ({interaction.user.id})\nTime: see footer\nCommand: /{cmd_name[1:]}```")
+            exc = traceback.format_exc()
+            embed.description = f"**Error:**\n ```py\n{exc}```"
+            await channel.send(embed=embed)
+            
     embed = discord.Embed(description=
         f"<:x_mark:1028004871313563758> An unexcepted error occured while trying to execute this command. Please contact developers for more info. \nDetails:\n```py\ncoro: {interaction.command.callback.__name__} {interaction.command.callback}\ncommand: /{interaction.command.name}\n{error.__class__.__name__}:\n{str(error)}\n```",color=BASE_COLOR)
     try:

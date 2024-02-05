@@ -119,6 +119,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     async def equalizer_choose_command(self, interaction: discord.Interaction, equalizer: str):
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
+        raise ValueError("test!")
         try:
             if (player := self.bot.node.get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")

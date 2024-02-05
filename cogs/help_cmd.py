@@ -17,6 +17,7 @@ class HelpCommand(commands.Cog):
         await interaction.response.defer(thinking=True)
         help_commands = help_utils.get_commands()
         categories = {}
+        
         for cmd in help_commands:
             try:
                 categories[cmd["category"]].append(cmd)

@@ -8,6 +8,7 @@ from lib.utils.errors import (
     AuthFailed
 )
 import os
+import aiofiles, asyncio
 
 def get_class_from_value(value):
     valType = str(type(value))

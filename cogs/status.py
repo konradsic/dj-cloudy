@@ -60,7 +60,7 @@ class StatusChangerCog(commands.Cog):
                 discord.Status.idle,
                 discord.Status.online
             ]))
-            self.logger.info(f"Changed status to [{activity_name}: {status}]")
+            self.logger.debug(f"Changed status to [{activity_name}: {status}]")
             await asyncio.sleep(random.randint(*self.status_change_range))
     
         

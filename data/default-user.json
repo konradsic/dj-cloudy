@@ -6,5 +6,9 @@
     "seekForward": {
         "value": true,
         "type": "bool"
+    },
+    "experimental.autoBugReport": {
+        "value": false,
+        "type": "bool"
     }
 }
