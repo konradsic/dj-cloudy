@@ -2,6 +2,7 @@ from .colors import BASE_COLOR
 import discord
 from enum import Enum
 import datetime
+import random
 
 class FooterType(Enum):
     LICENSED = "Licensed under the MIT License"
@@ -9,16 +10,23 @@ class FooterType(Enum):
     GH_LINK = "Contribute https://github.com/konradsic/dj-cloudy"
     COMMANDS = "Did you know that there are over 40+ commands that you can use?"
     NONE = ""
+    
+def random_footer() -> FooterType:
+    footers = [f.value for f in FooterType]
+    return random.choice(footers)
 
 class ShortEmbed(discord.Embed): # used only with description
-    def __init__(self, description: str, color = BASE_COLOR, **kwargs):
+    def __init__(self, description: str, color = BASE_COLOR, **kwargs) -> None:
         super().__init__(color=color, description=description, **kwargs)
         
 class NormalEmbed(discord.Embed): # normal embed, used everywhere else
-    def __init__(self, timestamp: bool=False, footer_add: str="", replace_footer: bool=False, footer: FooterType=FooterType.MADE_BY, color=BASE_COLOR, **kwargs):
+    def __init__(self, timestamp: bool=False, footer_add: str="", replace_footer: bool=False, 
+                 footer: FooterType=FooterType.MADE_BY, color=BASE_COLOR, **kwargs) -> None:
         super().__init__(color=color, **kwargs)
         footer = footer.value + footer_add
         if replace_footer: footer = footer_add
         if footer: self.set_footer(text=footer)
         if timestamp: self.timestamp = datetime.datetime.utcnow()
+
+# embed paginator in lib.ui.buttons
         

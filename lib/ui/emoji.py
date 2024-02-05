@@ -59,3 +59,10 @@ PROGRESSBAR_MID_HALF    = DJCloudyEmoji.from_mention("<:progress_mid_half:120152
 PROGRESSBAR_MID_EMPTY   = DJCloudyEmoji.from_mention("<:progress_mid_empty:1201526959201599558>")
 PROGRESSBAR_RIGHT_FILL  = DJCloudyEmoji.from_mention("<:progress_end_full:1201526957637116015>")
 PROGRESSBAR_RIGHT_EMPTY = DJCloudyEmoji.from_mention("<:progress_end_empty:1201526954759823400>")
+
+# pag
+NEXT = DJCloudyEmoji.from_mention("<:next:1202669705178124361>")
+PREVIOUS = DJCloudyEmoji.from_mention("<:previous:1202669721305088030>")
+NEXT_SHORT = DJCloudyEmoji.from_mention("<:next_short:1204016580569333811>")
+PREVIOUS_SHORT = DJCloudyEmoji.from_mention("<:previous_short:1204016577662427176>")
+TRASH = DJCloudyEmoji.from_mention("<:trash:1202669678951014472>")

@@ -7,15 +7,16 @@ import discord
 import wavelink
 from discord import ui
 from discord.ui import Modal, View
-from . import emoji
 
 from lib.music import playlist
 
 from ..logger import logger
 from ..utils.base_utils import RepeatMode, djRole_check
 from ..utils.cache import JSONCacheManager
-from .colors import BASE_COLOR
 from ..utils.configuration import ConfigurationHandler as Config
+from . import emoji
+from .colors import BASE_COLOR
+
 
 @logger.LoggerApplication
 class PlayButtonsMenu(View):
@@ -131,14 +132,20 @@ class EmbedPaginator(View):
         self.pages = pages
         self.user = user
         self.length = len(self.pages)-1
+        self.children[0].disabled = True
+        self.children[1].disabled = True
 
     async def update(self, page:int):
         self.current_page = page
         if page == 0:
             self.children[0].disabled = True
+            self.children[1].disabled = True
+            self.children[-2].disabled = False
             self.children[-1].disabled = False
         elif page == self.length:
             self.children[0].disabled = False
+            self.children[1].disabled = False
+            self.children[-2].disabled = True
             self.children[-1].disabled = True
         else:
             for i in self.children: i.disabled = False
@@ -158,13 +165,27 @@ class EmbedPaginator(View):
             view=self
         )
     
-    @ui.button(label="◄", style=discord.ButtonStyle.blurple)
+    @ui.button(emoji=emoji.PREVIOUS.mention, style=discord.ButtonStyle.gray)
+    async def first_button(self, interaction: discord.Interaction, button):
+        await self.show_page(0, interaction)
+    
+    @ui.button(emoji=emoji.PREVIOUS_SHORT.mention, style=discord.ButtonStyle.gray)
     async def backwards_button(self, interaction: discord.Interaction, button):
         await self.show_page(self.current_page-1, interaction)
     
-    @ui.button(label="►", style=discord.ButtonStyle.blurple)
+    @ui.button(emoji=emoji.TRASH.mention, style=discord.ButtonStyle.gray)
+    async def trash_button(self, interaction: discord.Interaction, button):
+        # delete this embed
+        await interaction.response.edit_message(content="The author of this message requested deletion", embeds=[], view=None)
+        del self
+    
+    @ui.button(emoji=emoji.NEXT_SHORT.mention, style=discord.ButtonStyle.gray)
     async def forward_button(self, interaction: discord.Interaction, button):
         await self.show_page(self.current_page+1, interaction)
+        
+    @ui.button(emoji=emoji.NEXT.mention, style=discord.ButtonStyle.gray)
+    async def last_button(self, interaction: discord.Interaction, button):
+        await self.show_page(len(self.pages)-1, interaction)
         
 class ResetCfgConfirmation(View):
     def __init__(self, timeout: float, cfg: Config, user: t.Optional[discord.Member]=None) -> None:

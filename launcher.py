@@ -81,6 +81,8 @@ except:
 # NOTE: Since 19th June 2023 this project is closed-source, checking version makes no sense
 make_files()
 
+thread_loader, ext_loader = None, None
+
 async def load_extension(ext):
     bot.current_ext_loading = ext
     bot.current_ext_idx += 1
@@ -88,13 +90,20 @@ async def load_extension(ext):
 
 async def extload(extensions):
     for extension in extensions:
-        await load_extension(extension)
+        try:
+            await load_extension(extension)
+        except Exception as e:
+            error = "".join(traceback.format_exc())
+            main_logger.critical(error)
+            main_logger.critical(f"Error while loading extension {extension}, aborting...")
+            bot.aborted_extload = True
+            return
     bot.part_loaded = True
 
 async def update_progressbar():
     progress_running_icons: list = ["|", "/", "-", "\\", "|", "/", "-", "\\"]
     i = 0
-    while not bot.part_loaded:
+    while not bot.part_loaded or bot.aborted_extload:
         cur = bot.current_ext_loading or "NoExtension"
         cur_idx = bot.current_ext_idx or 0
         leng = bot.ext_len
@@ -103,28 +112,39 @@ async def update_progressbar():
         print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*round(perc)}{Fore.RESET}{Style.DIM}{'█'*(total-round(perc))}{Style.RESET_ALL} Loading extension {Fore.CYAN}{cur}{Fore.RESET} [{Fore.YELLOW}{cur_idx}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {perc*2.5:.1f}%] {progress_running_icons[i%len(progress_running_icons)]}             ", end="\r")
         await asyncio.sleep(0.15)
         i += 1
+        if bot.aborted_extload:
+            print()
+            return
     print(f" {Fore.WHITE}{Style.BRIGHT}{'█'*40}{Fore.RESET}{Style.RESET_ALL} Loaded extensions [{Fore.YELLOW}{leng}{Fore.WHITE}/{Fore.GREEN}{leng}{Fore.RESET} {100.0}%] {progress_running_icons[i%len(progress_running_icons)]}                       ")
 
 # loading extensions
 async def load_extensions():
     try:
+        bot.aborted_extload = False
         extensions = []
         bot.ext_len = 0
         bot.current_ext_loading = None
         bot.current_ext_idx = 0
+        
         for cog in os.listdir('./cogs'):
             if cog.endswith('.py'):
                 extensions.append("cogs." + cog[:-3])
+                
         bot.ext_len = len(extensions)
         main_logger.info(f"Loading {Fore.GREEN}{bot.ext_len}{Fore.RESET} extensions...")
         thread_loader = threading.Thread(target=asyncio.run, args=(update_progressbar(),))
         thread_loader.start()
+        
         ext_loader = threading.Thread(target=asyncio.run, args=(extload(extensions),))
         ext_loader.start()
         thread_loader.join()
         ext_loader.join()
-        while not bot.part_loaded:
+        
+        while not bot.part_loaded or bot.aborted_extload:
             pass
+        if bot.aborted_extload: 
+            show_cursor()
+            quit()
         main_logger.info("Extensions loaded successfully, syncing with guilds...")
         for guild in list(bot.guilds):
             await bot.tree.sync(guild=guild)

@@ -40,10 +40,10 @@ class LyricsCommandHandler(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="lyrics", description="Get lyrics for current playing or input song")
-    @app_commands.describe(song="Song you want lyrics for")
-    async def lyrics_command(self, interaction: discord.Interaction, song: str = None):
+    @app_commands.describe(song="Song you want lyrics for", hidden="Should the message be ephemeral")
+    async def lyrics_command(self, interaction: discord.Interaction, song: str = None, hidden: bool=True):
         if not await quiz_check(self.bot, interaction, self.logger): return
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await interaction.response.defer(ephemeral=hidden, thinking=True)
         if song is None:
             voice = interaction.user.voice
             if not voice:
@@ -64,7 +64,7 @@ class LyricsCommandHandler(commands.Cog):
                 playing = player.is_playing()
                 if not playing: raise Exception
             except:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `noSong`: Nothing is playing and the `song` argument is also `None`")
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `None`: Nothing is playing and the `song` argument is also `None`")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
