@@ -95,9 +95,9 @@ class Round():
     def submit_answer(self, ans, title: True):
         matcher = difflib.SequenceMatcher
         if title:
-            match = matcher(None, ans.lower(), self.song_title.lower()).ratio()
+            match = matcher(None, ans.lower(), self.song_title.lower()).quick_ratio()
         else:
-            match = matcher(None, ans.lower(), self.song_artist.lower()).ratio()
+            match = matcher(None, ans.lower(), self.song_artist.lower()).quick_ratio()
         
         if match >= 0.85: # 85% or more the same
             return True

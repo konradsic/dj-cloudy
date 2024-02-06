@@ -1,15 +1,40 @@
 import datetime
+import difflib
+import time
 
 import discord
 import wavelink
-import time
 from discord import app_commands
 from discord.ext import commands
-from lib.utils import help_utils
-from lib.ui.colors import BASE_COLOR
-from lib.utils.base_utils import get_nodes, basic_auth
+
 from lib.ui import emoji
-from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui.colors import BASE_COLOR
+from lib.ui.embeds import FooterType, NormalEmbed, ShortEmbed
+from lib.utils import help_utils
+from lib.utils.base_utils import basic_auth, get_nodes, get_config
+from lib.utils.help_utils import get_commands
+
+
+async def command_autocomplete(
+    interaction: discord.Interaction,
+    current: str
+) -> list[app_commands.Choice[str]]:
+    current = current.strip("/")
+    matcher = difflib.SequenceMatcher
+    commands = [cmd["name"] for cmd in get_commands()]
+    #print("command autocomplete matching star")
+    matches: list[tuple] = [] # (cmd, match)
+    for i, command in enumerate(commands):
+        #print(f"{i}/{len(commands)}...\t", end="\r")
+        result = matcher(None, current.lower(), command.lower()).quick_ratio()
+        matches.append((command, result))
+    # cap at 10
+    matches = sorted(matches, reverse=True, key=lambda x: x[1])[:5]
+    #print(matches)
+    return [
+        app_commands.Choice(name=f"{f'{i}.' if i > 1 else '🏆'} /{match[0]}", value=match[0])
+        for i, match in enumerate(matches, start=1)
+    ]
 
 class MiscCommands(commands.Cog):
     def __init__(self,bot: commands.Bot) -> None:
@@ -99,12 +124,29 @@ class MiscCommands(commands.Cog):
         embed.add_field(name=f"{emoji.TESTER.string} Tester{'s' if len(TESTERS) > 1 else ''}", value=f"\n{tester_text_singular if testlen == 1 else tester_text_plural}\n{string_testers}", inline=False)
 
         await interaction.followup.send(embed=embed, ephemeral=True)
+        
+    @app_commands.command(name="bug-report", description="Report bugs")
+    @app_commands.describe(command="Which command did you use?", description="Description of the bug")
+    @app_commands.autocomplete(command=command_autocomplete)
+    async def bugreport_command(self, interaction: discord.Interaction, command: str, description: str):
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        embed = NormalEmbed(timestamp=True, footer=FooterType.NONE, description=f"**Description of the bug:**\n```{description}```", title="Recieved a bug report via /bug-report command")
+        embed.add_field(name="Command", value=f"```/{command}```", inline=False)
+        embed.add_field(name="Submitted by", value=f"<@{interaction.user.id}>\n```@{interaction.user.name} ({interaction.user.id})```", inline=False)
+        cfg = get_config()["bot"]
+        guild: discord.Guild = self.bot.get_guild(int(cfg["support-server-id"]))
+        channel = guild.get_channel(int(cfg["auto-bug-report-channel"]))
+        await channel.send(embed=embed)
+        
+        await interaction.followup.send("Submitted your bug! There is a chance it will be fixed")
 
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("ping", "Returns latency and uptime of the bot", "Miscellaneous")
     help_utils.register_command("botinfo", "Gathers most of informations about the bot and Wavelink nodes", "Miscellaneous")
     help_utils.register_command("credits", "Display credits", "Miscellaneous")
+    help_utils.register_command("bug-report", "Report bugs", "Miscellaneous", [("command", "Which command did you use?", True), 
+                                                                               ("description", "Description of the bug", True)])
     await bot.add_cog(
         MiscCommands(bot)
     )
