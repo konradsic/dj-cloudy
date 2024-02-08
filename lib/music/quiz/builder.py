@@ -137,7 +137,7 @@ class QuizBuilder():
         self.interaction = interaction
         self.bot = bot
         self.player = player
-        self.player.queue.add(*self.songs)
+        self.player.queue.add(*zip(self.songs, [interaction.user, ] * len(self.songs)))
         self.is_stopped = False
         
         
@@ -161,13 +161,29 @@ class QuizBuilder():
             embed = discord.Embed(description="Lets look at the results (next round starting soon)", timestamp=datetime.datetime.utcnow(), color=BASE_COLOR)
             embed.set_author(name="Round ended!", icon_url=self.bot.user.avatar.url)
             _cache = self.player_mapping_points
-            embed.add_field(name="Ranking", value="\n".join(f"{i}. <@{player}> `{points} pts.`" for (i, player), points in zip(enumerate(_cache.keys()), _cache.values())), inline=False)
+            embed.add_field(name="Ranking", value="\n".join(f"{i}. <@{player}> `{points} pts.`" for (i, player), points in sorted(zip(enumerate(_cache.keys()), _cache.values()), key=lambda x: x[1], reverse=True)), inline=False)
             embed.add_field(name="Song", value=f"The song was...\n`{cur_round.song_title}, by: {cur_round.song_artist}`", inline=False)
             await self.interaction.channel.send(embed=embed)
             
             await asyncio.sleep(5)
             self.current_round_idx += 1
-            
+        
+        # send ranking embed
+        embed = discord.Embed(color=BASE_COLOR, timestamp=datetime.datetime.utcnow(), title="Quiz ranking", description="Top 5 places")
+        ranks = sorted(zip(_cache.keys(), _cache.values()), key=lambda x: x[1], reverse=True)
+        embed.add_field(name="🏆 The winner", value=f"<@{ranks[0][0]}> : `{ranks[0][1]} pts.`", inline=False)
+        if len(ranks) == 2:
+            embed.add_field(name="Podium", value=f"🥈 <@{ranks[1][0]}> : `{ranks[1][1]} pts.`", inline=False)
+        if len(ranks) == 3:
+            embed.add_field(name="Podium", value=f"🥈 <@{ranks[1][0]}> : `{ranks[1][1]} pts.`\n🥉 <@{ranks[2][0]}> : `{ranks[2][1]} pts.`", inline=False)
+        
+        if len(ranks) == 4:
+            embed.add_field(name="Honourable mention", value=f"4th <@{ranks[3][0]}> : `{ranks[3][1]} pts.`", inline=False)
+        if len(ranks) >= 5:
+            embed.add_field(name="Honourable mentions", value=f"4th <@{ranks[3][0]}> : `{ranks[3][1]} pts.`\n5th <@{ranks[4][0]}> : `{ranks[4][1]} pts.`", inline=False)
+        
+        await self.interaction.channel.send(embed=embed)
+        
         # cleanup
         await self.bot.quiz_cache.remove(str(self.interaction.guild.id))
         del self.bot.quizzes[str(self.interaction.guild.id)]

@@ -175,9 +175,12 @@ class DJ_Cloudy(commands.Bot):
         # clearscreen()
         took = f'{(time.time()-bot.last_restart):,.1f}'.replace(",", " ")
         self.logger.info(f"Loading extensions done (took {took}s)")
-        self.song_cache_mgr: JSONCacheManager = JSONCacheManager("songs.json")
-        self.system_vars: JSONCacheManager = JSONCacheManager("systemcache.json", expiration_time = -1)
-        self.quiz_cache: JSONCacheManager = JSONCacheManager("quizzes.json", expiration_time = -1)
+        try: self.song_cache_mgr: JSONCacheManager = JSONCacheManager("songs.json")
+        except: self.logger.error(f"Could not load manager song_cache_mgr\n{traceback.format_exc()}")
+        try: self.system_vars: JSONCacheManager = JSONCacheManager("systemcache.json", expiration_time = -1)
+        except: self.logger.error(f"Could not load manager system_vars\n{traceback.format_exc()}")
+        try: self.quiz_cache: JSONCacheManager = JSONCacheManager("quizzes.json", expiration_time = -1)
+        except: self.logger.error(f"Could not load manager quiz_cache\n{traceback.format_exc()}")
         self.logger.debug("JSON Cache managers initialized")
 
     async def close(self):

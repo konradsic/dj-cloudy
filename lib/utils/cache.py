@@ -8,7 +8,7 @@ from .errors import (
    CacheNotFound
 )
 
-CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data/.cache"))
+CACHE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/.cache"))
 
 class JSONCacheManager:
     """
