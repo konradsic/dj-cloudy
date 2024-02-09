@@ -27,13 +27,12 @@ def shorten_name(string):
 class MusicPlayer(wavelink.Player):
     def __init__(self, *args, logger: log.Logger, **kwargs):
         super().__init__(*args, **kwargs)
-        self.logger = logger
-        self.paused_vc = False
-        # ! [new in wavelink 2.0] queue is set to wavelink's default queue, so we set it to our!
-        self.queue = None 
-        self.queue = Queue()
-        self.bound_channel = None
-        self.eq_levels = [.0,] * 15
+        self.logger: log.Logger = logger
+        self.paused_vc: bool = False
+        self.queue = None # ! [new in wavelink 2.0] queue is set to wavelink's default queue, so we set it to our! [type: ignore]
+        self.queue: Queue = Queue()
+        self.bound_channel: discord.TextChannel = None
+        self.eq_levels: list[float] = [.0,] * 15
 
     async def teardown(self):
         try:
@@ -52,10 +51,10 @@ class MusicPlayer(wavelink.Player):
                 self.queue.add(*zip(tracks, [interaction.user, ] * len(tracks)))
             
         if put_force or play_force:
-            current = self.queue.position
-            copy = self.queue._queue.copy()
-            new_queue = copy.insert(current+1, tracks[0])
-            self.queue._queue = new_queue
+            if len(self.queue) == 0:
+                self.queue.add((tracks[0], interaction.user))
+            else:
+                self.queue.insert_current(tracks[0])
             
         if len(tracks) >= 2:
             total_duration = get_length(sum([t.duration for t in tracks]))
@@ -67,6 +66,7 @@ class MusicPlayer(wavelink.Player):
                 await self.start_playback(interaction)
             return
         
+        play_force_play_check = False
         track = tracks[0]
         if not self.is_playing() or play_force:
             embed = discord.Embed(
@@ -94,7 +94,10 @@ class MusicPlayer(wavelink.Player):
             # play_force
             if play_force:
                 # play NOW
-                await self.stop()
+                if self.is_playing():
+                    await self.stop()
+                else:
+                    play_force_play_check = True # later on, we will play (len=0 or sth other error)
             
         if self.is_playing() or put_force:
             embed = discord.Embed(
@@ -142,7 +145,7 @@ class MusicPlayer(wavelink.Player):
         
         await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
 
-        if not self.is_playing() and not play_force:
+        if not self.is_playing() and ((not play_force) or play_force_play_check): # bruh wacky if
             await self.start_playback(interaction)
             
 

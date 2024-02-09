@@ -8,11 +8,11 @@ import discord
 
 class Queue:
     def __init__(self):
-        self._queue = []
-        self._requested = []
-        self.position = 0
-        self.repeat: Repeat = Repeat()
-        self.shuffle_mode_state = 0
+        self._queue: list = [] # a list of all tracks, private member
+        self._requested: list = [] # a list of who requested tracks 
+        self.position: int = 0 # currently playing position
+        self.repeat: Repeat = Repeat() # repeat mode
+        self.shuffle_mode_state: bool = 0 # is queue shuffled
     
     @property
     def is_empty(self):
@@ -116,6 +116,14 @@ class Queue:
         self._requested.clear()
         self.position = 0
         return []
+    
+    def insert(self, track, position: int) -> None:
+        self._queue.insert(position, track)
+    
+    def insert_current(self, track) -> None:
+        # insert after currently playing track
+        current = self.position
+        self._queue.insert(current+1, track)
 
     def get_tracks(self):
         return [track for track in self._queue]

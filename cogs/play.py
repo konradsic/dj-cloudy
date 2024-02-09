@@ -17,6 +17,7 @@ from lib.utils.base_utils import progressbar_emojis, get_length, limit_string_to
 from lib.ui.buttons import PlayButtonsMenu
 from lib.utils.base_utils import djRole_check
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui import emoji
 
 logging = logger.Logger().get("cogs.play")
 
@@ -155,7 +156,7 @@ class PlayCommand(commands.Cog):
         # put force and play force
         if put_force or play_force:
             await interaction.followup.send(embed=ShortEmbed(
-                description=f"Passed arguments `put_force={put_force}`, `play_force={play_force}`, checking DJ permissions...", 
+                description=f"{emoji.LOADING.mention} Passed arguments `put_force={put_force}`, `play_force={play_force}`, checking DJ permissions...", 
                 color=BASE_COLOR
             ))
             if not await djRole_check(interaction, self.logger): return

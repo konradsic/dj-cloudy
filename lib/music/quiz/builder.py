@@ -58,9 +58,8 @@ class Round():
         self.revealed_letters: List[int] = [] # indices
         self.point_for_artist: bool = True # false after third stage
         
-        self.song_string: str = None
-        self.artist_string: str = "" 
-        # ^ type: ignore [x2]
+        self.song_string: str = None # type: ignore
+        self.artist_string: str = "" # type: ignore
     
     def reveal_artist(self):
         self.artist_string = self.song_artist
