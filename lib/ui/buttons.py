@@ -29,53 +29,53 @@ class PlayButtonsMenu(View):
     @ui.button(emoji="<:volume_high:1029437727294361691>", style=discord.ButtonStyle.gray)
     async def volume_up_button(self, interaction, button):
         if not await djRole_check(interaction, self.logger): return
-        if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.is_playing():
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         volume = player.volume
         if volume+10 >= 1000:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Volume is currently set to the max value, can't go higher!",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         await player.set_volume(volume+10)
         embed = discord.Embed(description=f"<:volume_high:1029437727294361691> Volume is now higher by `10%`", color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
     @ui.button(emoji="<:volume_low:1029437729265688676>", style=discord.ButtonStyle.gray)
     async def volume_low_button(self, interaction, button):
         if not await djRole_check(interaction, self.logger): return
-        if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not player.is_playing():
+        if not player.playing:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         volume = player.volume
         if volume == 0:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Volume is currently set to the min value, can't go lower!",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         await player.set_volume(volume-10)
         embed = discord.Embed(description=f"<:volume_low:1029437729265688676> Volume is now lower by `10%`", color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
     @ui.button(emoji="<:repeat_button:1030534158302330912>", style=discord.ButtonStyle.gray)
     async def toggle_repeat_button(self, interaction, button):
         if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.queue.tracks:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Queue is empty, cannot set repeat mode",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         switch = { # to toggle between repeat modes
@@ -85,7 +85,7 @@ class PlayButtonsMenu(View):
         }
         # set new repeat mode
         player.queue.repeat.set_repeat(switch[player.queue.repeat.string_mode])
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=discord.Embed(description=f"<:repeat_button:1030534158302330912> Repeat mode updated to `{player.queue.repeat.string_mode}`",color=BASE_COLOR),
             ephemeral=True
         )
@@ -95,35 +95,35 @@ class PlayButtonsMenu(View):
         if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not player.is_playing():
+        if not player.playing:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot seek: nothing is currently playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         await player.seek(0) # restart
         embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Track successfully restarted",color=BASE_COLOR)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.followup.send(embed=embed, ephemeral=True)
         return True
 
     @ui.button(emoji="<:star_button:1033999611238551562>", style=discord.ButtonStyle.gray)
     async def add_to_starred_button(self, interaction: discord.Interaction, button):
         if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not player.is_playing():
+        if not player.playing:
             embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         resp = handler.add_to_starred(player.queue.current_track.uri)
         if resp:
-            await interaction.response.send_message(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
+            await interaction.followup.send(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
             return
-        await interaction.response.send_message(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Un-starred current playing song", color=BASE_COLOR))
+        await interaction.followup.send(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Un-starred current playing song", color=BASE_COLOR))
 
 class EmbedPaginator(View):
     def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:
@@ -155,7 +155,7 @@ class EmbedPaginator(View):
 
     async def show_page(self, page:int, interaction: discord.Interaction):
         if str(interaction.user.id) != str(self.user.id):
-            await interaction.response.send_message("Thats not yours!", ephemeral=True)
+            await interaction.followup.send("Thats not yours!", ephemeral=True)
             return
         await self.update(page)
         embeds = await self.get_page(self.pages[page])
@@ -268,7 +268,7 @@ class QuizButtonsUI(View):
     async def join_quiz_btn(self, interaction: discord.Interaction, button):
         try:
             if interaction.user in self.bot.quizzes[str(interaction.guild.id)]:
-                await interaction.response.send_message(embed=discord.Embed(
+                await interaction.followup.send(embed=discord.Embed(
                     description=f"{emoji.XMARK.string} Already joined the quiz, please wait for the start",
                     color=BASE_COLOR
                 ), ephemeral=True)
@@ -277,20 +277,20 @@ class QuizButtonsUI(View):
             # NOTE: vc checks - user needs to be in the vc to join
             player = wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)
             if not interaction.user.voice:
-                await interaction.response.send_message(embed=discord.Embed(
+                await interaction.followup.send(embed=discord.Embed(
                     description=f"{emoji.XMARK.string} You need to be in a voice channel ({player.channel.mention}) to join the quiz",
                     color=BASE_COLOR
                 ), ephemeral=True)
                 return
                 
             if interaction.user.voice.channel != player.channel:
-                await interaction.response.send_message(embed=discord.Embed(
+                await interaction.followup.send(embed=discord.Embed(
                     description=f"{emoji.XMARK.string} You need to be in the same channel that the bot is in to join the quiz. Please switch to {player.channel.mention}"
                 ), ephemeral=True)
                 return
             
             self.bot.quizzes[str(interaction.guild.id)].append(interaction.user)
-            await interaction.response.send_message(embed=discord.Embed(
+            await interaction.followup.send(embed=discord.Embed(
                 description=f"{emoji.TICK.string} Successfully joined the quiz",
                 color=BASE_COLOR
             ), ephemeral=True)

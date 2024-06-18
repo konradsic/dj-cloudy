@@ -1,13 +1,17 @@
+import datetime
+
 import discord
+import wavelink
 from discord import app_commands
 from discord.ext import commands
-import datetime
+
+from lib.logger import logger
 from lib.ui.colors import BASE_COLOR
-from lib.utils.errors import NoPlayerFound
+from lib.ui.embeds import FooterType, NormalEmbed, ShortEmbed
 from lib.utils import help_utils
 from lib.utils.base_utils import djRole_check, quiz_check
-from lib.logger import logger
-from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.utils.errors import NoPlayerFound
+
 
 @logger.LoggerApplication
 class PlayPauseCommands(commands.Cog):
@@ -39,7 +43,7 @@ class PlayPauseCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
-        if player.is_paused():
+        if player.paused:
             embed = ShortEmbed(description=f"<:pause_gradient_button:1028219593082286090> The player is already paused")
             await interaction.response.send_message(embed=embed)
             return "alr paused"
@@ -53,7 +57,7 @@ class PlayPauseCommands(commands.Cog):
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
             voice = interaction.user.voice
             if not voice:
@@ -70,7 +74,7 @@ class PlayPauseCommands(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
-        if not player.is_paused():
+        if not player.paused:
             embed = ShortEmbed(description=f"<:play_button:1028004869019279391> The player is already resumed")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "alr resumed"

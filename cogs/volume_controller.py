@@ -29,7 +29,7 @@ class VolumeController(commands.Cog):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -37,7 +37,7 @@ class VolumeController(commands.Cog):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return

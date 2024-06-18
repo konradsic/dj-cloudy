@@ -7,8 +7,8 @@ import random
 class FooterType(Enum):
     LICENSED = "Licensed under the MIT License"
     MADE_BY = "Made with love and passion, by @konradsic"
-    GH_LINK = "Contribute https://github.com/konradsic/dj-cloudy"
-    COMMANDS = "Did you know that there are over 40+ commands that you can use?"
+    GH_LINK = "Contribute at https://github.com/konradsic/dj-cloudy"
+    COMMANDS = "Did you know that you can try out over 40 commands?"
     NONE = ""
     
 def random_footer() -> FooterType:

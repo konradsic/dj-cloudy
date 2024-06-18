@@ -28,7 +28,6 @@ from discord.ext import commands
 
 from lib.logger import logger
 from lib.ui.colors import BASE_COLOR
-## ^ just import, not used, preimports are used to pre-define loggers for cogs and other classes.
 from lib.utils import (clearscreen, get_application_id, get_bot_token,
                        get_config, get_length, hide_cursor, inittable,
                        load_logger_config, make_files, show_cursor,
@@ -198,6 +197,7 @@ bot = DJ_Cloudy()
 # error handling
 @bot.tree.error
 async def on_command_exception(interaction: discord.Interaction, error: Exception):
+    print(error.__class__.__name__)
     # suppress common errors
     if str(error).endswith("AttributeError: 'Queue' object has no attribute 'loop'"):
         return

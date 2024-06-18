@@ -186,6 +186,9 @@ def register_cls(cls):
         if origin_opt == clen: config["optimal_leng"] = origin_opt
         if shorted_opt == len(shorted): config["optimal_leng"] = shorted_opt
 
+def compile_args(args: list, sep: str) -> str:
+    return str(sep).join(str(x) for x in args)
+
 
 class Logger:
     """
@@ -235,20 +238,20 @@ class Logger:
             print(msg)
             save_logs(msg)
 
-    def debug(self, message):
-        self._log("DEBUG", message)
+    def debug(self, *messages):
+        self._log("DEBUG", compile_args(messages, " "))
         
-    def info(self, message):
-        self._log("INFO", message)
+    def info(self, *messages):
+        self._log("INFO", compile_args(messages, " "))
 
-    def warn(self, message):
-        self._log("WARN", message)
+    def warn(self, *messages):
+        self._log("WARN", compile_args(messages, " "))
     
-    def error(self, message):
-        self._log("ERROR", message)
+    def error(self, *messages):
+        self._log("ERROR", compile_args(messages, " "))
     
-    def critical(self, message):
-        self._log("CRITICAL", message)
+    def critical(self, *messages):
+        self._log("CRITICAL", compile_args(messages, " "))
 
 
 # print_logs: @deprecated

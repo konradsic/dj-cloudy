@@ -6,7 +6,7 @@ import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
-from wavelink.ext import spotify
+# from wavelink.ext import spotify
 from lib.utils import help_utils
 
 from lib.music.core import MusicPlayer
@@ -37,29 +37,49 @@ class VC_Handler(commands.Cog):
         client, token = spotify_conf["client_id"], spotify_conf["client_secret"]
         self.spotify_config = {"client": client, "token": token}
 
-    async def on_player_track_error(self, player, *, additional_info: dict):
+    async def on_player_track_event(self, player, *, additional_info: dict):
         guild = additional_info.get('guild').id
         track = additional_info.get('track').title
         info = additional_info.get('info')
-        self.logger.debug(f"Track {track} {info} #{guild} (calling player advance, queue position: {player.queue.position})")
+        message = info = additional_info.get('message')
+        self.logger.debug(f"Track {track} {message} #{guild} (calling player advance, queue position: {player.queue.position})")
         if not (info == None or info == "REPLACED"):
             await player.advance()
         
     
+    # @commands.Cog.listener()
+    # async def on_wavelink_track_start(self, payload):
+    #     await self.on_player_track_event(payload.player, additional_info={
+    #         "track": payload.track,
+    #         "guild": payload.player.guild,
+    #         "info": payload.exception,
+    #     })
+        
     @commands.Cog.listener()
-    async def on_wavelink_track_event(self, payload):
-        await self.on_player_track_error(payload.player, additional_info={
+    async def on_wavelink_track_exception(self, payload):
+        await self.on_player_track_event(payload.player, additional_info={
             "track": payload.track,
             "guild": payload.player.guild,
-            "info": payload.reason,
+            "info": None,
+            "message": payload.exception
         })
         
     @commands.Cog.listener()
-    async def on_wavelink_track_start(self, payload):
-        await self.on_player_track_error(payload.player, additional_info={
+    async def on_wavelink_track_stuck(self, payload):
+        await self.on_player_track_event(payload.player, additional_info={
             "track": payload.track,
             "guild": payload.player.guild,
-            "info": payload.reason,
+            "info": None,
+            "message": str(payload.treshold) + " " + str(payload.track)
+        })
+        
+    @commands.Cog.listener()
+    async def on_wavelink_track_end(self, payload):
+        await self.on_player_track_event(payload.player, additional_info={
+            "track": payload.track,
+            "guild": payload.player.guild,
+            "info": None,
+            "message": payload.reason
         })
 
     @commands.Cog.listener()
@@ -77,7 +97,7 @@ class VC_Handler(commands.Cog):
                     if is_bot_present:
                         cont = True
                         try:
-                            player = wavelink.NodePool.get_connected_node().get_player(member.guild.id)
+                            player = wavelink.Pool.get_node().get_player(member.guild.id)
                         except:
                             cont = False
                         if not player.paused_vc and cont:
@@ -101,7 +121,7 @@ class VC_Handler(commands.Cog):
                             
         try:
             if len(list([m for m in member.voice.channel.members if not m.bot])) >= 1:
-                player = wavelink.NodePool.get_connected_node().get_player(int(member.guild.id))
+                player = wavelink.Pool.get_node().get_player(int(member.guild.id))
                 if player is None: return
                 if player.paused_vc == True:
                     await player.resume()
@@ -124,14 +144,14 @@ class VC_Handler(commands.Cog):
                 self.logger.error(f"on_voice_state_update:: {e.__class__.__name__}: {str(e)}")
         
     @commands.Cog.listener()
-    async def on_wavelink_node_ready(self, node):
-        self.logger.info(f"Wavelink node `{node.id}` ready")
-        self.node = node
-        self.bot.node = node
+    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
+        self.logger.info(f"Wavelink node `{payload.node.id}` ready")
+        self.node = payload.node
+        self.bot.node = payload.node
 
     async def start_nodes(self):
         await self.bot.wait_until_ready()
-
+        self.logger.info("Starting nodes...")
         config = get_config()
         try:
             nodes_data = config["lavalink"]["nodes"]
@@ -142,11 +162,10 @@ class VC_Handler(commands.Cog):
         nodes = []
         for node in nodes_data.items():
             node_id, data = node
-            nodes.append(wavelink.Node(id=node_id, uri=data["uri"], password=data["password"], secure=data["secure"], use_http=True))
-        try:
-            await wavelink.NodePool.connect(client=self.bot, nodes=nodes, spotify=spotify.SpotifyClient(client_id=spotify_config["client"], client_secret=spotify_config["token"]))
-        except:
-            await wavelink.NodePool.connect(client=self.bot, nodes=nodes, spotify=spotify.SpotifyClient(client_id=spotify_config["client"], client_secret=spotify_config["token"]))
+            nodes.append(wavelink.Node(identifier=node_id, uri=data["uri"], password=data["password"], inactive_player_timeout=None))
+
+        await wavelink.Pool.connect(client=self.bot, nodes=nodes)
+        self.logger.info("Nodes connected!")
             
 
     @app_commands.command(name="connect",description="Connects to your voice channel")
@@ -183,7 +202,7 @@ class VC_Handler(commands.Cog):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
-            player = self.node.get_player(interaction.guild.id)
+            player = wavelink.Pool.get_node().get_player(interaction.guild.id)
             if not player: raise NoPlayerFound
             if str(player.channel.id) != str(voice.channel.id):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",

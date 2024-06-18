@@ -40,7 +40,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
 
             voice = interaction.user.voice
@@ -58,7 +58,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't apply filters when nothing is playing")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
@@ -74,7 +74,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
 
             voice = interaction.user.voice
@@ -92,7 +92,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't reset filters when nothing is playing")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
@@ -121,7 +121,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         if not await quiz_check(self.bot, interaction, self.logger): return
 
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
             
             voice = interaction.user.voice
@@ -139,7 +139,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
@@ -163,7 +163,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
             
             voice = interaction.user.voice
@@ -180,7 +180,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"
@@ -206,7 +206,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
             
             voice = interaction.user.voice
@@ -223,7 +223,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed" 
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't reset equalizers when nothing is playing")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "not playing"

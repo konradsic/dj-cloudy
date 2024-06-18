@@ -41,21 +41,21 @@ class ContextMenusCog(commands.Cog):
         if playlists:
             playlist_res = ""
             for i, p in enumerate(playlists,1):
-                total_duration = 0
+                total_length = 0
                 for track in p['tracks']:
                     # try cache
                     try:
                         t = await self.bot.song_cache_mgr.get(track)
-                        total_duration += t["length"]
+                        total_length += t["length"]
                         total_tracks += 1
                     except Exception as e:
                         d = None
                         for i in range(20):
-                            d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
+                            d = await self.bot.node.get_tracks(cls=wavelink.Playable, query=track)
                             if not d:
                                 self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
                                 continue
-                            total_duration += d[0].length
+                            total_length += d[0].length
                             total_tracks += 1
                             d = d[0]
                             break
@@ -68,7 +68,7 @@ class ContextMenusCog(commands.Cog):
                                 "id": d.identifier
                             })
                     
-                playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_duration)}]` *{len(p['tracks'])} song(s)*\n"
+                playlist_res += f"**{i}.** {p['name']} `#{p['id']}` `[{get_length(total_length)}]` *{len(p['tracks'])} song(s)*\n"
                 
         took_time = time.time() - start
         self.logger.info(f"Loaded {total_tracks} tracks in ~{took_time:.2f}s")
@@ -85,7 +85,7 @@ class ContextMenusCog(commands.Cog):
             except Exception as e:
                 d = None
                 for i in range(20):
-                    d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=track)
+                    d = await wavelink.Pool.fetch_tracks(track)
                     if not d:
                         self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
                         continue
@@ -104,7 +104,7 @@ class ContextMenusCog(commands.Cog):
         took_time = time.time() - start
         self.logger.info(f"Loaded starred playlist ({total_tracks} songs) in ~{took_time:.2f}s")
         
-        starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total duration `{get_length(starred_dur)}`\n"
+        starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total length `{get_length(starred_dur)}`\n"
         embed = NormalEmbed(description="These are the user's playlists", timestamp=True, footer=FooterType.COMMANDS)
         embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
         embed.add_field(name="Custom playlists", value=playlist_res, inline=False)
@@ -128,7 +128,7 @@ class ContextMenusCog(commands.Cog):
                 except Exception as e:
                     d = None
                     for i in range(20):
-                        d = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
+                        d = await wavelink.Pool.fetch_tracks(song)
                         if not d:
                             self.logger.error(f"Failed to fetch song \"{song}\" (request failed)")
                             continue

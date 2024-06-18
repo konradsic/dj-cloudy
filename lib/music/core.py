@@ -57,36 +57,30 @@ class MusicPlayer(wavelink.Player):
                 self.queue.insert_current(tracks[0])
             
         if len(tracks) >= 2:
-            total_duration = get_length(sum([t.duration for t in tracks]))
+            total_duration = get_length(sum([t.length for t in tracks]))
             embed = discord.Embed(title="<:play_button:1028004869019279391> Queue extended", description=f"You extended the queue by **{len(tracks)} tracks** of duration `{total_duration}`", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             await interaction.followup.send(embed=embed)
-            if not self.is_playing():
+            if not self.playing:
                 await self.start_playback(interaction)
             return
         
         play_force_play_check = False
         track = tracks[0]
-        if not self.is_playing() or play_force:
+        if not self.playing or play_force:
             embed = discord.Embed(
                 title="<:play_button:1028004869019279391> Now playing",
                 color = BASE_COLOR,
                 timestamp = datetime.datetime.utcnow()
             )
-            dur = get_length(track.duration)
-            try: # add thumbnail
-                if spotify: embed.set_thumbnail(url=track.images[0])
-                else: embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
-            except:
-                try:
-                    embed.set_thumbnail(url=track.images[0])
-                except: pass
+            dur = get_length(track.length)
+            embed.set_thumbnail(url=track.artwork)
             title = track.title
-            if spotify: title = f"{'E ' if track.explicit else ''}{title}"
-            embed.add_field(name="Track title", value=f"[**{title}**]({track.uri if not spotify else 'https://open.spotify.com/track/' + track.uri.split(':')[2]})", inline=False)
-            if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
-            else: embed.add_field(name="Author", value=track.author)
+            # if spotify: title = f"{'E ' if track.explicit else ''}{title}"
+            embed.add_field(name="Track title", value=f"[**{title}**]({track.uri})", inline=False)
+            # if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
+            embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
@@ -94,46 +88,39 @@ class MusicPlayer(wavelink.Player):
             # play_force
             if play_force:
                 # play NOW
-                if self.is_playing():
+                if self.playing:
                     await self.stop()
                 else:
                     play_force_play_check = True # later on, we will play (len=0 or sth other error)
             
-        if self.is_playing() or put_force:
+        if self.playing or put_force:
             embed = discord.Embed(
                 title = "<:play_button:1028004869019279391> Added song to the queue",
                 color = BASE_COLOR,
                 timestamp = datetime.datetime.utcnow()
             )
-            dur = get_length(track.duration)
-            
-            try: # add thumbnail
-                if spotify: embed.set_thumbnail(url=track.images[0])
-                else: embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
-            except:
-                try:
-                    embed.set_thumbnail(url=track.images[0])
-                except: pass
+            dur = get_length(track.length)
+            embed.set_thumbnail(url=track.artwork)
                 
             title = track.title
-            if spotify: title = f"{'E ' if track.explicit else ''}{title}"
-            embed.add_field(name="Track title", value=f"[**{title}**]({track.uri if not spotify else 'https://open.spotify.com/track/' + track.uri.split(':')[2]})", inline=False)
-            if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
-            else: embed.add_field(name="Author", value=track.author)
+            # if spotify: title = f"{'E ' if track.explicit else ''}{title}"
+            embed.add_field(name="Track title", value=f"[**{title}**]({track.uri})", inline=False)
+            # if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
+            embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
             # calculating estimated time to play this song
             current_pos = self.position
-            current_len = self.queue.current_track.duration
+            current_len = self.queue.current_track.length
             to_end = current_len-current_pos
             upc_tracks = self.queue.upcoming_tracks[:-1]
             for upcoming in upc_tracks:
-                to_end += upcoming.duration
+                to_end += upcoming.length
             to_end = round(to_end/1000)
             if put_force:
                 print(self.queue._queue)
-                to_end = round((self.queue.current_track.duration-self.position)/1000)
+                to_end = round((self.queue.current_track.length-self.position)/1000)
             durm, durs = divmod(to_end,60)
             durh, durm = divmod(durm, 60)
             durs, durm, durh = math.floor(durs), math.floor(durm), math.floor(durh)
@@ -141,11 +128,11 @@ class MusicPlayer(wavelink.Player):
                 durm = convert_to_double(durm)
             durs = convert_to_double(durs)
             embed.add_field(name="Estimated time until playback", value=f"`{str(durh) + ':' if int(durh) != 0 else ''}{durm}:{durs}`")
-            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            embed.set_footer(text="Made by @konradsic, licensed under the MIT License")
         
         await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
 
-        if not self.is_playing() and ((not play_force) or play_force_play_check): # bruh wacky if
+        if not self.playing and ((not play_force) or play_force_play_check): # bruh wacky if
             await self.start_playback(interaction)
             
 
@@ -173,7 +160,7 @@ class MusicPlayer(wavelink.Player):
                         color = BASE_COLOR,
                         timestamp = datetime.datetime.utcnow()
                     )
-                    dur = get_length(track.duration)
+                    dur = get_length(track.length)
                     spotify = False
                     try: track.author # one of params that are not in wavelink.ext.spotify.SpotifyTrack class
                     except: spotify = True

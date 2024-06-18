@@ -27,16 +27,13 @@ logging = logger.Logger().get("utils.base_utils")
 
 def show_figlet():
     colorama.init(autoreset=False)
-    font = r"""
- ____     _____      ____    ___                       __              
-/\  _`\  /\___ \    /\  _`\ /\_ \                     /\ \             
-\ \ \/\ \\/__/\ \   \ \ \/\_\//\ \     ___   __  __   \_\ \  __  __    
- \ \ \ \ \  _\ \ \   \ \ \/_/_\ \ \   / __`\/\ \/\ \  /'_` \/\ \/\ \   
-  \ \ \_\ \/\ \_\ \   \ \ \L\ \\_\ \_/\ \L\ \ \ \_\ \/\ \L\ \ \ \_\ \  
-   \ \____/\ \____/    \ \____//\____\ \____/\ \____/\ \___,_\/`____ \ 
-    \/___/  \/___/      \/___/ \/____/\/___/  \/___/  \/__,_ /`/___/> \
-                                                                /\___/
-                                                                \/__/
+    font = r"""           
+     _  _           _                 _
+  __| |(_)      ___| | ___  _   _  __| |_   _
+ / _` || |____ / __| |/ _ \| | | |/ _` | | | |
+| (_| || |____| (__| | (_) | |_| | (_| | |_| |
+ \__,_|/ |     \___|_|\___/ \__,_|\__,_|\__, |
+      |__/                               |___/
     """
     print(colorama.Fore.CYAN + BOLD_ON + font + BOLD_OFF)
     colorama.init(autoreset=True)
@@ -59,7 +56,7 @@ def limit_string_to(string: str, limit: int) -> str:
     return string
 
 def get_nodes():
-    return wavelink.NodePool.get_connected_node()
+    return wavelink.Pool.get_node()
 
 progressbar_emojis = {
     "bar_left_nofill": emoji.PROGRESSBAR_LEFT_EMPTY.mention,

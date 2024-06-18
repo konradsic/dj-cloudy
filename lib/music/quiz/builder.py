@@ -36,7 +36,7 @@ class Round():
     def __init__(
         self,
         players: List[discord.Member],
-        song: wavelink.GenericTrack,
+        song: wavelink.Playable,
         time: int,
         music_player: wavelink.Player,
         time_stages: List[int]

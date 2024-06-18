@@ -95,7 +95,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
-        if (player := self.bot.node.get_player(interaction.guild.id)):    
+        if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):    
             if str(player.channel.id) != str(voice.channel.id):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
@@ -123,7 +123,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         quiz_embed.set_author(name="Music Quiz!", icon_url=self.bot.user.avatar.url)
         quiz_embed.add_field(name="Songs in the quiz", value=genres)
         quiz_embed.add_field(name="Rounds", value=f"{rounds} (estimated time: `{get_length(65 * rounds * 1000)}`)")
-        # ^ we multiply estimated time by 1000 because of get_length is suited for wavelink.Playable track duration that is in milliseconds
+        # ^ we multiply estimated time by 1000 because of get_length is suited for wavelink.Playable track length that is in milliseconds
         try:
             self.bot.quizzes[str(interaction.guild.id)] = []
         except:
@@ -139,7 +139,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         await asyncio.sleep(30)
         
         players = self.bot.quizzes[str(interaction.guild.id)]
-        music_player = wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)
+        music_player = wavelink.Pool.get_node().get_player(interaction.guild.id)
         try: music_player.queue.cleanup() # emptying the queue for sure
         except: pass
         

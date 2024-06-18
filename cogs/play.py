@@ -34,6 +34,12 @@ number_complete = {
     9: "10. ",
 }
 
+SEARCH_SOURCES = [
+    "ytsearch",
+    "scsearch",
+    "ytmsearch"
+]
+
 def compose_progressbar(progress, end):
     PROGRESSBAR_LENGTH = 15
     perc = math.ceil(progress/end*PROGRESSBAR_LENGTH) # there will be 20 emoji progressbars
@@ -64,23 +70,31 @@ async def query_complete(
 ) -> t.List[app_commands.Choice[str]]:
     query = current.strip("<>")
     params = interaction.namespace
-    source = params.source
     
     if current == "":
-        query = "scsearch:Summer hits 2022"
-    elif not re.match(URL_REGEX, current):
-        query = f"{source}:{current}"
+        query = "Summer hits 2022"
     try:
+        logging.debug("Trying to get results for: ", query)
         for i in range(20):
-            tracks = await wavelink.NodePool.get_connected_node().get_tracks(cls=wavelink.GenericTrack, query=query)
+            # test for every source
+            for src in [None, *SEARCH_SOURCES]:
+                this_query = ""
+                if not (any(query.startswith(x + ":") for x in SEARCH_SOURCES)):
+                    this_query += f"{src}:" if src is not None else ""
+                this_query += query
+                tracks = await wavelink.Pool.fetch_tracks(this_query)
+                if tracks != []:
+                    break
             if not tracks: continue
             break
+        
         if not tracks:
             return []
         
+        logging.debug("Autocomplete: found", len(tracks), "tracks")
         return [app_commands.Choice(name =
                 limit_string_to(
-                    f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.duration)}]",
+                    f"{number_complete[i]}{track.title} (by {track.author[:-len(' - Topic')] if track.author.endswith(' - Topic') else track.author}) [{get_length(track.length)}]",
                     100), value=track.uri)
                 for i,track in enumerate(tracks[:10])
                ]
@@ -92,50 +106,47 @@ async def query_complete(
 @logger.LoggerApplication
 class PlayCommand(commands.Cog):
     def __init__(self, bot: commands.Bot, logger: logger.Logger) -> None:
+    # def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.logger = logger
 
     @app_commands.command(name="play", description="Plays music")
-    @app_commands.describe(source="From what source to search. Ignored when link is pasted", query="What song to play. For spotify tracks use /spotify",
+    @app_commands.describe(query="What song to play. For spotify tracks use /spotify",
                            play_force="Required DJ permissions. Interrupts current playing track and plays this now.", put_force="Requires DJ permissions. Puts this song after currently playing track")
     @app_commands.autocomplete(query=query_complete)
-    @app_commands.choices(source=[
-        app_commands.Choice(name="SoundCloud Search", value="scsearch"),
-        app_commands.Choice(name="YouTube search", value="ytsearch"),
-        app_commands.Choice(name="Link", value="link")
-    ])
-    async def play_command(self, interaction: discord.Interaction, source: str, query: str, play_force: bool=False, put_force: bool=False):
+    async def play_command(self, interaction: discord.Interaction, query: str, play_force: bool=False, put_force: bool=False):
         await interaction.response.defer(ephemeral=False)
         if not await quiz_check(self.bot, interaction, self.logger): return
+        if interaction.user.voice is None:
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
-                raise NoPlayerFound("There is no player connected in this guild")
-        except:
-            if interaction.user.voice is None:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
-                await interaction.followup.send(embed=embed, ephemeral=True)
-                return
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
             player.bound_channel = interaction.channel
-
-        query = query.strip("<>")
-        if not re.match(URL_REGEX, query) and source in ("ytsearch", "scsearch"):
-            query = source + ":" + query
-        
-        counter = 0
-        counter_max = 100
-        
-        for i in range(20):
-            counter += 1
-            tracks = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=query)
+        except: 
+            # already connected, get player
+            player = wavelink.Pool.get_node().get_player(interaction.guild.id)
             
+        query = query.strip("<>")
+        for i in range(20):
+            for src in [None, *SEARCH_SOURCES]:
+                this_query = ""
+                if not (any(query.startswith(x + ":") for x in SEARCH_SOURCES)):
+                    this_query += f"{src}:" if src is not None else ""
+                this_query += query
+                tracks = await wavelink.Pool.fetch_tracks(this_query)
+                if tracks != []:
+                    break
+
             try: 
                 tracks[0]
                 break
             except: pass
             
-            if counter == counter_max: 
+            if i == 19: 
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -166,7 +177,7 @@ class PlayCommand(commands.Cog):
                     color=BASE_COLOR
                 ))
                 put_force = False
-        
+        # self.logger.debug("Passing track to <MusicPlayer - add_tracks>, track", track)
         await player.add_tracks(interaction, [track], put_force, play_force)
             
     @app_commands.command(name="nowplaying", description="Get currently playing track info in a nice embed")
@@ -179,7 +190,7 @@ class PlayCommand(commands.Cog):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed)
             return
@@ -188,13 +199,13 @@ class PlayCommand(commands.Cog):
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         current = player.queue.current_track
-        duration = get_length(current.duration)
+        length = get_length(current.length)
         spotify = False
         try:
             author = current.author
@@ -231,7 +242,7 @@ class PlayCommand(commands.Cog):
                 value="No upcoming tracks",
                 inline=False
             )
-        embed.add_field(name="Duration", value=f"{compose_progressbar(player.position, current.duration)} `{get_length(player.position)}/{duration}`", inline=False)    
+        embed.add_field(name="Length", value=f"{compose_progressbar(player.position, current.length)} `{get_length(player.position)}/{length}`", inline=False)    
         embed.add_field(name="Repeat mode", value=f"`{rep}`", inline=False)
         try:
             embed.set_thumbnail(url=thumb)
@@ -260,7 +271,7 @@ class PlayCommand(commands.Cog):
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not player.is_playing():
+        if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -287,7 +298,7 @@ class PlayCommand(commands.Cog):
         embed.add_field(name="Song title", value=f"[{title}]({song.uri if not spotify else 'https://open.spotify.com/track/' + song.uri.split(':')[2]})", inline=False)
         if spotify: embed.add_field(name="Artist(s)", value=", ".join(song.artists))
         else: embed.add_field(name="Author", value=song.author)
-        embed.add_field(name="Duration", value=f"`{get_length(song.duration)}`")
+        embed.add_field(name="length", value=f"`{get_length(song.length)}`")
         embed.add_field(name="Channel", value=f"<#{interaction.channel.id}>")
         embed.add_field(name="Guild", value=interaction.guild.name)
 
@@ -301,7 +312,6 @@ class PlayCommand(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("play", "Plays music", "Music", [
-        ("source", "From what source to search. Ignored when link is pasted", True),
         ("query","What song to play. For spotify tracks use /spotify",True),
         ("play_force", "Required DJ permissions. Interrupts current playing track and plays this now.", False),
         ("put_force", "Requires DJ permissions. Puts this song after currently playing track", False)

@@ -64,24 +64,30 @@ class MiscCommands(commands.Cog):
         embed.add_field(name=":clock1: Last restart", value=f"<t:{self.bot.last_restart}:R> / <t:{self.bot.last_restart}:f>")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="botinfo", description="Gathers most of informations about the bot and Wavelink nodes")
+    @app_commands.command(name="botinfo", description="Gathers some information about the bot and Wavelink nodes")
     async def botinfo_command(self,interaction: discord.Interaction):
         await interaction.response.defer(thinking=True, ephemeral=True)
         # gather all informations below:
         nodes = [get_nodes()]
-        node_data = "".join(f'**Node `{node.id}`** with status `{node.status}`\n  - Host: URI `{basic_auth("uri", node.uri, interaction.user)}`\n' for node in nodes)
+        node_data = "".join(f'**Node `{node.identifier}`** with status `{node.status.name}`\n  - Host: URI `{basic_auth("uri", node.uri, interaction.user)}`\n' for node in nodes)
         if node_data == "":
             node_data = "No information about connected nodes"
         players = []
         for node in nodes:
             players.extend(node.players)
+        print(players)
+        actual_players = []
+        for p in players:
+            actual_players.append(wavelink.Pool.get_node().get_player(int(p)))
+            
+        players = actual_players
         players_data = ""
         if len(players) > 10:
             players_data = f"`{len(players)}` connected to **{len(nodes)}** node(s)"
         elif len(players) == 0:
             players_data = "No players connected. Use `/connect` to connect the bot to your voice channel!"
         else:
-            players_data = "".join(f"`{i}.` Player guild: **{player.guild.id}**, playing: `{player.is_playing()}`, paused: `{player.is_paused()}`" for i,player in enumerate(players,1))
+            players_data = "".join(f"`{i}.` Player guild: **{player.guild.id}**, playing: `{player.playing}`, paused: `{player.paused}`" for i,player in enumerate(players, start=1))
 
         embed = NormalEmbed(title="Bot informations", description="Informations gathered are below",timestamp=True, footer=FooterType.GH_LINK)
         embed.add_field(name="Nodes data", value=node_data, inline=False)

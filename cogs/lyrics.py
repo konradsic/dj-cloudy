@@ -51,7 +51,7 @@ class LyricsCommandHandler(commands.Cog):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
-            if not (player := self.bot.node.get_player(interaction.guild.id)):
+            if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -62,7 +62,7 @@ class LyricsCommandHandler(commands.Cog):
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             try:
-                playing = player.is_playing()
+                playing = player.playing
                 if not playing: raise Exception
             except:
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `None`: Nothing is playing and the `song` argument is also `None`")
@@ -81,7 +81,7 @@ class LyricsCommandHandler(commands.Cog):
                 if not re.match(URL_REGEX, song):
                     song = "ytsearch:" + song
                 try:
-                    queried_song = await self.bot.node.get_tracks(cls=wavelink.GenericTrack, query=song)
+                    queried_song = await self.bot.node.get_tracks(cls=wavelink.Playable, query=song)
                     if queried_song:
                         queried_song = queried_song[0]
                         title = queried_song.title
@@ -104,7 +104,7 @@ class LyricsCommandHandler(commands.Cog):
             except:
                 song = client.get_lyrics(unidecode(title))
                 genius = client.get_song(unidecode(title))
-            print(unidecode(title))
+            # print(unidecode(title))
             genius_author = genius.artist
             genius_title = genius.short_title
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))

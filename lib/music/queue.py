@@ -5,9 +5,11 @@ from enum import Enum
 import random
 from lib.utils.base_utils import Repeat, RepeatMode
 import discord
+import wavelink
 
-class Queue:
+class Queue(wavelink.Queue):
     def __init__(self):
+        super().__init__()
         self._queue: list = [] # a list of all tracks, private member
         self._requested: list = [] # a list of who requested tracks 
         self.position: int = 0 # currently playing position

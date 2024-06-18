@@ -37,8 +37,8 @@ async def get_random_song():
 
     random_artist = random.choice(artists)
     
-    node: wavelink.Node = wavelink.NodePool.get_connected_node()
-    tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{random_artist}")
+    node: wavelink.Node = wavelink.Pool.get_connected_node()
+    tracks = await node.get_tracks(cls=wavelink.Playable, query=f"ytsearch:{random_artist}")
     track = random.choice(tracks)
     return track
 
@@ -49,8 +49,8 @@ async def song_from_artist(artist: str):
     # search
     for artist_it in artists:
         if str(artist_it) == artist:
-            node: wavelink.Node = wavelink.NodePool.get_connected_node()
-            tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
+            node: wavelink.Node = wavelink.Pool.get_connected_node()
+            tracks = await node.get_tracks(cls=wavelink.Playable, query=f"ytsearch:{artist}")
             return random.choice(tracks[:15])
             
     return None
@@ -65,14 +65,14 @@ async def song_from_collection(top_num: int, from_best: bool = True, ret_tracks:
     
     if from_best:
         artist = random.choice(artists[:top_num])
-        node: wavelink.Node = wavelink.NodePool.get_connected_node()
-        tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
+        node: wavelink.Node = wavelink.Pool.get_connected_node()
+        tracks = await node.get_tracks(cls=wavelink.Playable, query=f"ytsearch:{artist}")
         if ret_tracks: return tracks[:15]
         return random.choice(tracks[:15])
 
     artist = random.choice(artists[-(top_num-1):])
-    node: wavelink.Node = wavelink.NodePool.get_connected_node()
-    tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
+    node: wavelink.Node = wavelink.Pool.get_connected_node()
+    tracks = await node.get_tracks(cls=wavelink.Playable, query=f"ytsearch:{artist}")
     return random.choice(tracks[:15])
     
 async def many_songs_from_collection(num: int, top_num: int, from_best: bool = True):
@@ -90,8 +90,8 @@ async def many_songs_from_collection(num: int, top_num: int, from_best: bool = T
     return ret
     
 async def many_songs_from_artist(artist: str, limit: str = 100):
-    node = wavelink.NodePool.get_connected_node()
-    tracks = await node.get_tracks(cls=wavelink.GenericTrack, query=f"ytsearch:{artist}")
+    node = wavelink.Pool.get_connected_node()
+    tracks = await node.get_tracks(cls=wavelink.Playable, query=f"ytsearch:{artist}")
     return tracks[:limit]
 
 def new_songs_top1000():
@@ -149,9 +149,9 @@ async def random_songs_new(num: int, limit: int = 100):
     
     # wavelink req    
     for idx in indices:
-        node: wavelink.Node = wavelink.NodePool.get_connected_node()
+        node: wavelink.Node = wavelink.Pool.get_connected_node()
         track_url = spotify_client.search(songs_collection[idx], 1)["tracks"]["items"][0]["external_urls"]["spotify"]
-        tracks = await wavelink.ext.spotify.SpotifyTrack.search(query=track_url, node=wavelink.NodePool.get_connected_node())
+        tracks = await wavelink.ext.spotify.SpotifyTrack.search(query=track_url, node=wavelink.Pool.get_connected_node())
         track = tracks[0]
         ret.append(track)
         

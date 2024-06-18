@@ -33,7 +33,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -52,18 +52,18 @@ class QueueCommands(commands.GroupCog, name="queue"):
             upcoming = player.queue.upcoming_tracks
             current = player.queue.current_track
             length = get_length(
-                sum([t.duration for t in player.queue.get_tracks()]))
+                sum([t.length for t in player.queue.get_tracks()]))
 
             embed = NormalEmbed(title=f"<:playlist_button:1028926036181794857> Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=True)
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             if history:
-                history_field = [f"`{i}. ` [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) [{get_length(t.duration)}]" for i,t in enumerate(history, 1)]
+                history_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.length)}]" for i,t in enumerate(history, 1)]
                 history_field = "".join(e + "\n" for e in history_field)
                 embed.add_field(name="Before tracks", value=history_field, inline=False)
             if current:
-                embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri if not isinstance(current, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + current.uri.split(':')[2]}) [{get_length(current.duration)}]")
+                embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri}) [{get_length(current.length)}]")
             if upcoming:
-                upcoming_field = [f"`{i}. ` [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) [{get_length(t.duration)}]" for i,t in enumerate(upcoming, len(history)+2)]
+                upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.length)}]" for i,t in enumerate(upcoming, len(history)+2)]
                 upcoming_field = "".join(e + "\n" for e in upcoming_field)
                 embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
             embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`", inline=False)
@@ -73,10 +73,10 @@ class QueueCommands(commands.GroupCog, name="queue"):
         history = player.queue.track_history
         upcoming = player.queue.upcoming_tracks
         current = player.queue.current_track
-        length = sum([t.duration for t in player.queue.get_tracks()])
+        length = sum([t.length for t in player.queue.get_tracks()])
         length = get_length(length)
         fields = [
-            f"{'**Now playing:** ' if t == current else ''}**{i}.** [{t.title}]({t.uri if not isinstance(t, wavelink.ext.spotify.SpotifyTrack) else 'https://open.spotify.com/track/' + t.uri.split(':')[2]}) `[{get_length(t.duration)}]`\n"
+            f"{'**Now playing:** ' if t == current else ''}**{i}.** [{t.title}]({t.uri}) `[{get_length(t.length)}]`\n"
             for i,t in enumerate(history + [current] + upcoming, start=1)
         ]
         num_fields = len(fields)//6
@@ -120,7 +120,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -166,7 +166,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -197,7 +197,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -241,7 +241,7 @@ class OtherQueueCommands(commands.Cog):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -272,7 +272,7 @@ class OtherQueueCommands(commands.Cog):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -302,7 +302,7 @@ class OtherQueueCommands(commands.Cog):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -318,8 +318,7 @@ class OtherQueueCommands(commands.Cog):
 
         # ! setting player index to current-2 because
         #   1) we go 1 track back
-        #   2) we go one more because when stop() 
-        #      is invoked we go to the next track so it would play the current track one more time
+        #   2) we go one more because when stop() is invoked we go to the next track so it would play the current track one more time
 
         player.queue.position -= 2 # explained up there
         await player.stop()
@@ -335,7 +334,7 @@ class OtherQueueCommands(commands.Cog):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
