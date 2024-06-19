@@ -11,9 +11,7 @@ import os
 import aiofiles, asyncio
 
 def get_class_from_value(value):
-    valType = str(type(value))
-    valType = valType[len("<class '"):][:-2]
-    return str(valType)  #string
+    return type(value).__name__
 
 class ConfigurationHandler:
     def __init__(self, id: str, user: bool=True):
@@ -41,6 +39,7 @@ class ConfigurationHandler:
             self.data = content["users" if self.is_user else "guilds"][str(self.id)]
         except:
             self.data = profile
+        
         try:
             self.save()
         except:
@@ -97,10 +96,7 @@ class ConfigurationHandler:
 
         # iterate over elements, add missing
         for key,val in data.items():
-            try:
-                _key = self.data[key]
-            except KeyError:
-                self.data[key] = val
+            self.data[key] = self.data.get(key, val) # set to val if not found
 
         # save
         self.save()
@@ -134,3 +130,5 @@ class ConfigurationHandler:
         self.data = data
         self.save()
         return True
+    
+    

@@ -51,7 +51,7 @@ class ContextMenusCog(commands.Cog):
                     except Exception as e:
                         d = None
                         for i in range(20):
-                            d = await self.bot.node.get_tracks(cls=wavelink.Playable, query=track)
+                            d = await wavelink.Pool.fetch_tracks(track)
                             if not d:
                                 self.logger.error(f"Failed to fetch song \"{track}\" (request failed)")
                                 continue

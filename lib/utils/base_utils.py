@@ -18,7 +18,6 @@ BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
 
 AUTHENTICATED_USERS = ["958029521565679646"] # list of authenticated users (of ID's)
-AEQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
 
 volume_guilds = {}
 registered_nodes = []
@@ -135,29 +134,6 @@ def double_to_int(value):
         return int(value[1:])
     return int(value)
 
-filters = {
-    wavelink.Karaoke: "Karaoke",
-    wavelink.Timescale: "Timescale",
-    wavelink.Tremolo: "Tremolo",
-    wavelink.Vibrato: "Vibrato",
-    wavelink.Rotation: "Rotation",
-    wavelink.Distortion: "Distortion",
-    wavelink.ChannelMix: "channel_mix",
-    wavelink.LowPass: "low_pass"
-}
-
-def filter_to_string(cls):
-    try:
-        return filters[cls]
-    except KeyError:
-        return False
-
-def string_to_filter(string):
-    _filters = list(filters.items())
-    for k,v in _filters:
-        if v == string:
-            return k
-    return False
 
 def hide_cursor():
     print('\033[?25l', end="")

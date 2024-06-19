@@ -206,50 +206,34 @@ class PlayCommand(commands.Cog):
 
         current = player.queue.current_track
         length = get_length(current.length)
-        spotify = False
-        try:
-            author = current.author
-        except:
-            author = ", ".join(current.artists)
-            spotify = True
         link = current.uri
-        if spotify: link = "https://open.spotify.com/track/" + current.uri.split(":")[2]
         rep = player.queue.repeat.string_mode
+        paused = player.paused
 
-        try: thumb = f"https://img.youtube.com/vi/{current.identifier}/maxresdefault.jpg"
-        except: thumb = current.images[0]
+        thumb = current.artwork
         embed = NormalEmbed(
             title="<:play_button:1028004869019279391> Currently playing track informations", 
             description="Here you can view informations about currently playing track", 
             timestamp=True, 
         )
         title = current.title
-        if spotify: title = f"{'E ' if current.explicit else ''}{title}"
         embed.add_field(name="Track title", value=f"[**{title}**]({link})", inline=False)
-        embed.add_field(name="Author / Artist", value=author, inline=True)
+        embed.add_field(name="Author / Artist", value=current.author, inline=True)
         embed.add_field(name="Song requested by", value=player.queue.current_requested.mention, inline=True)
         upcoming = player.queue.upcoming_track
         if upcoming: 
             upcoming_url = player.queue.upcoming_track.uri
-            if spotify: upcoming_url = 'https://open.spotify.com/track/' + upcoming_url.split(':')[2]
             embed.add_field(name="Next up", 
                 value=f"[{player.queue.upcoming_tracks[0].title}]({upcoming_url})",
                 inline=False
             )
         else:
-            embed.add_field(
-                name="Next up",
-                value="No upcoming tracks",
-                inline=False
-            )
+            embed.add_field(name="Next up", value="No upcoming tracks", inline=False)
+            
         embed.add_field(name="Length", value=f"{compose_progressbar(player.position, current.length)} `{get_length(player.position)}/{length}`", inline=False)    
-        embed.add_field(name="Repeat mode", value=f"`{rep}`", inline=False)
-        try:
-            embed.set_thumbnail(url=thumb)
-        except:
-            try:
-                embed.set_thumbnail(url=current.images[0])
-            except: pass
+        embed.add_field(name="Repeat mode", value=f"`{rep}`", inline=True)
+        embed.add_field(name="Playback paused", value=f"`{'Yes' if paused else 'No'}`", inline=True)
+        embed.set_thumbnail(url=thumb)
         embed.set_footer(text=FooterType.COMMANDS.value, icon_url=self.bot.user.display_avatar.url)
         await interaction.followup.send(embed=embed, ephemeral=hidden, view=PlayButtonsMenu(user=interaction.user))
 

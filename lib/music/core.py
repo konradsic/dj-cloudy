@@ -4,17 +4,18 @@ from enum import Enum
 from time import time
 
 import discord
-import lib.logger.logger as log
 import wavelink
 from discord.ext import commands
+
+import lib.logger.logger as log
+from lib.music.queue import Queue
 from lib.ui.buttons import PlayButtonsMenu
 from lib.ui.colors import BASE_COLOR
-from lib.utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
-                          NoTracksFound, NoVoiceChannel, QueueIsEmpty)
-from lib.utils.base_utils import convert_to_double, get_length
-from lib.music.queue import Queue
-from lib.utils.base_utils import RepeatMode
+from lib.ui.embeds import FooterType, random_footer
+from lib.utils.base_utils import RepeatMode, convert_to_double, get_length
 from lib.utils.configuration import ConfigurationHandler
+from lib.utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
+                              NoTracksFound, NoVoiceChannel, QueueIsEmpty)
 
 logger = log.Logger().get("music.core.MusicPlayer")
 
@@ -60,7 +61,8 @@ class MusicPlayer(wavelink.Player):
             total_duration = get_length(sum([t.length for t in tracks]))
             embed = discord.Embed(title="<:play_button:1028004869019279391> Queue extended", description=f"You extended the queue by **{len(tracks)} tracks** of duration `{total_duration}`", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
             embed.add_field(name="Requested by", value=interaction.user.mention)
-            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            embed.set_footer(text=FooterType.MADE_BY.value)
+            embed.set_thumbnail(url=tracks[0].artwork)
             await interaction.followup.send(embed=embed)
             if not self.playing:
                 await self.start_playback(interaction)
@@ -109,7 +111,7 @@ class MusicPlayer(wavelink.Player):
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
-            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            embed.set_footer(text=FooterType.LICENSED.value)
             # calculating estimated time to play this song
             current_pos = self.position
             current_len = self.queue.current_track.length
@@ -128,7 +130,7 @@ class MusicPlayer(wavelink.Player):
                 durm = convert_to_double(durm)
             durs = convert_to_double(durs)
             embed.add_field(name="Estimated time until playback", value=f"`{str(durh) + ':' if int(durh) != 0 else ''}{durm}:{durs}`")
-            embed.set_footer(text="Made by @konradsic, licensed under the MIT License")
+            embed.set_footer(text=FooterType.LICENSED.value)
         
         await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
 
@@ -160,25 +162,13 @@ class MusicPlayer(wavelink.Player):
                         color = BASE_COLOR,
                         timestamp = datetime.datetime.utcnow()
                     )
-                    dur = get_length(track.length)
-                    spotify = False
-                    try: track.author # one of params that are not in wavelink.ext.spotify.SpotifyTrack class
-                    except: spotify = True
-                    
-                    try: # add thumbnail
-                        if spotify: embed.set_thumbnail(url=track.images[0])
-                        else: embed.set_thumbnail(url=f"https://img.youtube.com/vi/{track.identifier}/maxresdefault.jpg")
-                    except:
-                        try:
-                            embed.set_thumbnail(url=track.images[0])
-                        except: pass
+                    dur = get_length(track.length)             
+                    embed.set_thumbnail(url=track.artwork)
                     title = track.title
-                    if spotify: title = f"{'E ' if track.explicit else ''}{title}"
-                    embed.add_field(name="Track title", value=f"[**{title}**]({track.uri if not spotify else 'https://open.spotify.com/track/' + track.uri.split(':')[2]})", inline=False)
-                    if spotify: embed.add_field(name="Artist(s)", value=", ".join(track.artists))
-                    else: embed.add_field(name="Author", value=track.author)
+                    embed.add_field(name="Track title", value=f"[**{title}**]({track.uri})", inline=False)
+                    embed.add_field(name="Author", value=track.author)
                     embed.add_field(name="Duration", value=f"`{dur}`")
-                    embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+                    embed.set_footer(text=random_footer())
                     # send
                     await self.bound_channel.send(embed=embed)
 

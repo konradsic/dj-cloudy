@@ -21,39 +21,41 @@ class PlayPauseCommands(commands.Cog):
 
     @app_commands.command(name="pause", description="Pauses current playing track")
     async def pause_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                 raise NoPlayerFound("There is no player connected in this guild")
 
             voice = interaction.user.voice
             if not voice:
                 embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
 
         if player.paused:
             embed = ShortEmbed(description=f"<:pause_gradient_button:1028219593082286090> The player is already paused")
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
             return "alr paused"
         
-        await player.pause()
+        await player.pause(True)
         embed = ShortEmbed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused")
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
         
     @app_commands.command(name="resume", description="Resumes paused playback")
     async def resume_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
@@ -62,26 +64,26 @@ class PlayPauseCommands(commands.Cog):
             voice = interaction.user.voice
             if not voice:
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if str(player.channel.id) != str(voice.channel.id):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.paused:
             embed = ShortEmbed(description=f"<:play_button:1028004869019279391> The player is already resumed")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return "alr resumed"
         
-        await player.resume()
+        await player.pause(False)
         embed = ShortEmbed(description=f"<:play_button:1028004869019279391> Playback resumed")
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
     help_utils.register_command("pause", "Pauses current playing track", "Music")

@@ -66,7 +66,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
                 upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.length)}]" for i,t in enumerate(upcoming, len(history)+2)]
                 upcoming_field = "".join(e + "\n" for e in upcoming_field)
                 embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
-            embed.add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`", inline=False)
+            embed.add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
             await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
             return
         
@@ -100,7 +100,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
             ))
             embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
             embeds[-1].add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embeds[-1].add_field(name="Additional informations", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`", inline=False)
+            embeds[-1].add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user))
 
     @app_commands.command(name="shuffle", description="Shuffle the queue")

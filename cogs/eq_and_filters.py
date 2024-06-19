@@ -8,10 +8,8 @@ from discord.ext import commands
 from lib.utils import help_utils
 from lib.ui.colors import BASE_COLOR
 from lib.utils.errors import NoPlayerFound
-from lib.utils.base_utils import (
-    filter_to_string, string_to_filter,
-    AEQ_HZ_BANDS, djRole_check
-)
+from lib.utils.base_utils import djRole_check
+from lib.utils import filters_and_eqs
 from discord.app_commands import Choice
 from lib.logger import logger
 from lib.utils.base_utils import quiz_check
@@ -19,24 +17,25 @@ from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 @logger.LoggerApplication
 class FiltersCog(commands.GroupCog, name="filters"):
-    def __init__(self, bot, logger):
-        self.bot = bot
+    def __init__(self, bot: discord.ext.commands.Bot, logger):
+        self.bot: discord.ext.commands.Bot = bot
         self.logger = logger
         super().__init__()
 
     @app_commands.command(name="select", description="Select a filter to enchance your music experience")
     @app_commands.describe(filter="Filter to apply")
     @app_commands.choices(filter=[
-        Choice(name="Karaoke", value="Karaoke"),
-        Choice(name="Timescale", value="Timescale"),
-        Choice(name="Tremolo", value="Tremolo"),
-        Choice(name="Vibrato", value="Vibrato"),
-        Choice(name="Rotation", value="Rotation"),
-        Choice(name="Distortion", value="Distortion"),
+        Choice(name="Karaoke", value="karaoke"),
+        Choice(name="Timescale", value="timescale"),
+        Choice(name="Tremolo", value="tremolo"),
+        Choice(name="Vibrato", value="vibrato"),
+        Choice(name="Rotation", value="rotation"),
+        Choice(name="Distortion", value="distortion"),
         Choice(name="Channel Mix", value="channel_mix"),
         Choice(name="Low Pass", value="low_pass"),
     ])
     async def filters_choose_command(self, interaction: discord.Interaction, filter: str):
+        await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
@@ -46,31 +45,38 @@ class FiltersCog(commands.GroupCog, name="filters"):
             voice = interaction.user.voice
             if not voice:
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if str(player.channel.id) != str(voice.channel.id):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't apply filters when nothing is playing")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
-        _filter = string_to_filter(filter)
-        filter_cls = wavelink.Filter(**{filter.lower(): _filter()})
-        await player.set_filter(filter_cls)
+        
+        # set filter
+        if filter not in filters_and_eqs.FILTERS:
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Invalid filter")
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        
+        await filters_and_eqs.set_filter(player, filter)
+        
         embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully applied filter `{filter}` to currently playing track")
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
         self.logger.info(f"Applied filter '{filter}' in guild #{interaction.guild.id}")
 
     @app_commands.command(name="reset", description="Reset applied filters")
     async def filters_reset_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
         try:
@@ -80,26 +86,64 @@ class FiltersCog(commands.GroupCog, name="filters"):
             voice = interaction.user.voice
             if not voice:
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
                 embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed" 
         if not player.playing:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't reset filters when nothing is playing")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
-        await player.set_filter(wavelink.Filter()) # empty filter for reseting
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Filters have been successfully reset")
-        await interaction.response.send_message(embed=embed)
+        
+        await player.set_filters(wavelink.Filters(), seek=True) # empty for no filter modifications
+        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Filters successfully reset")
+        await interaction.followup.send(embed=embed)
         self.logger.info(f"Filters reset in guild #{interaction.guild.id}")
+        
+    @app_commands.command(name="list", description="List all filters and check if they are applied")
+    async def filters_list_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
+        if not await djRole_check(interaction, self.logger): return
+        if not await quiz_check(self.bot, interaction, self.logger): return
+        try:
+            if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
+                raise NoPlayerFound("There is no player connected in this guild")
+
+            voice = interaction.user.voice
+            if not voice:
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+            
+            if str(player.channel.id) != str(voice.channel.id):
+                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                    color=BASE_COLOR)
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+        except:
+            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return "failed" 
+        
+        filters: wavelink.Filters = player.filters
+        embed = NormalEmbed(timestamp=True)
+        embed.set_author(name="Listing all filters", icon_url=self.bot.user.display_avatar.url)
+        
+        for filter in filters_and_eqs.FILTERS:
+            cur = getattr(filters, filter)
+            # print("comparing", cur.__dict__, getattr(wavelink, cur.__class__.__name__).__dict__)
+            embed.add_field(name=cur.__class__.__name__, value="Applied: `Yes`" if cur.__dict__ != {"_payload": {}} else "Applied: `No`", inline=True)
+            
+        await interaction.followup.send(embed=embed)
+            
 
 @logger.LoggerApplication
 class EqualizersCog(commands.GroupCog, name="equalizers"):
@@ -157,7 +201,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
     @app_commands.describe(band="A hertz band you want to apply the gain on")
     @app_commands.describe(gain="A float-like gain (-10 to 10)")
     @app_commands.choices(band=[
-        Choice(name=str(gain_value), value=gain_value) for gain_value in AEQ_HZ_BANDS
+        Choice(name=str(gain_value), value=gain_value) for gain_value in filters_and_eqs.EQ_HZ_BANDS
     ])
     async def equalizer_advanced_command(self, interaction: discord.Interaction, band: int, gain: float):
         if not await djRole_check(interaction, self.logger): return
@@ -194,7 +238,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return "failed"
 
-        band_idx = AEQ_HZ_BANDS.index(band)
+        band_idx = filters_and_eqs.EQ_HZ_BANDS.index(band)
         player.eq_levels[band_idx] = gain/10
         eq = wavelink.Filter(equalizer=wavelink.Equalizer(name="AEQ_ADVANCED_EQUALIZER", bands=[(i,g) for i,g in enumerate(player.eq_levels)]))
         await player.set_filter(eq)

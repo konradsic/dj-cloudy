@@ -246,3 +246,4 @@ bot.loaded = False
 bot.part_loaded = False
 bot.last_restart = round(time.time())
 bot.run(TOKEN, log_handler=None) # disable discord logging (log_handler=None)
+

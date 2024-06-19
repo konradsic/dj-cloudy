@@ -24,7 +24,7 @@ from lib.utils.regexes import URL_REGEX
 from lib.ui import emoji
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
-logger_instance = logger.Logger().get("cogs.playlist_adapter")
+logger_instance = logger.Logger().get("cogs.playlists")
 
 number_complete = {
     0: "🥇 ",
@@ -39,11 +39,19 @@ number_complete = {
     9: "10. ",
 }
 
+SEARCH_METHODS = [
+    "spsearch",
+    "ytsearch",
+    "scsearch",
+    "ytmsearch"
+]
+
 # autocomplete for song url
 async def song_url_autocomplete(interaction: discord.Interaction, current: str) -> t.List[app_commands.Choice]:
     query = current.strip("<>")
     if current == "":
         query = "ytsearch:Best music"
+    elif any(current.startswith(x) for x in SEARCH_METHODS): pass
     elif not re.match(URL_REGEX, current):
         query = "ytsearch:{}".format(current)
     try:
@@ -134,7 +142,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             for i in range(len(tracks))
         ]
         if not fields:
-            embed = ShortEmbed(description="No tracks in the playlist", timestamp=True)
+            embed = NormalEmbed(description=f"ID: `{found.get('id', 'STARRED')}`\nNo tracks in the playlist", timestamp=True)
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_author(name=f"{user.name}'s playlist: {'STARRED' if starred else found['name']}", icon_url=user.display_avatar.url)
             await interaction.followup.send(embed=embed, ephemeral=True)

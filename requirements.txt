@@ -1,5 +1,5 @@
-discord==2.0.0
-wavelink==2.0.1
+discord==2.3.2
+wavelink==3.3.0
 asyncio==3.4.3
 urllib3==1.26.12
 click==8.1.3
