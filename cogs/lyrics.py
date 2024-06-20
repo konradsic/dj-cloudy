@@ -147,5 +147,4 @@ class LyricsCommandHandler(commands.Cog):
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 1000, interaction.user))
 
 async def setup(bot):
-    # help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Music", [("song","Song you want lyrics for", False)])
     await bot.add_cog(LyricsCommandHandler(bot))

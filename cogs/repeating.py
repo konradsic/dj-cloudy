@@ -46,5 +46,5 @@ class RepeatCommands(commands.Cog):
         await interaction.followup.send(embed=embed)
 
 async def setup(bot):
-    # help_utils.register_command("repeat", "Choose a repeating mode", "Music", [("mode", "What mode you want to choose?", True)])
     await bot.add_cog(RepeatCommands(bot))
+

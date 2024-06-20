@@ -232,17 +232,6 @@ class ConfigCog(commands.GroupCog, name="config"):
         await interaction.followup.send(embed=embed, ephemeral=False)
 
 async def setup(bot):
-    # help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
-    #     [("profile", "What profile configuration you want to view?", False)])
-    # help_utils.register_command("config set-user", "Set configuration for your profile", "Configuration",
-    #     [("key", "A parameter you want to change", True),
-    #      ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
-    # help_utils.register_command("config set-guild", "Set configuration for current guild. Requires `manage_guild` permission", "Configuration",
-    #     [("key", "A parameter you want to change", True),
-    #      ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
-    # help_utils.register_command("config reset", "Reset given configuration profile to default values", "Configuration",
-    #     [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True)])
-    # help_utils.register_command("config reset-value", "Reset configuration value for given key", "Configuration",
-    #     [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True),
-    #      ("key", "Key you want to reset value for", True)])
     await bot.add_cog(ConfigCog(bot))
+    
+    

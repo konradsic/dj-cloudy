@@ -37,5 +37,5 @@ class ChangelogCommand(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):
-    # help_utils.register_command("changelog", "Display latest changes to the bot", "Miscellaneous")
     await bot.add_cog(ChangelogCommand(bot))
+

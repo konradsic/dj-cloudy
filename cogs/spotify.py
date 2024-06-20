@@ -124,21 +124,7 @@ class SpotifyExtensionCog(commands.Cog):
             tracks = [tracks[0]]
         # print(tracks.raw_data)
         await player.add_tracks(interaction, tracks, spotify=True)
-    #     track = await spotify.SpotifyTrack.search(query, node=wavelink.Pool.get_node())
-        
-    #     try:
-    #         if search_type == "track":
-    #             tracks = [track[0]]
-    #         elif search_type == "album" or search_type == "playlist":
-    #             tracks = track
-    #     except:
-    #         await interaction.followup.send(embed=ShortEmbed(
-    #             description=f"{emoji.XMARK.string} No tracks were found, try again", color=BASE_COLOR
-    #         ))
-        
-    #     await player.add_tracks(interaction, tracks, spotify=True)
 
 
 async def setup(bot):
-    # help_utils.register_command("spotify", "Play a spotify track or album", "Extensions/Plugins", [("query","Song or album you want to play",True)])
     await bot.add_cog(SpotifyExtensionCog(bot))

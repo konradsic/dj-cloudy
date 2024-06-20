@@ -88,6 +88,4 @@ class PlayPauseCommands(commands.Cog):
         await interaction.followup.send(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
-    # help_utils.register_command("pause", "Pauses current playing track", "Music")
-    # help_utils.register_command("resume", "Resumes paused playback", "Music")
     await bot.add_cog(PlayPauseCommands(bot))

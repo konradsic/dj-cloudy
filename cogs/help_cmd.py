@@ -64,6 +64,4 @@ class HelpCommand(commands.Cog):
         await interaction.followup.send(embed=embed, ephemeral=True)
 
 async def setup(bot):
-    # help_utils.register_command("help", "Get helpful information about commands of the bot", "Miscellaneous", 
-    #                           [("command","A command you want to get detailed information about",False)])
     await bot.add_cog(HelpCommand(bot))

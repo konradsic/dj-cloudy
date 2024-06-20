@@ -346,10 +346,5 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         await interaction.followup.send(embed=embed)
 
 async def setup(bot):
-    # help_utils.register_command("filters choose", "Select a filter to enchance your music experience", "Playback modifiers", [("filter","Filter to apply",True)])
-    # help_utils.register_command("filters reset", "Reset applied filters", "Playback modifiers")
-    # help_utils.register_command("equalizers choose", "Choose an equalizer to apply it to the currently playing track", "Playback modifiers", [("equalizer","Equalizer to apply",True)])
-    # help_utils.register_command("equalizers advanced", "Advanced, 15-band equalizer allows you to change values as you want. Have fun!", "Playback modifiers", [("band", "A hertz band you want to apply the gain on", True),("gain", "A float-like gain",True)])
-    # help_utils.register_command("equalizers reset", "Reset applied equalizers", "Playback modifiers")
     await bot.add_cog(FiltersCog(bot), guilds=bot.guilds)
     await bot.add_cog(EqualizersCog(bot))

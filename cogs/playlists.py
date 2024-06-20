@@ -534,17 +534,6 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
 
 async def setup(bot):
-    # help_utils.register_command("playlists view", "View your or user's playlists", "Playlist system", [("user", "View this user's playlists", False)])
-    # help_utils.register_command("playlists create", "Create a new playlist", "Playlist system", [("name", "Name of the playlist", True),("copy_queue","Wherever to copy the queue to playlist or not",False)])
-    # help_utils.register_command("playlists add-song", 
-    #     "Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist", "Playlist system", 
-    #     [("name_or_id", "Name of the playlist you want to add the song to", True),("song", "Name of the song you want to add",True)])
-    # help_utils.register_command("playlists remove-song", "Remove a song from your playlist", "Playlist system", 
-    #     [("name_or_id", "Name of the playlist you want to remove the song from", True),("index", "Index of the song you want to remove (1-playlist len)", True)])
-    # help_utils.register_command("playlists play", "Play your playlist!", "Playlist system", 
-    #     [("name_or_id", "Name of the playlist you want to play", True), ("replace_queue", "Wherever to replace the queue with the playlist or just append", False)])
-    # help_utils.register_command("playlists remove-playlist", "Remove a playlist", "Playlist system", [("name_or_id", "Name of the playlist you want to remove", True)])
-    # help_utils.register_command("playlists view-playlist", "View playlist's content (for your playlist or anybody else)", "Playlist system", [("name_or_id", "Name of the playlist", True),("user","(optional) User to get the playlist from",False)])
-    # help_utils.register_command("playlists rename", "Rename playlist to given name", "Playlist system", 
-    #     [("name_or_id", "Name or ID of playlist you want to rename", True), ("new_name","New name of the playlist you want to rename",True)])
     await bot.add_cog(PlaylistGroupCog(bot))
+    
+    

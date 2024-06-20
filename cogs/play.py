@@ -302,12 +302,4 @@ class PlayCommand(commands.Cog):
             return
 
 async def setup(bot: commands.Bot) -> None:
-    # help_utils.register_command("play", "Plays music", "Music", [
-    #     ("query","What song to play. For spotify tracks use /spotify",True),
-    #     ("play_force", "Required DJ permissions. Interrupts current playing track and plays this now.", False),
-    #     ("put_force", "Requires DJ permissions. Puts this song after currently playing track", False)
-    # ])
-    # help_utils.register_command("nowplaying", "Get currently playing track info in a nice embed", "Music", 
-    #                             [("hidden", "Wherever to hide the message or not (it will be visible only to you)", False)])
-    # help_utils.register_command("grab", "Grab currently playing song to your Direct Messages", "Music")
     await bot.add_cog(PlayCommand(bot))

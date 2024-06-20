@@ -364,14 +364,5 @@ class OtherQueueCommands(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    # help_utils.register_command("queue view", "View the queue in  a nice embed", "Music")
-    # help_utils.register_command("queue cleanup", "Clean the queue and stop the player", "Music")
-    # help_utils.register_command("queue shuffle", "Shuffle the queue", "Music")
-    # help_utils.register_command("queue remove", "Remove track with the given index from the queue", "Music", [("index","Index of the song you want to remove",True)])
-    # help_utils.register_command("previous", "Play the previous track if one exists", "Music")
-    # help_utils.register_command("skip", "Skip to the next track if one exists", "Music")
-    # help_utils.register_command("skipto", "Move the player to the specified position in the queue", "Music", arguments=[("position", "Position in the queue between 1 and queue length", True)])
-    # help_utils.register_command("voteskip", "If you don't have DJ perms, this will make a voting for skip", "Music")
-    
     await bot.add_cog(QueueCommands(bot))
     await bot.add_cog(OtherQueueCommands(bot))

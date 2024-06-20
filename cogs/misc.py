@@ -153,9 +153,4 @@ class MiscCommands(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    # help_utils.register_command("ping", "Returns latency and uptime of the bot", "Miscellaneous")
-    # help_utils.register_command("botinfo", "Gathers most of informations about the bot and Wavelink nodes", "Miscellaneous")
-    # help_utils.register_command("credits", "Display credits", "Miscellaneous")
-    # help_utils.register_command("bug-report", "Report bugs", "Miscellaneous", [("command", "Which command did you use?", True), 
-    #                                                                            ("description", "Description of the bug", True)])
     await bot.add_cog(MiscCommands(bot))

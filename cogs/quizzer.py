@@ -166,6 +166,4 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
 
 
 async def setup(bot):
-    # help_utils.register_command("quiz start", "Start a music quiz. Requires DJ permissions", "Music quiz", [("rounds", "Number of rounds", True)])
-    # help_utils.register_command("quiz end", "Forces stop of the music quiz. Requires DJ permissions", "Music quiz")
     await bot.add_cog(MusicQuizCog(bot))
