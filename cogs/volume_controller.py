@@ -20,6 +20,7 @@ class VolumeController(commands.Cog):
 
     @app_commands.command(name="volume", description="Set or get current playback volume")
     @app_commands.describe(value="Value to set the volume to")
+    @help_utils.add("volume", "Set or get current playback volume", "Music", arguments={"value": {"description": "Value to set the volume to", "required": False}})
     async def volume_command(self, interaction: discord.Interaction, value: int=None):
         await interaction.response.defer(thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -73,5 +74,5 @@ class VolumeController(commands.Cog):
         
 
 async def setup(bot):
-    help_utils.register_command("volume", "Set or get current playback volume", category="Music", arguments=[("value", "Value to set the volume to", False)])
+    # help_utils.register_command("volume", "Set or get current playback volume", category="Music", arguments=[("value", "Value to set the volume to", False)])
     await bot.add_cog(VolumeController(bot))

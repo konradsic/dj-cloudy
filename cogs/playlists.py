@@ -81,9 +81,10 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         self.logger = logger
         super().__init__()
 
-    @app_commands.command(name="view-playlist", description="View playlist's content (for your playlist or anybody else)")
-    @app_commands.describe(name_or_id="Name or id of the playlist")
-    @app_commands.describe(user="(optional) User to get the playlist from")
+    @app_commands.command(name="view-playlist", description="View playlist's content (you can also search for others playlists)")
+    @app_commands.describe(name_or_id="Name or ID of the playlist")
+    @app_commands.describe(user="User to get the playlist from")
+    @help_utils.add("playlists view-playlist", "View playlist's content (you can also search for others playlists)", "Playlists", {"name_or_id": {"description": "Name or ID of the playlist", "required": True}, "user": {"required": False, "description": "User to get the playlist from"}})
     async def view_playlist_of_user_command(self, interaction: discord.Interaction, name_or_id: str, user: t.Union[discord.Member, None]=None):
         await interaction.response.defer(ephemeral=True, thinking=True)
         if not user:
@@ -173,6 +174,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="view", description="View your or user's playlists")
     @app_commands.describe(user="View this user's playlists")
+    @help_utils.add("playlists view", "View your or user's playlists", "Playlists", {"user": {"description": "View this user's playlists", "required": False}})
     async def playlist_view_command(self, interaction: discord.Interaction, user: discord.Member=None):
         await interaction.response.defer(ephemeral=True, thinking=True)
         # get the user
@@ -264,7 +266,8 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="create", description="Create a new playlist")
     @app_commands.describe(name="Name of the playlist")
-    @app_commands.describe(copy_queue="Wherever to copy the queue to playlist or not")
+    @app_commands.describe(copy_queue="Whether to copy the queue to playlist or not")
+    @help_utils.add("playlists create", "Create a new playlist", "Playlists", {"name": {"description": "Name of the playlist", "required": True}, "copy_queue": {"description": "Whether to copy the queue to playlist or not", "required": False}})
     async def playlist_create_command(self, interaction: discord.Interaction, name: str, copy_queue: bool=False):
         await interaction.response.defer(ephemeral=True, thinking=True)
         if len(name) > 30:
@@ -310,8 +313,10 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="add-song", description="Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to add the song to")
-    @app_commands.describe(song="Name of the song you want to add")
+    @app_commands.describe(song="Song you want to add")
     @app_commands.autocomplete(song=song_url_autocomplete)
+    @help_utils.add("playlists add-song", "Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist", "Playlists", 
+                    {"name_or_id": {"description": "Name of the playlist you want to add the song to", "required": True}, "song": {"description": "Song you want to add", "required": True}})
     async def playlist_add_song_command(self, interaction: discord.Interaction, name_or_id: str, song: str):
         await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
@@ -381,7 +386,9 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="remove-song", description="Remove a song from your playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove the song from")
-    @app_commands.describe(index="Index of the song you want to remove (1-playlist len)")
+    @app_commands.describe(index="Index of the song you want to remove (1-playlist length)")
+    @help_utils.add("playlists remove-song", "Remove a song from your playlist", "Playlists", 
+                    {"name-or_id": {"description": "Name of the playlist youw ant to remove the song from", "required": True}, "index": {"description": "Index of the song you want to remove (1-playlist length)", "required": True}})
     async def playlist_remove_song_command(self, interaction: discord.Interaction, name_or_id: str, index: int):
         await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
@@ -401,6 +408,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="remove-playlist", description="Remove a playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove")
+    @help_utils.add("playlists remove", "Remove a playlist", "Playlists", {"name_or_id": {"description": "Name of the playlist you want to remove", "required": True}})
     async def playlist_remove_command(self, interaction: discord.Interaction, name_or_id: str):
         await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
@@ -415,8 +423,9 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="play", description="Play your playlist!")
-    @app_commands.describe(name_or_id="Name of the playlist you want to play")
-    @app_commands.describe(replace_queue="Wherever to replace queue with the playlist or just to append")
+    @app_commands.describe(name_or_id="Name or IDof the playlist you want to play")
+    @app_commands.describe(replace_queue="Whether to replace queue with the playlist or just to extend")
+    @help_utils.add("playlists play", "Play your playlist!", "Playlists", {"name_or_id": {"description": "Name or ID of the playlist you want to play", "required": True}, "replace_queue": {"description": "Whether to replace queue with the playlist or just to extend", "required": False}})
     async def playlist_play(self, interaction: discord.Interaction, name_or_id: str, replace_queue: bool=False):
         await interaction.response.defer(ephemeral=False, thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -504,8 +513,10 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             return
 
     @app_commands.command(name="rename", description="Rename playlist to given name")
-    @app_commands.describe(name_or_id="Name or ID of playlist you want to rename")
+    @app_commands.describe(name_or_id="Name or ID of the playlist you want to rename")
     @app_commands.describe(new_name="New name of the playlist you want to rename")
+    @help_utils.add("playlists rename", "Rename playlist to given name", "Playlists", 
+                    {"name_or_id": {"description": "Name or ID of the playlist you want to rename", "required": True}, "new_name": {"description": "New name of the playlist you want to rename", "required": True}})
     async def rename_playlist_command(self, interaction: discord.Interaction, name_or_id: str, new_name: str):
         await interaction.response.defer(ephemeral=False, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
@@ -523,17 +534,17 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
 
 async def setup(bot):
-    help_utils.register_command("playlists view", "View your or user's playlists", "Playlist system", [("user", "View this user's playlists", False)])
-    help_utils.register_command("playlists create", "Create a new playlist", "Playlist system", [("name", "Name of the playlist", True),("copy_queue","Wherever to copy the queue to playlist or not",False)])
-    help_utils.register_command("playlists add-song", 
-        "Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist", "Playlist system", 
-        [("name_or_id", "Name of the playlist you want to add the song to", True),("song", "Name of the song you want to add",True)])
-    help_utils.register_command("playlists remove-song", "Remove a song from your playlist", "Playlist system", 
-        [("name_or_id", "Name of the playlist you want to remove the song from", True),("index", "Index of the song you want to remove (1-playlist len)", True)])
-    help_utils.register_command("playlists play", "Play your playlist!", "Playlist system", 
-        [("name_or_id", "Name of the playlist you want to play", True), ("replace_queue", "Wherever to replace the queue with the playlist or just append", False)])
-    help_utils.register_command("playlists remove-playlist", "Remove a playlist", "Playlist system", [("name_or_id", "Name of the playlist you want to remove", True)])
-    help_utils.register_command("playlists view-playlist", "View playlist's content (for your playlist or anybody else)", "Playlist system", [("name_or_id", "Name of the playlist", True),("user","(optional) User to get the playlist from",False)])
-    help_utils.register_command("playlists rename", "Rename playlist to given name", "Playlist system", 
-        [("name_or_id", "Name or ID of playlist you want to rename", True), ("new_name","New name of the playlist you want to rename",True)])
+    # help_utils.register_command("playlists view", "View your or user's playlists", "Playlist system", [("user", "View this user's playlists", False)])
+    # help_utils.register_command("playlists create", "Create a new playlist", "Playlist system", [("name", "Name of the playlist", True),("copy_queue","Wherever to copy the queue to playlist or not",False)])
+    # help_utils.register_command("playlists add-song", 
+    #     "Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist", "Playlist system", 
+    #     [("name_or_id", "Name of the playlist you want to add the song to", True),("song", "Name of the song you want to add",True)])
+    # help_utils.register_command("playlists remove-song", "Remove a song from your playlist", "Playlist system", 
+    #     [("name_or_id", "Name of the playlist you want to remove the song from", True),("index", "Index of the song you want to remove (1-playlist len)", True)])
+    # help_utils.register_command("playlists play", "Play your playlist!", "Playlist system", 
+    #     [("name_or_id", "Name of the playlist you want to play", True), ("replace_queue", "Wherever to replace the queue with the playlist or just append", False)])
+    # help_utils.register_command("playlists remove-playlist", "Remove a playlist", "Playlist system", [("name_or_id", "Name of the playlist you want to remove", True)])
+    # help_utils.register_command("playlists view-playlist", "View playlist's content (for your playlist or anybody else)", "Playlist system", [("name_or_id", "Name of the playlist", True),("user","(optional) User to get the playlist from",False)])
+    # help_utils.register_command("playlists rename", "Rename playlist to given name", "Playlist system", 
+    #     [("name_or_id", "Name or ID of playlist you want to rename", True), ("new_name","New name of the playlist you want to rename",True)])
     await bot.add_cog(PlaylistGroupCog(bot))

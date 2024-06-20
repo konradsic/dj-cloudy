@@ -41,8 +41,14 @@ class LyricsCommandHandler(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="lyrics", description="Get lyrics for current playing or input song")
-    @app_commands.describe(song="Song you want lyrics for", raw_search="Search across genius lyrics, not parsing the title through ytsearch", hidden="Should the message be ephemeral")
-    async def lyrics_command(self, interaction: discord.Interaction, song: str = None, raw_search: bool=False, hidden: bool=True):
+    @app_commands.describe(song="Song you want lyrics for", 
+                           raw_search="Search across genius lyrics, not parsing the title through ytsearch", 
+                           hidden="Should the message be ephemeral")
+    @help_utils.add("lyrics", "Get lyrics for current playing or input song", "Music", 
+                    {"song": {"description": "Song you want lyrics for", "required": True},
+                     "raw_search": {"description": "Search across genius lyrics, not parsing the title through ytsearch", "required": False},
+                     "hidden": {"description": "Whether the message be ephemeral", "required": False}})
+    async def lyrics_command(self, interaction: discord.Interaction, song: str = None, raw_search: bool=True, hidden: bool=True):
         if not await quiz_check(self.bot, interaction, self.logger): return
         await interaction.response.defer(ephemeral=hidden, thinking=True)
         if song is None:
@@ -141,7 +147,5 @@ class LyricsCommandHandler(commands.Cog):
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(embeds, 1000, interaction.user))
 
 async def setup(bot):
-    help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Music", [("song","Song you want lyrics for", False)])
-    await bot.add_cog(
-        LyricsCommandHandler(bot)
-    )
+    # help_utils.register_command("lyrics", "Get lyrics for current playing or input song", "Music", [("song","Song you want lyrics for", False)])
+    await bot.add_cog(LyricsCommandHandler(bot))

@@ -21,11 +21,12 @@ class ConfigCog(commands.GroupCog, name="config"):
         super().__init__()
 
     @app_commands.command(name="view", description="View your configuration profile or configuration for this guild")
-    @app_commands.describe(profile="What profile configuration you want to view?")
+    @app_commands.describe(profile="What profile configuration you want to view? (default: USER)")
     @app_commands.choices(profile=[
         app_commands.Choice(name="USER", value=1),
         app_commands.Choice(name="GUILD", value=0)
     ])
+    @help_utils.add("config view", "View your configuration profile or configuration for this guild", category="Configuration", arguments={"profile": {"description": "What profile configuration you want to view? (default: USER)", "required": False}})
     async def config_view_command(self, interaction: discord.Interaction, profile: int = 1):
         await interaction.response.defer(ephemeral=False, thinking=True)
         if profile:
@@ -60,7 +61,9 @@ class ConfigCog(commands.GroupCog, name="config"):
         await interaction.followup.send(embed=embed, ephemeral=True if profile else False)
 
     @app_commands.command(name="set-user", description="Set configuration for your profile")
-    @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use thier respective ID")
+    @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use their respective ID")
+    @help_utils.add("config set-user", "Set configuration for your profile", "Configuration",
+                    {"key": {"description": "A parameter you want to change", "required": True}, "value": {"description": "New value for the parameter. For roles,users etc. use their respective ID", "required": True}})
     async def config_set_user_cmd(self, interaction: discord.Interaction, key: str, value: str):
         await interaction.response.defer(thinking=True, ephemeral=False)
         config = cfg.ConfigurationHandler(id=interaction.user.id, user=True)
@@ -97,6 +100,7 @@ class ConfigCog(commands.GroupCog, name="config"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
+
         try:
             config.config_set(foundKey, value)
             embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully set `{foundKey}` to `{value}`")
@@ -112,6 +116,8 @@ class ConfigCog(commands.GroupCog, name="config"):
     
     @app_commands.command(name="set-guild", description="Set configuration for current guild. Requires `manage_guild` permission")
     @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use thier respective ID")
+    @help_utils.add("config set-guild", "Set configuration for current guild. Requires `manage_guild` permission", "Configuration",
+                    {"key": {"description": "A parameter you want to change", "required": True}, "value": {"description": "New value for the parameter. For roles,users etc. use their respective ID", "required": True}})
     async def config_set_guild_cmd(self, interaction: discord.Interaction, key: str, value: str):
         await interaction.response.defer(thinking=True, ephemeral=False)
         config = cfg.ConfigurationHandler(id=interaction.guild.id, user=False)
@@ -173,6 +179,7 @@ class ConfigCog(commands.GroupCog, name="config"):
         app_commands.Choice(name="GUILD", value=0),
         app_commands.Choice(name="USER", value=1),
     ])
+    @help_utils.add("config reset", "Reset given configuration profile to default values", "Configuration", {"profile": {"description": "Type of profile you want to reset. For guilds - required manage_guild permission", "required": True}})
     async def reset_config(self, interaction: discord.Interaction, profile: int):
         await interaction.response.defer(thinking=True, ephemeral=False)
         profile = bool(profile)
@@ -190,11 +197,13 @@ class ConfigCog(commands.GroupCog, name="config"):
         await interaction.followup.send(embed=embed, view=ResetCfgConfirmation(1000, config, interaction.user), ephemeral=False)
         
     @app_commands.command(name="reset-value", description="Reset configuration value for given key")
-    @app_commands.describe(profile="Type of profile you want to reset. For guilds - required manage_guild permission", key="Key you want to reset value for")
+    @app_commands.describe(profile="Type of profile you want to reset the key for. For guilds - required manage_guild permission", key="Key you want to reset value of")
     @app_commands.choices(profile=[
         app_commands.Choice(name="GUILD", value=0),
         app_commands.Choice(name="USER", value=1),
     ])
+    @help_utils.add("config reset-value", "Reset configuration value for given key", "Configuration",
+                    {"profile": {"description": "Type of profile you want to reset the key for. For guilds - required manage_guild permission", "required": True}, "key": {"description": "Key you want to reset value of", "required": True}})
     async def reset_value_command(self, interaction: discord.Interaction, profile: int, key: str):
         await interaction.response.defer(thinking=True, ephemeral=False)
         profile = bool(profile) 
@@ -223,17 +232,17 @@ class ConfigCog(commands.GroupCog, name="config"):
         await interaction.followup.send(embed=embed, ephemeral=False)
 
 async def setup(bot):
-    help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
-        [("profile", "What profile configuration you want to view?", False)])
-    help_utils.register_command("config set-user", "Set configuration for your profile", "Configuration",
-        [("key", "A parameter you want to change", True),
-         ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
-    help_utils.register_command("config set-guild", "Set configuration for current guild. Requires `manage_guild` permission", "Configuration",
-        [("key", "A parameter you want to change", True),
-         ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
-    help_utils.register_command("config reset", "Reset given configuration profile to default values", "Configuration",
-        [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True)])
-    help_utils.register_command("config reset-value", "Reset configuration value for given key", "Configuration",
-        [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True),
-         ("key", "Key you want to reset value for", True)])
+    # help_utils.register_command("config view", "View your configuration profile or configuration for this guild", "Configuration",
+    #     [("profile", "What profile configuration you want to view?", False)])
+    # help_utils.register_command("config set-user", "Set configuration for your profile", "Configuration",
+    #     [("key", "A parameter you want to change", True),
+    #      ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
+    # help_utils.register_command("config set-guild", "Set configuration for current guild. Requires `manage_guild` permission", "Configuration",
+    #     [("key", "A parameter you want to change", True),
+    #      ("value","New value for the parameter. For roles,users etc. use thier respective ID",True)])
+    # help_utils.register_command("config reset", "Reset given configuration profile to default values", "Configuration",
+    #     [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True)])
+    # help_utils.register_command("config reset-value", "Reset configuration value for given key", "Configuration",
+    #     [("profile", "Type of profile you want to reset. For guilds - required manage_guild permission", True),
+    #      ("key", "Key you want to reset value for", True)])
     await bot.add_cog(ConfigCog(bot))

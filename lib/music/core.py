@@ -33,7 +33,7 @@ class MusicPlayer(wavelink.Player):
         self.queue = None # ! [new in wavelink 2.0] queue is set to wavelink's default queue, so we set it to our! [type: ignore]
         self.queue: Queue = Queue()
         self.bound_channel: discord.TextChannel = None
-        self.eq_levels: list[float] = [.0,] * 15
+        # self.eq_levels: list[float] = [.0,] * 15
 
     async def teardown(self):
         try:

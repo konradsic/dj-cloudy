@@ -112,8 +112,13 @@ class PlayCommand(commands.Cog):
 
     @app_commands.command(name="play", description="Plays music")
     @app_commands.describe(query="What song to play. For spotify tracks use /spotify",
-                           play_force="Required DJ permissions. Interrupts current playing track and plays this now.", put_force="Requires DJ permissions. Puts this song after currently playing track")
+                           play_force="Required DJ permissions. Interrupts current playing track and plays this now.", 
+                           put_force="Requires DJ permissions. Puts this song after currently playing track")
     @app_commands.autocomplete(query=query_complete)
+    @help_utils.add("play", "Plays music", "Music", 
+                    {"query": {"description": "What song to play. For spotify tracks use /spotify", "required": True}, 
+                     "play_force": {"description": "Required DJ permissions. Interrupts current playing track and plays this now.", "required": False}, 
+                     "put_force": {"description": "Requires DJ permissions. Puts this song after currently playing track", "required": False}})
     async def play_command(self, interaction: discord.Interaction, query: str, play_force: bool=False, put_force: bool=False):
         await interaction.response.defer(ephemeral=False)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -181,7 +186,8 @@ class PlayCommand(commands.Cog):
         await player.add_tracks(interaction, [track], put_force, play_force)
             
     @app_commands.command(name="nowplaying", description="Get currently playing track info in a nice embed")
-    @app_commands.describe(hidden="Wherever to hide the message or not (it will be visible only to you)")
+    @app_commands.describe(hidden="Whether to hide the message or not (it will be visible only to you)")
+    @help_utils.add("nowplaying", "Get currently playing track info in a nice embed", "Music", {"hidden": {"description": "Whether to hide the message or not (it will be visible only to you)", "required": False}})
     async def nowplaying_command(self, interaction: discord.Interaction, hidden: bool=False):
         await interaction.response.defer(thinking=True, ephemeral=False)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -238,6 +244,7 @@ class PlayCommand(commands.Cog):
         await interaction.followup.send(embed=embed, ephemeral=hidden, view=PlayButtonsMenu(user=interaction.user))
 
     @app_commands.command(name="grab", description="Grab currently playing song to your Direct Messages")
+    @help_utils.add("grab", "Grab currently playing song to your Direct Messages", "Music")
     async def grab_command(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True, thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -295,14 +302,12 @@ class PlayCommand(commands.Cog):
             return
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("play", "Plays music", "Music", [
-        ("query","What song to play. For spotify tracks use /spotify",True),
-        ("play_force", "Required DJ permissions. Interrupts current playing track and plays this now.", False),
-        ("put_force", "Requires DJ permissions. Puts this song after currently playing track", False)
-    ])
-    help_utils.register_command("nowplaying", "Get currently playing track info in a nice embed", "Music", 
-                                [("hidden", "Wherever to hide the message or not (it will be visible only to you)", False)])
-    help_utils.register_command("grab", "Grab currently playing song to your Direct Messages", "Music")
-    await bot.add_cog(
-        PlayCommand(bot)
-    )
+    # help_utils.register_command("play", "Plays music", "Music", [
+    #     ("query","What song to play. For spotify tracks use /spotify",True),
+    #     ("play_force", "Required DJ permissions. Interrupts current playing track and plays this now.", False),
+    #     ("put_force", "Requires DJ permissions. Puts this song after currently playing track", False)
+    # ])
+    # help_utils.register_command("nowplaying", "Get currently playing track info in a nice embed", "Music", 
+    #                             [("hidden", "Wherever to hide the message or not (it will be visible only to you)", False)])
+    # help_utils.register_command("grab", "Grab currently playing song to your Direct Messages", "Music")
+    await bot.add_cog(PlayCommand(bot))

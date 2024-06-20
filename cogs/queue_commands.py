@@ -25,6 +25,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         super().__init__()
 
     @app_commands.command(name="view", description="View the queue in a nice embed")
+    @help_utils.add("queue view", "View the queue in a nice embed", "Music")
     async def queue_view_subcommand(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -103,13 +104,14 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embeds[-1].add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user))
 
-    @app_commands.command(name="shuffle", description="Shuffle the queue")
+    @app_commands.command(name="shuffle", description="Shuffle the queue or manage the queue shuffle mode")
     @app_commands.describe(shuffle_mode_state="Turn on/off shuffle mode")
     @app_commands.choices(shuffle_mode_state=[
         app_commands.Choice(name="ON", value=1),
         app_commands.Choice(name="OFF", value=-1),
         app_commands.Choice(name="TOGGLE", value=0)
     ])
+    @help_utils.add("queue shuffle", "Shuffle the queue or manage the queue shuffle mode", "Music", {"shuffle_mode_state": {"description": "Turn on/off shuffle mode", "required": False}})
     async def queue_shuffle_subcommand(self, interaction: discord.Interaction, shuffle_mode_state: int=-2):
         await interaction.response.defer(thinking=True)
         # djRole check
@@ -156,6 +158,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="cleanup", description="Clean the queue and stop the player")
+    @help_utils.add("queue cleanup", "Clean the queue and stop the player", "Music")
     async def queue_cleanup_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -187,6 +190,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="remove", description="Remove track with the given index from the queue")
     @app_commands.describe(index="Index of the song you want to remove")
+    @help_utils.add("queue remove", "Remove track with the given index from the queue", "Music", {"index": {"description": "Index of the song you want to remove", "required": True}})
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
         await interaction.response.defer(thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -232,6 +236,7 @@ class OtherQueueCommands(commands.Cog):
 
     @app_commands.command(name="skipto", description="Move the player to the specified position in the queue")
     @app_commands.describe(position="Position in the queue between 1 and queue length")
+    @help_utils.add("skipto", "Move the player to the specified position in the queue", "Music", {"position": {"description": "Position in the queue between 1 and queue length", "required": True}})
     async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -263,6 +268,7 @@ class OtherQueueCommands(commands.Cog):
 
     
     @app_commands.command(name="skip", description="Skip to the next track if one exists")
+    @help_utils.add("skip", "Skip to the next track track if one exists", "Music")
     async def queue_skip_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -293,6 +299,7 @@ class OtherQueueCommands(commands.Cog):
         await interaction.followup.send(embed=embed)
         
     @app_commands.command(name="previous", description="Play the previous track if one exists")
+    @help_utils.add("previous", "Play the previous track if one exists", "Music")
     async def queue_previous(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -325,7 +332,8 @@ class OtherQueueCommands(commands.Cog):
         embed = ShortEmbed(description=f"<:previous_button:1029418191274905630> Playing previous track")
         await interaction.followup.send(embed=embed)
         
-    @app_commands.command(name="voteskip", description="If you don't have DJ perms, this will make a voting for skip")
+    @app_commands.command(name="voteskip", description="If you don't have DJ permissions, this will make a voting for skip")
+    @help_utils.add("voteskip", "If you don't have DJ permissions, this will make a voting for skip", "Music")
     async def voteskip_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -356,14 +364,14 @@ class OtherQueueCommands(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("queue view", "View the queue in  a nice embed", "Music")
-    help_utils.register_command("queue cleanup", "Clean the queue and stop the player", "Music")
-    help_utils.register_command("queue shuffle", "Shuffle the queue", "Music")
-    help_utils.register_command("queue remove", "Remove track with the given index from the queue", "Music", [("index","Index of the song you want to remove",True)])
-    help_utils.register_command("previous", "Play the previous track if one exists", "Music")
-    help_utils.register_command("skip", "Skip to the next track if one exists", "Music")
-    help_utils.register_command("skipto", "Move the player to the specified position in the queue", "Music", arguments=[("position", "Position in the queue between 1 and queue length", True)])
-    help_utils.register_command("voteskip", "If you don't have DJ perms, this will make a voting for skip", "Music")
+    # help_utils.register_command("queue view", "View the queue in  a nice embed", "Music")
+    # help_utils.register_command("queue cleanup", "Clean the queue and stop the player", "Music")
+    # help_utils.register_command("queue shuffle", "Shuffle the queue", "Music")
+    # help_utils.register_command("queue remove", "Remove track with the given index from the queue", "Music", [("index","Index of the song you want to remove",True)])
+    # help_utils.register_command("previous", "Play the previous track if one exists", "Music")
+    # help_utils.register_command("skip", "Skip to the next track if one exists", "Music")
+    # help_utils.register_command("skipto", "Move the player to the specified position in the queue", "Music", arguments=[("position", "Position in the queue between 1 and queue length", True)])
+    # help_utils.register_command("voteskip", "If you don't have DJ perms, this will make a voting for skip", "Music")
     
     await bot.add_cog(QueueCommands(bot))
     await bot.add_cog(OtherQueueCommands(bot))

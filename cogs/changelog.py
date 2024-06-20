@@ -12,6 +12,7 @@ class ChangelogCommand(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="changelog", description="Display latest changes to the bot")
+    @help_utils.add(name="changelog", description="Display latest changes to the bot", category="Miscellaneous")
     async def changelog_command(self, interaction: discord.Interaction):
         fields = []
         with open("CHANGELOG.md", mode="r") as changelog_file:
@@ -36,5 +37,5 @@ class ChangelogCommand(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def setup(bot):
-    help_utils.register_command("changelog", "Display latest changes to the bot", "Miscellaneous")
+    # help_utils.register_command("changelog", "Display latest changes to the bot", "Miscellaneous")
     await bot.add_cog(ChangelogCommand(bot))

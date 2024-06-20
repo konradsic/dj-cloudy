@@ -20,6 +20,7 @@ class SeekAndRestartCog(commands.Cog):
         self.logger = logger
 
     @app_commands.command(name="restart", description="Restart current playing track (similiar to seek position: 0:00)")
+    @help_utils.add("restart", "Restart current playing track (similiar to seek position: 0:00)", "Music")
     async def restart_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -53,7 +54,8 @@ class SeekAndRestartCog(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="seek", description="Seek the player to given position")
-    @app_commands.describe(position="Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s")
+    @app_commands.describe(position="Position you want for player to seek ([h:]m:s). If none is provided it will seek forwards/backwards by configured amount of seconds")
+    @help_utils.add("seek", "Seek the player to given position", "Music", {"position": {"description": "Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s", "required": False}})
     async def seek_command(self, interaction: discord.Interaction, position: str=None):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -136,6 +138,6 @@ class SeekAndRestartCog(commands.Cog):
             return "seek failed"
 
 async def setup(bot):
-    help_utils.register_command("seek", "Seek the player to given position", "Music", [("position","Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s",False)])
-    help_utils.register_command("restart", "Restart current playing track (similiar to seek position: 0:00)", "Music")
+    # help_utils.register_command("seek", "Seek the player to given position", "Music", [("position","Position you want for player to seek ([h:]m:s). If none is provided it will seek forward by 15s",False)])
+    # help_utils.register_command("restart", "Restart current playing track (similiar to seek position: 0:00)", "Music")
     await bot.add_cog(SeekAndRestartCog(bot))

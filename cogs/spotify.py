@@ -82,6 +82,7 @@ class SpotifyExtensionCog(commands.Cog):
         app_commands.Choice(name="Playlist/Album", value="list")
     ])
     @app_commands.autocomplete(query=spotify_query_complete)
+    @help_utils.add("spotify", "Play a spotify track or playlist", "Music", {"search_type": {"description": "Search for playlist/album/tracks", "required": True}, "query": {"description": "Song or album you want to play", "required": True}})
     async def spotify_command(self, interaction: discord.Interaction, search_type: str, query: str):
         await interaction.response.defer(thinking=True)
         if not await quiz_check(self.bot, interaction, self.logger): return

@@ -145,9 +145,9 @@ class VC_Handler(commands.Cog):
         
     @commands.Cog.listener()
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
-        self.logger.info(f"Wavelink node `{payload.node.id}` ready")
+        self.logger.info(f"Wavelink node `{payload.node.identifier}` ready")
         self.node = payload.node
-        self.bot.node = payload.node
+        # self.bot.node = payload.node
 
     async def start_nodes(self):
         await self.bot.wait_until_ready()
@@ -169,6 +169,7 @@ class VC_Handler(commands.Cog):
             
 
     @app_commands.command(name="connect",description="Connects to your voice channel")
+    @help_utils.add("connect", "Connects to your voice channel", "Music")
     async def connect_command(self, interaction: discord.Interaction):
         try:
             channel = interaction.user.voice.channel
@@ -192,6 +193,7 @@ class VC_Handler(commands.Cog):
             
 
     @app_commands.command(name="disconnect", description="Disconnects from channel that bot is in")
+    @help_utils.add("disconnect", "Disconnects from channel that bot is in", "Music")
     async def disconnect_command(self, interaction: discord.Interaction):
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -224,6 +226,6 @@ class VC_Handler(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("connect", "Connects to your voice channel", "Music")
-    help_utils.register_command("disconnect", "Disconnects from channel that bot is in", "Music")
+    # help_utils.register_command("connect", "Connects to your voice channel", "Music")
+    # help_utils.register_command("disconnect", "Disconnects from channel that bot is in", "Music")
     await bot.add_cog(VC_Handler(bot))

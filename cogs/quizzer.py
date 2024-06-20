@@ -84,6 +84,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         
     @app_commands.command(name="start", description="Start a music quiz. Requires DJ permissions")
     @app_commands.describe(rounds="Number of rounds")
+    @help_utils.add("quiz start", "Start a music quiz. Required DJ permissions", "Music quiz", {"rounds": {"description": "Number of rounds", "required": True}})
     async def quiz_start_command(self, interaction: discord.Interaction, rounds: int):
         await interaction.response.defer(thinking=True)
         # djRole check
@@ -154,6 +155,7 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
         await game.run() # game loop - run rounds
         
     @app_commands.command(name="end", description="Forces stop of the music quiz. Requires DJ permissions")
+    @help_utils.add("quiz end", "Forces stop of the music quiz. Required DJ permissions", "Music quiz")
     async def quiz_end_command(self, interaction: discord.Interaction):
         if not await djRole_check(interaction, self.logger): return
         game = self.bot.quiz_obj[str(interaction.guild.id)]
@@ -164,6 +166,6 @@ class MusicQuizCog(commands.GroupCog, name="quiz"):
 
 
 async def setup(bot):
-    help_utils.register_command("quiz start", "Start a music quiz. Requires DJ permissions", "Music quiz", [("rounds", "Number of rounds", True)])
-    help_utils.register_command("quiz end", "Forces stop of the music quiz. Requires DJ permissions", "Music quiz")
+    # help_utils.register_command("quiz start", "Start a music quiz. Requires DJ permissions", "Music quiz", [("rounds", "Number of rounds", True)])
+    # help_utils.register_command("quiz end", "Forces stop of the music quiz. Requires DJ permissions", "Music quiz")
     await bot.add_cog(MusicQuizCog(bot))

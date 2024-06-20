@@ -13,63 +13,57 @@ class HelpCommand(commands.Cog):
 
     @app_commands.command(name="help", description="Get helpful information about commands of the bot")
     @app_commands.describe(command="A command you want to get detailed information about")
+    @help_utils.add("help", "Get helpful information about commands of the bot", "Miscellaneous", arguments={"command": {"description": "A command you want to get detailed information about", "required": False}})
     async def help_command(self, interaction: discord.Interaction, command: str=None):
         await interaction.response.defer(thinking=True)
-        help_commands = help_utils.get_commands()
-        categories = {}
-        
-        for cmd in help_commands:
-            try:
-                categories[cmd["category"]].append(cmd)
-            except:
-                categories[cmd["category"]] = [cmd]
+        help_commands = help_utils.commands
+        categories = help_utils.get_by_category()
         
         if command is None:
             embed = NormalEmbed(
-                title="<:commands_button:1028377812777828502> Help command - Categories", 
+                title=f"<:commands_button:1028377812777828502> Help: Displaying `{len(help_commands.keys())}` commands", 
                 description="Here, all categories with their respective commands are shown. To get detailed info about a command, use `/help <command>`\n*My command prefix is `/`*",
                 footer=FooterType.MADE_BY
             )
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-            for category_name, category_items in zip(categories.keys(), categories.values()):
-                embed.add_field(name=f"{category_name} ({len(category_items)})", value="".join(
-                    f"`{command['name']}` ■ "
-                    for command in category_items[:-1]
-                ) + f"`{category_items[-1]['name']}`", inline=False)
+            # print(categories)
+            for category_name, category_data in categories.items():
+                embed.add_field(name=f"{category_name} ({len(category_data)})", value=" ■ ".join(
+                    f"`{command[0]}`"
+                    for command in category_data
+                ), inline=False)
+            
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        names_lower = [n['name'].lower() for n in help_commands]
+        
+        names_lower = [n.lower() for n in help_commands.keys()]
         # check if the category exists
+        command = command.strip("/")
         if command.lower() not in names_lower:
             embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Command does not exist. Use `/help` to view all commands")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
-        selected_command = {}
-        # get items for category
-        for cmd in help_commands:
-            if command.lower() == cmd['name'].lower():
-                selected_command = cmd
-
-        command = selected_command # to make life easier
+        selected_command = help_commands[command.lower()]
         # get the category
-        embed = NormalEmbed(title=f"<:commands_button:1028377812777828502> Help for command `/{command['name']}`", description="*<> - required, [] - optional*", timestamp=True)
+        embed = NormalEmbed(title=f"<:commands_button:1028377812777828502> Help for command `/{command.lower()}`", description="*<> - required, [] - optional*", timestamp=True)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         arguments = ""
         syntax_arguments = ""
-        embed.add_field(name="Description", value=command['description'], inline=False)
+        embed.add_field(name="Description", value=selected_command["description"], inline=False)
+        embed.add_field(name="Category", value=selected_command["category"])
         try:
-            for arg in list(command['arguments'].items()):
+            for arg in list(selected_command["arguments"].items()):
                 arguments += f"■ `{arg[0]}` - {arg[1]['description']}. Required: `{arg[1]['required']}`\n"
-                syntax_arguments += f"<{arg[0]}> " if arg[1]['required'] else f"[{arg[0]}] "
-            embed.add_field(name="Arguments", value=f"{arguments}", inline=False)
+                syntax_arguments += f"<{arg[0]}> " if arg[1]["required"] else f"[{arg[0]}] "
+            embed.add_field(name="Arguments", value=arguments, inline=False)
         except Exception as e: pass
 
-        embed.add_field(name="Command syntax", value=f"`/{command['name']}{' ' + syntax_arguments[:-1] if syntax_arguments else ''}`", inline=False)
+        embed.add_field(name="Command syntax", value=f"`/{command.lower()}{' ' + syntax_arguments[:-1] if syntax_arguments else ''}`", inline=False)
     
         await interaction.followup.send(embed=embed, ephemeral=True)
 
 async def setup(bot):
-    help_utils.register_command("help", "Get helpful information about commands of the bot", "Miscellaneous", 
-                              [("command","A command you want to get detailed information about",False)])
+    # help_utils.register_command("help", "Get helpful information about commands of the bot", "Miscellaneous", 
+    #                           [("command","A command you want to get detailed information about",False)])
     await bot.add_cog(HelpCommand(bot))

@@ -74,7 +74,8 @@ class ConfigurationHandler:
         except:
             raise KeyDoesNotExist(f"Key \"{key}\" does not exist")
         valType = get_class_from_value(value)
-        if valType == "discord.role.Role":
+        print(valType)
+        if valType in ["discord.role.Role", "Role"]:
             valType = "role"
             value = str(value.id)
         if valType not in ["int", "str", "bool", "role"]:

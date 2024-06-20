@@ -4,6 +4,78 @@ from enum import Enum
 EQ_HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
 FILTERS = ["karaoke", "timescale", "tremolo", "vibrato", "rotation", "distortion", "channel_mix", "low_pass"]
 
+EQ_PRESETS = {
+    "piano": [
+        {"band": 0, "gain": 0.0},
+        {"band": 1, "gain": 0.0},
+        {"band": 2, "gain": 0.0},
+        {"band": 3, "gain": 0.1},
+        {"band": 4, "gain": 0.1},
+        {"band": 5, "gain": 0.2},
+        {"band": 6, "gain": 0.2},
+        {"band": 7, "gain": 0.1},
+        {"band": 8, "gain": 0.1},
+        {"band": 9, "gain": 0.0},
+        {"band": 10, "gain": 0.0},
+        {"band": 11, "gain": 0.0},
+        {"band": 12, "gain": 0.0},
+        {"band": 13, "gain": 0.0},
+        {"band": 14, "gain": 0.0}
+    ],
+    "metal": [
+        {"band": 0, "gain": 0.4},
+        {"band": 1, "gain": 0.4},
+        {"band": 2, "gain": 0.3},
+        {"band": 3, "gain": 0.3},
+        {"band": 4, "gain": 0.3},
+        {"band": 5, "gain": 0.0},
+        {"band": 6, "gain": -0.1},
+        {"band": 7, "gain": 0.0},
+        {"band": 8, "gain": 0.1},
+        {"band": 9, "gain": 0.3},
+        {"band": 10, "gain": 0.4},
+        {"band": 11, "gain": 0.4},
+        {"band": 12, "gain": 0.4},
+        {"band": 13, "gain": 0.4},
+        {"band": 14, "gain": 0.4}
+    ],
+    "bassboost": [
+        {"band": 0, "gain": 0.4},
+        {"band": 1, "gain": 0.4},
+        {"band": 2, "gain": 0.4},
+        {"band": 3, "gain": 0.4},
+        {"band": 4, "gain": 0.4},
+        {"band": 5, "gain": 0.4},
+        {"band": 6, "gain": 0.4},
+        {"band": 7, "gain": 0.4},
+        {"band": 8, "gain": 0.4},
+        {"band": 9, "gain": 0.4},
+        {"band": 10, "gain": 0.4},
+        {"band": 11, "gain": 0.4},
+        {"band": 12, "gain": 0.4},
+        {"band": 13, "gain": 0.4},
+        {"band": 14, "gain": 0.4}
+    ],
+    "bassboost++": [
+        {"band": 0, "gain": 1},
+        {"band": 1, "gain": 1},
+        {"band": 2, "gain": 1},
+        {"band": 3, "gain": 1},
+        {"band": 4, "gain": 1},
+        {"band": 5, "gain": 1},
+        {"band": 6, "gain": 1},
+        {"band": 7, "gain": 1},
+        {"band": 8, "gain": 1},
+        {"band": 9, "gain": 1},
+        {"band": 10, "gain": 1},
+        {"band": 11, "gain": 1},
+        {"band": 12, "gain": 1},
+        {"band": 13, "gain": 1},
+        {"band": 14, "gain": 1}
+    ]
+}
+
+
 async def set_filter(player: wavelink.Player, filter: str):
     pfilters: wavelink.Filters = player.filters
     if filter == "karaoke":
@@ -26,5 +98,15 @@ async def set_filter(player: wavelink.Player, filter: str):
         pfilters.low_pass.set(smoothing=20.0)
     
     await player.set_filters(pfilters, seek=True)
+    
+async def set_equalizer(player: wavelink.Player, preset: str):
+    bands = EQ_PRESETS.get(preset, None)
+    if not bands:
+        return False
+    
+    pfilters: wavelink.Filters = player.filters
+    pfilters.equalizer.set(bands=bands)
+    await player.set_filters(pfilters)
+    return True
     
     

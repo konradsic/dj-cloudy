@@ -12,7 +12,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.ui.embeds import FooterType, NormalEmbed, ShortEmbed
 from lib.utils import help_utils
 from lib.utils.base_utils import basic_auth, get_nodes, get_config
-from lib.utils.help_utils import get_commands
+# from lib.utils.help_utils import get_commands
 
 
 async def command_autocomplete(
@@ -21,7 +21,7 @@ async def command_autocomplete(
 ) -> list[app_commands.Choice[str]]:
     current = current.strip("/")
     matcher = difflib.SequenceMatcher
-    commands = [cmd["name"] for cmd in get_commands()]
+    commands = [cmd for cmd in help_utils.commands.keys()]
     #print("command autocomplete matching star")
     matches: list[tuple] = [] # (cmd, match)
     for i, command in enumerate(commands):
@@ -57,6 +57,7 @@ class MiscCommands(commands.Cog):
             await message.channel.send(embed=embed)
 
     @app_commands.command(name="ping",description="Returns latency and uptime of the bot")
+    @help_utils.add("ping", "Returns latency and uptime of the bot", "Miscellaneous")
     async def ping_command(self,interaction: discord.Interaction):
         embed = NormalEmbed(timestamp=True, footer=FooterType.COMMANDS)
         embed.set_author(name="Pong! Here are the results", icon_url=self.bot.user.avatar)
@@ -65,6 +66,7 @@ class MiscCommands(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="botinfo", description="Gathers some information about the bot and Wavelink nodes")
+    @help_utils.add("botinfo", "Gathers some information about the bot and Wavelink nodes", "Miscellaneous")
     async def botinfo_command(self,interaction: discord.Interaction):
         await interaction.response.defer(thinking=True, ephemeral=True)
         # gather all informations below:
@@ -98,6 +100,7 @@ class MiscCommands(commands.Cog):
         await interaction.followup.send(embed=embed, ephemeral=True)
         
     @app_commands.command(name="credits", description="Display credits")
+    @help_utils.add("credits", "Display credits", "Miscellaneous")
     async def credits_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         
@@ -108,7 +111,8 @@ class MiscCommands(commands.Cog):
         
         DEVELOPERS = [958029521565679646]
         SPONSORS = [508661400089002004]
-        TESTERS = [997874629379117086, 958029521565679646]
+        # TESTERS = [997874629379117086, 958029521565679646]
+        TESTERS = [997874629379117086]
         
         devlen = len(DEVELOPERS)
         sponsorlen = len(SPONSORS)
@@ -122,18 +126,19 @@ class MiscCommands(commands.Cog):
         dev_text_plural       = "*These people code the bot*"
         sponsor_text_singular = "*This person sponsors the DJ Cloudy project*"
         sponsor_text_plural   = "*These people sponsor the DJ Cloudy project*"
-        tester_text_singular  = "*This person test the bot to ensure everything is running correctly*"
-        tester_text_plural    = "*These people test the bot to ensure everything is running correctly*"
+        tester_text_singular  = "*This person test the bot to ensure everything is running smoothly*"
+        tester_text_plural    = "*These people test the bot to ensure everything is running smoothly*"
         
         embed.add_field(name=f"{emoji.DEVELOPER.string} Developer{'s' if len(DEVELOPERS) > 1 else ''}", value=f"\n{dev_text_singular if devlen == 1 else dev_text_plural}\n{string_devs}", inline=False)
-        embed.add_field(name=f"{emoji.SPONSOR.string} Sponsor{'s' if len(SPONSORS) > 1 else ''}", value=f"\n{sponsor_text_singular if sponsorlen == 1 else sponsor_text_plural}\n{string_sponsors}", inline=False)
+        embed.add_field(name=f"{emoji.SPONSOR.string} Sponsor{'s' if len(SPONSORS) > 1 else ''}", value=f"\n{sponsor_text_singular if sponsorlen == 1 else sponsor_text_plural}\nNo sponsors for now!", inline=False)
         embed.add_field(name=f"{emoji.TESTER.string} Tester{'s' if len(TESTERS) > 1 else ''}", value=f"\n{tester_text_singular if testlen == 1 else tester_text_plural}\n{string_testers}", inline=False)
 
         await interaction.followup.send(embed=embed, ephemeral=True)
         
     @app_commands.command(name="bug-report", description="Report bugs")
-    @app_commands.describe(command="Which command did you use?", description="Description of the bug")
+    @app_commands.describe(command="When using which command the bug occurred?", description="Description of the bug")
     @app_commands.autocomplete(command=command_autocomplete)
+    @help_utils.add("bug-report", "Report bugs", "Miscellaneous", {"command": {"description": "When using which command the bug occurred?", "required": True}, "description": {"description": "Description of the bug", "required": True}})
     async def bugreport_command(self, interaction: discord.Interaction, command: str, description: str):
         await interaction.response.defer(thinking=True, ephemeral=True)
         embed = NormalEmbed(timestamp=True, footer=FooterType.NONE, description=f"**Description of the bug:**\n```{description}```", title="Recieved a bug report via /bug-report command")
@@ -148,11 +153,9 @@ class MiscCommands(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("ping", "Returns latency and uptime of the bot", "Miscellaneous")
-    help_utils.register_command("botinfo", "Gathers most of informations about the bot and Wavelink nodes", "Miscellaneous")
-    help_utils.register_command("credits", "Display credits", "Miscellaneous")
-    help_utils.register_command("bug-report", "Report bugs", "Miscellaneous", [("command", "Which command did you use?", True), 
-                                                                               ("description", "Description of the bug", True)])
-    await bot.add_cog(
-        MiscCommands(bot)
-    )
+    # help_utils.register_command("ping", "Returns latency and uptime of the bot", "Miscellaneous")
+    # help_utils.register_command("botinfo", "Gathers most of informations about the bot and Wavelink nodes", "Miscellaneous")
+    # help_utils.register_command("credits", "Display credits", "Miscellaneous")
+    # help_utils.register_command("bug-report", "Report bugs", "Miscellaneous", [("command", "Which command did you use?", True), 
+    #                                                                            ("description", "Description of the bug", True)])
+    await bot.add_cog(MiscCommands(bot))

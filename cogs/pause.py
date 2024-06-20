@@ -19,7 +19,8 @@ class PlayPauseCommands(commands.Cog):
         self.bot = bot
         self.logger = logger
 
-    @app_commands.command(name="pause", description="Pauses current playing track")
+    @app_commands.command(name="pause", description="Pauses currently playing track")
+    @help_utils.add("pause", "Pauses currently playing track", "Music")
     async def pause_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -54,6 +55,7 @@ class PlayPauseCommands(commands.Cog):
         await interaction.followup.send(embed=embed)
         
     @app_commands.command(name="resume", description="Resumes paused playback")
+    @help_utils.add("resume", "Resumes paused playback", "Music")
     async def resume_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -86,8 +88,6 @@ class PlayPauseCommands(commands.Cog):
         await interaction.followup.send(embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
-    help_utils.register_command("pause", "Pauses current playing track", "Music")
-    help_utils.register_command("resume", "Resumes paused playback", "Music")
-    await bot.add_cog(
-        PlayPauseCommands(bot)
-    )
+    # help_utils.register_command("pause", "Pauses current playing track", "Music")
+    # help_utils.register_command("resume", "Resumes paused playback", "Music")
+    await bot.add_cog(PlayPauseCommands(bot))
