@@ -40,8 +40,8 @@ data/.cache
 # releases
 releases
 
-# config
-config
+# lavalink actual config
+config/application.yml
 
 # spotipy cache
 .cache

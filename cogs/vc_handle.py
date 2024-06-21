@@ -101,7 +101,7 @@ class VC_Handler(commands.Cog):
                         except:
                             cont = False
                         if not player.paused_vc and cont:
-                            await player.pause()
+                            await player.pause(True)
                             disconnect_after = config.data["inactiveTimeout"]["value"]
                             if player.channel is not None:
                                 embed = ShortEmbed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused because everybody left. Disconnecting in `{disconnect_after}min`")
@@ -116,7 +116,7 @@ class VC_Handler(commands.Cog):
                                     # check
                                     if not [m for m in before.channel.members if not m.bot]:
                                         await player.teardown()
-                                        embed = ShortEmbed(description=f"<:channel_button:1028004864556531824> Disconnected due to inactivity. Start a new party using `/connect` or `/play`!")
+                                        embed = ShortEmbed(description=f"<:channel_button:1028004864556531824> Disconnected due to inactivity. Start a new party using for example `/play`!")
                                         await player.bound_channel.send(embed=embed)
                             
         try:
@@ -124,7 +124,7 @@ class VC_Handler(commands.Cog):
                 player = wavelink.Pool.get_node().get_player(int(member.guild.id))
                 if player is None: return
                 if player.paused_vc == True:
-                    await player.resume()
+                    await player.pause(False)
                     if player.bound_channel is not None:
                         embed = ShortEmbed(description=f"<:play_button:1028004869019279391> Resuming playback...")
                         await player.bound_channel.send(embed=embed)
@@ -227,3 +227,4 @@ class VC_Handler(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(VC_Handler(bot))
+

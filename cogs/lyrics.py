@@ -87,7 +87,7 @@ class LyricsCommandHandler(commands.Cog):
                 if not re.match(URL_REGEX, song):
                     song = "ytsearch:" + song
                 try:
-                    queried_song = await self.bot.node.get_tracks(cls=wavelink.Playable, query=song)
+                    queried_song = await wavelink.Pool.fetch_tracks(song)
                     if queried_song:
                         queried_song = queried_song[0]
                         title = queried_song.title
@@ -98,7 +98,7 @@ class LyricsCommandHandler(commands.Cog):
                 except Exception as e:
                     embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song")
                     await interaction.followup.send(embed=embed, ephemeral=True)
-                    print(e)
+                    # print(e)
                     return
 
         try:
@@ -148,3 +148,4 @@ class LyricsCommandHandler(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(LyricsCommandHandler(bot))
+    

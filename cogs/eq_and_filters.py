@@ -253,7 +253,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         # convert payload to a list and apply it
         payload = [{"band": x["band"], "gain": x["gain"]} for x in payload.values()]
         filters.equalizer.set(bands=payload)
-        await player.set_filters(filters)
+        await player.set_filters(filters, seek=True)
         embed = ShortEmbed(description=f"<:tick:1028004866662084659> Equalizer adjusted to a custom preset.")
         await interaction.followup.send(embed=embed)
 
@@ -287,7 +287,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             return "not playing"
         
         filters: wavelink.Filters = player.filters
-        filters.equalizer.set([{"band": x, "gain": 0.0} for x in range(15)])
+        filters.equalizer.set(bands=[{"band": x, "gain": 0.0} for x in range(15)])
         await player.set_filter(filters) # empty filter for reseting
         embed = ShortEmbed(description=f"<:tick:1028004866662084659> Equalizers have been successfully reset")
         await interaction.followup.send(embed=embed)
