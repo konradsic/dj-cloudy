@@ -9,6 +9,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.utils.configuration import ConfigurationHandler
 from lib.utils.base_utils import djRole_check, quiz_check
 from lib.logger import logger
+from lib.ui import emoji as emojilib
 # from music.core import some-import
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
@@ -27,29 +28,29 @@ class VolumeController(commands.Cog):
         voice = interaction.user.voice
         cfg = ConfigurationHandler(id=interaction.guild.id, user=False)
         if not voice:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emojilib.XMARK} You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emojilib.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}")
+            embed = ShortEmbed(description=f"{emojilib.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
+            embed = ShortEmbed(description=f"{emojilib.XMARK} Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         volume = player.volume
         if value is None:
             emoji = ""
-            if volume == 0: emoji = "<:volume_none:1029437733631967233>"
-            if (1 <= volume <= 60): emoji = "<:volume_low:1029437729265688676>"
-            if (61 <= volume <= 90): emoji = "<:volume_medium:1029437731354460270>"
-            if (91 <= volume <= 1000): emoji = "<:volume_high:1029437727294361691>"
+            if value == 0: emoji = emojilib.VOLUME_NONE
+            if (1 <= value <= 60): emoji = emojilib.VOLUME_LOW
+            if (61 <= value <= 90): emoji = emojilib.VOLUME_MID
+            if (91 <= value <= 1000): emoji = emojilib.VOLUME_HIGH
 
             embed = ShortEmbed(description=f"{emoji} Current volume is set to `{volume}%`")
             await interaction.followup.send(embed=embed)
@@ -58,17 +59,17 @@ class VolumeController(commands.Cog):
         maxVolume = cfg.data["maxVolume"]["value"]
         if value is not None:
             if not (0 <= value <= maxVolume):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Volume value out of range! (max. `{maxVolume}`)")
+                embed = ShortEmbed(description=f"{emojilib.XMARK} Volume value out of range! (max. `{maxVolume}`)")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         if not await djRole_check(interaction, self.logger): return
         await player.set_volume(value)
 
         emoji = ""
-        if value == 0: emoji = "<:volume_none:1029437733631967233>"
-        if (1 <= value <= 60): emoji = "<:volume_low:1029437729265688676>"
-        if (61 <= value <= 90): emoji = "<:volume_medium:1029437731354460270>"
-        if (91 <= value <= 1000): emoji = "<:volume_high:1029437727294361691>"
+        if value == 0: emoji = emojilib.VOLUME_NONE
+        if (1 <= value <= 60): emoji = emojilib.VOLUME_LOW
+        if (61 <= value <= 90): emoji = emojilib.VOLUME_MID
+        if (91 <= value <= 1000): emoji = emojilib.VOLUME_HIGH
         embed = ShortEmbed(description=f"{emoji} Volume successfully set to `{value}%`")
         await interaction.followup.send(embed=embed)
         

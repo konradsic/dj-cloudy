@@ -6,6 +6,7 @@ from lib.ui.colors import BASE_COLOR
 import datetime
 import random
 from lib.ui.embeds import NormalEmbed, ShortEmbed, FooterType
+from lib.ui import emoji
 
 class HelpCommand(commands.Cog):
     def __init__(self, bot):
@@ -21,7 +22,7 @@ class HelpCommand(commands.Cog):
         
         if command is None:
             embed = NormalEmbed(
-                title=f"<:commands_button:1028377812777828502> Help: Displaying `{len(help_commands.keys())}` commands", 
+                title=f"{emoji.COMMANDS} Help: Displaying `{len(help_commands.keys())}` commands", 
                 description="Here, all categories with their respective commands are shown. To get detailed info about a command, use `/help <command>`\n*My command prefix is `/`*",
                 footer=FooterType.MADE_BY
             )
@@ -40,13 +41,13 @@ class HelpCommand(commands.Cog):
         # check if the category exists
         command = command.strip("/")
         if command.lower() not in names_lower:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Command does not exist. Use `/help` to view all commands")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Command does not exist. Use `/help` to view all commands")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         selected_command = help_commands[command.lower()]
         # get the category
-        embed = NormalEmbed(title=f"<:commands_button:1028377812777828502> Help for command `/{command.lower()}`", description="*<> - required, [] - optional*", timestamp=True)
+        embed = NormalEmbed(title=f"{emoji.COMMANDS} Help for command `/{command.lower()}`", description="*<> - required, [] - optional*", timestamp=True)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         arguments = ""
         syntax_arguments = ""
@@ -63,5 +64,8 @@ class HelpCommand(commands.Cog):
     
         await interaction.followup.send(embed=embed, ephemeral=True)
 
-async def setup(bot):
+
+async def setup(bot: commands.Bot):
     await bot.add_cog(HelpCommand(bot))
+    
+    

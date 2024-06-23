@@ -61,7 +61,7 @@ class MiscCommands(commands.Cog):
     async def ping_command(self,interaction: discord.Interaction):
         embed = NormalEmbed(timestamp=True, footer=FooterType.COMMANDS)
         embed.set_author(name="Pong! Here are the results", icon_url=self.bot.user.avatar)
-        embed.add_field(name="<:stats_gradient:1024352560724836444> Latency", value=f"`{round(self.bot.latency*1000)}ms`")
+        embed.add_field(name=f"{emoji.STATS} Latency", value=f"`{round(self.bot.latency*1000)}ms`")
         embed.add_field(name=":clock1: Last restart", value=f"<t:{self.bot.last_restart}:R> / <t:{self.bot.last_restart}:f>")
         await interaction.response.send_message(embed=embed)
 
@@ -69,7 +69,7 @@ class MiscCommands(commands.Cog):
     @help_utils.add("botinfo", "Gathers some information about the bot and Wavelink nodes", "Miscellaneous")
     async def botinfo_command(self,interaction: discord.Interaction):
         await interaction.response.defer(thinking=True, ephemeral=True)
-        # gather all informations below:
+        # gather all information below:
         nodes = [get_nodes()]
         node_data = "".join(f'**Node `{node.identifier}`** with status `{node.status.name}`\n  - Host: URI `{basic_auth("uri", node.uri, interaction.user)}`\n' for node in nodes)
         if node_data == "":
@@ -91,10 +91,10 @@ class MiscCommands(commands.Cog):
         else:
             players_data = "".join(f"`{i}.` Player guild: **{player.guild.id}**, playing: `{player.playing}`, paused: `{player.paused}`" for i,player in enumerate(players, start=1))
 
-        embed = NormalEmbed(title="Bot informations", description="Informations gathered are below",timestamp=True, footer=FooterType.GH_LINK)
+        embed = NormalEmbed(title="Bot information", description="Information gathered are below",timestamp=True, footer=FooterType.GH_LINK)
         embed.add_field(name="Nodes data", value=node_data, inline=False)
         embed.add_field(name="Players data", value=players_data, inline=False)
-        embed.add_field(name="Bot informations", 
+        embed.add_field(name="Bot information", 
             value=f"Bot ID: `{self.bot.user.id}`\nLatency: `{round(self.bot.latency*1000)}ms`\nGuilds count: **{len(self.bot.guilds)}**\nBot created at: <t:{round(time.mktime(self.bot.user.created_at.strptime(str(self.bot.user.created_at)[:10], '%Y-%m-%d').timetuple()))}:f>", inline=False)
         embed.set_thumbnail(url=self.bot.user.display_avatar.url)
         await interaction.followup.send(embed=embed, ephemeral=True)

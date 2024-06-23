@@ -104,7 +104,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             starred = True
         
         if not found:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No playlist was found")
+            embed = ShortEmbed(description=f"{emoji.XMARK} No playlist was found")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         tracks = []
@@ -181,7 +181,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         if user is None:
             user = interaction.user
         if user.bot:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Bots cannot have playlists! Make sure to select a user next time")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Bots cannot have playlists! Make sure to select a user next time")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         user_data = playlist.PlaylistHandler(key=str(user.id))
@@ -271,7 +271,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     async def playlist_create_command(self, interaction: discord.Interaction, name: str, copy_queue: bool=False):
         await interaction.response.defer(ephemeral=True, thinking=True)
         if len(name) > 30:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Playlist name should be less that 30 characters!")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Playlist name should be less that 30 characters!")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
@@ -281,11 +281,11 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         elif handler.data['credentials'] == 2:
             limits = 10**15 # "infinity", max playlists for admins
         if len(handler.playlists) >= limits:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Playlist creation exceeds your current limits. Only moderators, admins and devs have higher limits. Contact us for more info")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Playlist creation exceeds your current limits. Only moderators, admins and devs have higher limits. Contact us for more info")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if name.lower() == "starred":
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> 'starred' is a special playlist name that stands for your :star: songs. You can't use it for playlist creation")
+            embed = ShortEmbed(description=f"{emoji.XMARK} 'starred' is a special playlist name that stands for your :star: songs. You can't use it for playlist creation")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
@@ -295,20 +295,20 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                     if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                         raise NoPlayerFound("There is no player connected in this guild")
                 except NoPlayerFound:
-                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel `->` no queue `->` no songs to copy")
+                    embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel `->` no queue `->` no songs to copy")
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 if player.queue.is_empty:
-                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> There are not tracks in the queue so there is nothing to copy")
+                    embed = ShortEmbed(description=f"{emoji.XMARK} There are not tracks in the queue so there is nothing to copy")
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 tracks = [song.uri for song in player.queue.get_tracks()]
             handler.create_playlist(name, tracks)
         except PlaylistCreationError:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to create playlist, please try again")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Failed to create playlist, please try again")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully created playlist **{name}**")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Successfully created playlist **{name}**")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="add-song", description="Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist")
@@ -334,7 +334,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             playlist_id = None
             playlist_name = "STARRED"
         if not found:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to get playlist with name/id `{name_or_id}`. Make sure that the name is a name of __your__ playlist")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Failed to get playlist with name/id `{name_or_id}`. Make sure that the name is a name of __your__ playlist")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         limits = 75 # Maximum songs in a playlist
@@ -344,7 +344,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             limits = 10**15 # "infinity"
 
         if len(found["tracks"]) >= limits:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         # Fixes issue #37: no song validation
@@ -360,7 +360,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         try:
             handler.add_to_playlist(name_or_id.lower(), song)
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> An error occured while trying to add the song. Please try again")
+            embed = ShortEmbed(description=f"{emoji.XMARK} An error occured while trying to add the song. Please try again")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -379,7 +379,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             "id": track.identifier
         })
         
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully added [**{track.title}**]({track.uri}) to the playlist **{playlist_name}{'#' + playlist_id if playlist_id else ''}**")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Successfully added [**{track.title}**]({track.uri}) to the playlist **{playlist_name}{'#' + playlist_id if playlist_id else ''}**")
         await interaction.followup.send(embed=embed)
         return
 
@@ -393,17 +393,17 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         await interaction.response.defer(ephemeral=True, thinking=True)
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         if index <= 0:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Index should be between 1 and playlist length")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Index should be between 1 and playlist length")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             handler.remove(name_or_id, index-1)
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> An error occured while trying to remove the song. Check if index is correct and the name or ID of the playlist")
+            embed = ShortEmbed(description=f"{emoji.XMARK} An error occured while trying to remove the song. Check if index is correct and the name or ID of the playlist")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully removed song at position `{index}` from playlist __{name_or_id}__")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Successfully removed song at position `{index}` from playlist __{name_or_id}__")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="remove-playlist", description="Remove a playlist")
@@ -415,11 +415,11 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         try:
             handler.remove_playlist(name_or_id)
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> An error occured while trying to remove the playlist. Check spelling and name then try again")
+            embed = ShortEmbed(description=f"{emoji.XMARK} An error occured while trying to remove the playlist. Check spelling and name then try again")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully removed playlist **{name_or_id}**")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Successfully removed playlist **{name_or_id}**")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="play", description="Play your playlist!")
@@ -436,18 +436,18 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
             if interaction.user.voice is None:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             channel = interaction.user.voice.channel
@@ -463,7 +463,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             res = {'tracks': res}
         self.logger.debug(res)
         if not res:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No playlist with name \"{name_or_id}\" was found. Perhaps you misspelled it?")
+            embed = ShortEmbed(description=f"{emoji.XMARK} No playlist with name \"{name_or_id}\" was found. Perhaps you misspelled it?")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         # adapt the playlist
@@ -523,12 +523,12 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
         try:
             res = handler.rename_playlist(name_or_id, new_name)
-            embed = ShortEmbed(description=f"<:tick:1028004866662084659> Playlist renamed from `{name_or_id}` to `{new_name}`")
+            embed = ShortEmbed(description=f"{emoji.TICK1} Playlist renamed from `{name_or_id}` to `{new_name}`")
             await interaction.followup.send(embed=embed)
             return
         except Exception as e:
             self.logger.error(f"Renaming playlist error -- {e.__class__.__name__}: {str(e)}")
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Unhandled exception occured while trying to rename playlist. Make sure that the name/id is correct.")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Unhandled exception occured while trying to rename playlist. Make sure that the name/id is correct.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 

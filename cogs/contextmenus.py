@@ -13,6 +13,7 @@ from lib.ui.buttons import EmbedPaginator
 from lib.utils.errors import CacheExpired, CacheNotFound
 import time
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui import emoji
 
 @logger.LoggerApplication
 class ContextMenusCog(commands.Cog):
@@ -29,7 +30,7 @@ class ContextMenusCog(commands.Cog):
         if user is None:
             user = interaction.user
         if user.bot:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Bots cannot have playlists! Make sure to select a user next time",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.XMARK} Bots cannot have playlists! Make sure to select a user next time",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         user_data = playlist.PlaylistHandler(key=str(user.id))
@@ -185,7 +186,7 @@ class ContextMenusCog(commands.Cog):
     async def copy_user_playlist_menu(self, interaction: discord.Interaction, member: discord.Member):
         await interaction.response.defer(ephemeral=True, thinking=True)
         if str(interaction.user.id) == str(member.id):
-            await interaction.followup.send(ephemeral=True, embed=ShortEmbed(description="<:x_mark:1028004871313563758> You can't copy your playlist"))
+            await interaction.followup.send(ephemeral=True, embed=ShortEmbed(description=f"{emoji.XMARK} You can't copy your playlist"))
             return
         handler = playlist.PlaylistHandler(key=str(member.id))
         starred = handler.data['starred-playlist']
@@ -193,7 +194,7 @@ class ContextMenusCog(commands.Cog):
         author_starred = handler.data['starred-playlist']
         for song in starred:
             author_handler.add_to_starred(song)
-        await interaction.followup.send(embed=ShortEmbed(description=f"<:tick:1028004866662084659> Success, added {member.name}'s starred playlist to yours"),ephemeral=True)
+        await interaction.followup.send(embed=ShortEmbed(description=f"{emoji.TICK1} Success, added {member.name}'s starred playlist to yours"),ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(ContextMenusCog(bot))

@@ -20,6 +20,7 @@ from unidecode import unidecode
 from lib.utils.base_utils import quiz_check
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 import traceback
+from lib.ui import emoji
 
 def remove_brackets(string):
     replace_matcher = {
@@ -54,16 +55,16 @@ class LyricsCommandHandler(commands.Cog):
         if song is None:
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -71,7 +72,7 @@ class LyricsCommandHandler(commands.Cog):
                 playing = player.playing
                 if not playing: raise Exception
             except:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot get lyrics for `None`: Nothing is playing and the `song` argument is also `None`")
+                embed = ShortEmbed(description=f"{emoji.XMARK} Cannot get lyrics for `None`: Nothing is playing and the `song` argument is also `None`")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
@@ -96,7 +97,7 @@ class LyricsCommandHandler(commands.Cog):
                         title = before_song
                         artist = "Unknown"
                 except Exception as e:
-                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No song with given name was found. Try inputing a different song")
+                    embed = ShortEmbed(description=f"{emoji.XMARK} No song with given name was found. Try inputing a different song")
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     # print(e)
                     return
@@ -116,7 +117,7 @@ class LyricsCommandHandler(commands.Cog):
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
             title = f"{genius_title} by {genius_author} ({title if not raw_search else 'genius search'})"
         except Exception as e:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No lyrics were found. Try entering a different song")
+            embed = ShortEmbed(description=f"{emoji.XMARK} No lyrics were found. Try entering a different song")
             await interaction.followup.send(embed=embed, ephemeral=True)
             traceback.print_exc()
             return

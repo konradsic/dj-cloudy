@@ -231,12 +231,12 @@ async def djRole_check(interaction: discord.Interaction, logger: logger.Logger):
         if not (user_vc_len == 2):
             role = interaction.guild.get_role(int(djRole))
             logger.error(f"DJ Auth failed (id: {interaction.user.id}, required role {role}) ")
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> You need to have the {role.mention} role in order to use DJ commands", color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} You need to have the {role.mention} role in order to use DJ commands", color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return False
     except Exception as e: 
         logger.error(f"DJ Auth failed (id: {interaction.user.id}, exception {e.__class__.__name__}: {str(e)}) ")
-        embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Failed to check for DJ role permissions, try again", color=BASE_COLOR)
+        embed = discord.Embed(description=f"{emoji.XMARK} Failed to check for DJ role permissions, try again", color=BASE_COLOR)
         await interaction.followup.send(embed=embed, ephemeral=True)
         return False
 

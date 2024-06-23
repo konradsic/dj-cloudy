@@ -14,6 +14,7 @@ from discord.app_commands import Choice
 from lib.logger import logger
 from lib.utils.base_utils import quiz_check
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui import emoji
 
 @logger.LoggerApplication
 class FiltersCog(commands.GroupCog, name="filters"):
@@ -45,33 +46,33 @@ class FiltersCog(commands.GroupCog, name="filters"):
 
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't apply filters when nothing is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't apply filters when nothing is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
         
         # set filter
         if filter not in filters_and_eqs.FILTERS:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Invalid filter")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Invalid filter")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
         await filters_and_eqs.set_filter(player, filter)
         
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully applied filter `{filter}` to currently playing track")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Successfully applied filter `{filter}` to currently playing track")
         await interaction.followup.send(embed=embed)
         self.logger.info(f"Applied filter '{filter}' in guild #{interaction.guild.id}")
 
@@ -87,26 +88,26 @@ class FiltersCog(commands.GroupCog, name="filters"):
 
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed" 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't reset filters when nothing is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't reset filters when nothing is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
         
         await player.set_filters(wavelink.Filters(), seek=True) # empty for no filter modifications
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Filters successfully reset")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Filters successfully reset")
         await interaction.followup.send(embed=embed)
         self.logger.info(f"Filters reset in guild #{interaction.guild.id}")
         
@@ -122,17 +123,17 @@ class FiltersCog(commands.GroupCog, name="filters"):
 
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed" 
         
@@ -175,30 +176,30 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
 
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed" 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't apply equalizers when no song is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
         
         eq = await filters_and_eqs.set_equalizer(player, equalizer)
         if not eq:
-            await interaction.followup.send(embed=ShortEmbed(description=f"<:x_mark:1028004871313563758> Invalid equalizer preset"), ephemeral=True)
+            await interaction.followup.send(embed=ShortEmbed(description=f"{emoji.XMARK} Invalid equalizer preset"), ephemeral=True)
             return "failed"
         
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully applied equalizer `{equalizer}` to currently playing track")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Successfully applied equalizer `{equalizer}` to currently playing track")
         await interaction.followup.send(embed=embed)
         self.logger.info(f"Applied eq '{equalizer}' in guild #{interaction.guild.id}")
 
@@ -220,29 +221,29 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed" 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't apply equalizers when no song is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't apply equalizers when no song is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
         
         if gain < -2.5:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Gain must be between `-2.5` and `10.0`")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Gain must be between `-2.5` and `10.0`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
         elif gain > 10:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Gain must be between `-2.5` and `10.0`")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Gain must be between `-2.5` and `10.0`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
 
@@ -254,7 +255,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         payload = [{"band": x["band"], "gain": x["gain"]} for x in payload.values()]
         filters.equalizer.set(bands=payload)
         await player.set_filters(filters, seek=True)
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Equalizer adjusted to a custom preset.")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Equalizer adjusted to a custom preset.")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="reset", description="Resets applied equalizers. Similiar to /filters reset")
@@ -269,27 +270,27 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed" 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't reset equalizers when nothing is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't reset equalizers when nothing is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
         
         filters: wavelink.Filters = player.filters
         filters.equalizer.set(bands=[{"band": x, "gain": 0.0} for x in range(15)])
         await player.set_filter(filters) # empty filter for reseting
-        embed = ShortEmbed(description=f"<:tick:1028004866662084659> Equalizers have been successfully reset")
+        embed = ShortEmbed(description=f"{emoji.TICK1} Equalizers have been successfully reset")
         await interaction.followup.send(embed=embed)
         self.logger.info(f"Filters reset in guild #{interaction.guild.id}")
         
@@ -305,20 +306,20 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
             
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed" 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't reset equalizers when nothing is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't reset equalizers when nothing is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
         

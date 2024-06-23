@@ -12,6 +12,7 @@ from lib.utils.base_utils import convert_to_double, double_to_int, djRole_check,
 from lib.logger import logger
 from lib.utils.configuration import ConfigurationHandler
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui import emoji
 
 @logger.LoggerApplication
 class SeekAndRestartCog(commands.Cog):
@@ -30,27 +31,27 @@ class SeekAndRestartCog(commands.Cog):
                 raise NoPlayerFound("There is no player connected in this guild")
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't restart when nothing is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't restart when nothing is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
 
         await player.seek(0) # restart
-        embed = ShortEmbed(description=f"<:seek_button:1030534160844062790> Track successfully restarted")
+        embed = ShortEmbed(description=f"{emoji.SEEK} Track successfully restarted")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="seek", description="Seek the player to given position")
@@ -66,22 +67,22 @@ class SeekAndRestartCog(commands.Cog):
                 raise NoPlayerFound("There is no player connected in this guild")
             voice = interaction.user.voice
             if not voice:
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "failed"
 
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't seek when nothing is playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Can't seek when nothing is playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "not playing"
 
@@ -91,17 +92,17 @@ class SeekAndRestartCog(commands.Cog):
             seeklength = cfg.data["defaultSeekAmount"]["value"]
             if seekForward:
                 if player.position/1000+seeklength > player.queue.current_track.length/1000:
-                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds")
+                    embed = ShortEmbed(description=f"{emoji.XMARK} Can't seek out of bounds")
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 await player.seek(int(round(player.position/1000+seeklength)*1000))
             else:
                 if player.position/1000-seeklength < 0:
-                    embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Can't seek out of bounds")
+                    embed = ShortEmbed(description=f"{emoji.XMARK} Can't seek out of bounds")
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 await player.seek(int(round(player.position/1000-seeklength)*1000))
-            embed = ShortEmbed(description=f"<:seek_button:1030534160844062790> Seeked {'forward' if seekForward else 'backwards'} by `{seeklength} seconds`")
+            embed = ShortEmbed(description=f"{emoji.SEEK} Seeking {'forward' if seekForward else 'backwards'} by `{seeklength} seconds`")
             await interaction.followup.send(embed=embed)
             return "relative seek success!"
         h,m,s = 0,0,0
@@ -118,22 +119,22 @@ class SeekAndRestartCog(commands.Cog):
                 raise ValueError("Incorrect position format")
         except Exception as e:
             self.logger.error(f"Failed to get position parameters caused by {e.__class__.__name__}: {str(e)}")
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Invalid player position, use format [h:]m:s e.g `2:15` or `1:39:56`")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Invalid player position, use format [h:]m:s e.g `2:15` or `1:39:56`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "incorrect position"
 
         seek_pos = ((h*3600)+(m*60)+s)*1000
         if not (0 <= int(seek_pos/1000) <= int(player.queue.current_track.length)):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot seek: position out of bounds")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Cannot seek: position out of bounds")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "incorrect position"
         try:
             await player.seek(seek_pos)
-            embed = ShortEmbed(description=f"<:seek_button:1030534160844062790> Successfully seeked to position `{str(h) + ':' if h != 0 else ''}{convert_to_double(m) if h >= 1 else m}:{convert_to_double(s)}`")
+            embed = ShortEmbed(description=f"{emoji.SEEK} Successfully seeked to position `{str(h) + ':' if h != 0 else ''}{convert_to_double(m) if h >= 1 else m}:{convert_to_double(s)}`")
             await interaction.followup.send(embed=embed)
             return "success!"
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to seek, please try again")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Failed to seek, please try again")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return "seek failed"
 

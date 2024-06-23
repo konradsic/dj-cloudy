@@ -52,7 +52,7 @@ class Round():
         
         # from song -> title and artist
         self.song_title: str = cleanup(self.song.title)
-        self.song_artist: str = self.song.artists[0]
+        self.song_artist: str = self.song.author
         
         # setups
         self.revealed_letters: List[int] = [] # indices
@@ -78,18 +78,21 @@ class Round():
                 
             self.song_string = final
 
-        while True:        
+        while True:
+            if len(self.revealed_letters) == len(self.song_title)-1: # not releaving the last letter (if song has <=4 letters)
+                break
             random_idx = random.randint(0, len(self.song_title) - 1)
             if random_idx in self.revealed_letters: continue
             if self.song_title[random_idx] in PUNCTUATION: continue
             if self.song_title[random_idx] in [" "]: continue
             break
         
-        self.revealed_letters.append(random_idx)
-        # reveal
-        l = list(self.song_string)
-        l[random_idx] = self.song_title[random_idx]
-        self.song_string = "".join(letter for letter in l)
+        if len(self.revealed_letters) == len(self.song_title)-1:
+            self.revealed_letters.append(random_idx)
+            # reveal
+            l = list(self.song_string)
+            l[random_idx] = self.song_title[random_idx]
+            self.song_string = "".join(letter for letter in l)
         
     def submit_answer(self, ans, title: True):
         matcher = difflib.SequenceMatcher

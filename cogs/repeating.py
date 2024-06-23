@@ -9,6 +9,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.utils.base_utils import djRole_check, quiz_check
 from lib.logger import logger
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui import emoji
 
 @logger.LoggerApplication
 class RepeatCommands(commands.Cog):
@@ -30,19 +31,19 @@ class RepeatCommands(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         player.queue.repeat.set_repeat(mode.upper()) # upper just in case...
-        embed = ShortEmbed(description=f"<:repeat_button:1030534158302330912> Repeat mode set to `{mode.upper()}`")
+        embed = ShortEmbed(description=f"{emoji.REPEAT} Repeat mode set to `{mode.upper()}`")
         await interaction.followup.send(embed=embed)
 
 async def setup(bot):

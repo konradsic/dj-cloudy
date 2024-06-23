@@ -123,7 +123,7 @@ class PlayCommand(commands.Cog):
         await interaction.response.defer(ephemeral=False)
         if not await quiz_check(self.bot, interaction, self.logger): return
         if interaction.user.voice is None:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -152,7 +152,7 @@ class PlayCommand(commands.Cog):
             except: pass
             
             if i == 19: 
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> No tracks found. Try searching for something else")
+                embed = ShortEmbed(description=f"{emoji.XMARK} No tracks found. Try searching for something else")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             
@@ -193,20 +193,20 @@ class PlayCommand(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
@@ -218,7 +218,7 @@ class PlayCommand(commands.Cog):
 
         thumb = current.artwork
         embed = NormalEmbed(
-            title="<:play_button:1028004869019279391> Currently playing track informations", 
+            title=f"{emoji.PLAY} Currently playing track informations", 
             description="Here you can view informations about currently playing track", 
             timestamp=True, 
         )
@@ -250,20 +250,20 @@ class PlayCommand(commands.Cog):
         if not await quiz_check(self.bot, interaction, self.logger): return
         voice = interaction.user.voice
         if not voice:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not (player := self.bot.node.get_player(interaction.guild.id)):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if str(player.channel.id) != str(voice.channel.id):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+            embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.playing:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Nothing is currently playing")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
@@ -295,9 +295,9 @@ class PlayCommand(commands.Cog):
 
         try:
             await interaction.user.send(embed=embed)
-            await interaction.followup.send(embed=ShortEmbed(description="<:tick:1028004866662084659> Grabbed to your DMs!"))
+            await interaction.followup.send(embed=ShortEmbed(description=f"{emoji.TICK1} Grabbed to your DMs!"))
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to grab, make sure your DMs are open to everyone")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Failed to grab, make sure your DMs are open to everyone")
             await interaction.followup.send(embed=embed)
             return
 

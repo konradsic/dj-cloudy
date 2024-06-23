@@ -16,6 +16,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.utils.configuration import ConfigurationHandler
 from lib.utils.errors import NoPlayerFound
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui import emoji
 
 logging = logger.Logger().get("cogs.vc_handle")
 
@@ -104,7 +105,7 @@ class VC_Handler(commands.Cog):
                             await player.pause(True)
                             disconnect_after = config.data["inactiveTimeout"]["value"]
                             if player.channel is not None:
-                                embed = ShortEmbed(description=f"<:pause_gradient_button:1028219593082286090> Playback paused because everybody left. Disconnecting in `{disconnect_after}min`")
+                                embed = ShortEmbed(description=f"{emoji.PAUSE} Playback paused because everybody left. Disconnecting in `{disconnect_after}min`")
                                 await player.bound_channel.send(embed=embed)
                             player.paused_vc = True
                             # use inactiveTimeout config value to check if users are disconnected after time passes
@@ -116,7 +117,7 @@ class VC_Handler(commands.Cog):
                                     # check
                                     if not [m for m in before.channel.members if not m.bot]:
                                         await player.teardown()
-                                        embed = ShortEmbed(description=f"<:channel_button:1028004864556531824> Disconnected due to inactivity. Start a new party using for example `/play`!")
+                                        embed = ShortEmbed(description=f"{emoji.CHANNEL} Disconnected due to inactivity. Start a new party using for example `/play`!")
                                         await player.bound_channel.send(embed=embed)
                             
         try:
@@ -126,7 +127,7 @@ class VC_Handler(commands.Cog):
                 if player.paused_vc == True:
                     await player.pause(False)
                     if player.bound_channel is not None:
-                        embed = ShortEmbed(description=f"<:play_button:1028004869019279391> Resuming playback...")
+                        embed = ShortEmbed(description=f"{emoji.PLAY} Resuming playback...")
                         await player.bound_channel.send(embed=embed)
                     player.paused_vc = False
         except Exception as e: self.logger.debug(f"{e.__class__.__name__}, {str(e)}, {member}")
@@ -174,20 +175,20 @@ class VC_Handler(commands.Cog):
         try:
             channel = interaction.user.voice.channel
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
-            embed = ShortEmbed(description=f"<:channel_button:1028004864556531824> Connected to <#{channel.id}>")
+            embed = ShortEmbed(description=f"{emoji.CHANNEL} Connected to <#{channel.id}>")
             await interaction.response.send_message(embed=embed, ephemeral=False)
             player.bound_channel = interaction.channel
         except Exception as e:
             if str(e) == "Already connected to a voice channel.": # handle that
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is already connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} The bot is already connected to a voice channel")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
             elif isinstance(e, AttributeError):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
                 return
             self.logger.error(f"Exception occured while connecting -- {e.__class__.__name__} - {str(e)}")
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> {e.__class__.__name__}: {str(e)}")
+            embed = ShortEmbed(description=f"{emoji.XMARK} {e.__class__.__name__}: {str(e)}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return # ^ we did not defer, so we kinda set our own little error handler
             
@@ -200,14 +201,14 @@ class VC_Handler(commands.Cog):
         await interaction.response.defer(thinking=True)
         voice = interaction.user.voice
         if not voice:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> You are not connected to a voice channel")
+            embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             player = wavelink.Pool.get_node().get_player(interaction.guild.id)
             if not player: raise NoPlayerFound
             if str(player.channel.id) != str(voice.channel.id):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
+                embed = ShortEmbed(description=f"{emoji.XMARK} The voice channel you're in is not the one that bot is in. Please switch to {player.channel.mention}",
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
@@ -216,12 +217,12 @@ class VC_Handler(commands.Cog):
         except Exception as e:
             if isinstance(e, NoPlayerFound):
                 print(e.__class__.__name__ + ": " + str(e))
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel")
+                embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             raise e
 
-        embed = ShortEmbed(description=f"<:channel_button:1028004864556531824> Disconnected")
+        embed = ShortEmbed(description=f"{emoji.CHANNEL} Disconnected")
         await interaction.followup.send(embed=embed)
 
 

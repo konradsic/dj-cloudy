@@ -14,6 +14,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.ui.embeds import FooterType, random_footer
 from lib.utils.base_utils import RepeatMode, convert_to_double, get_length
 from lib.utils.configuration import ConfigurationHandler
+from lib.ui import emoji
 from lib.utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
                               NoTracksFound, NoVoiceChannel, QueueIsEmpty)
 
@@ -59,7 +60,7 @@ class MusicPlayer(wavelink.Player):
             
         if len(tracks) >= 2:
             total_duration = get_length(sum([t.length for t in tracks]))
-            embed = discord.Embed(title="<:play_button:1028004869019279391> Queue extended", description=f"You extended the queue by **{len(tracks)} tracks** of duration `{total_duration}`", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
+            embed = discord.Embed(title=f"{emoji.PLAY} Queue extended", description=f"You extended the queue by **{len(tracks)} tracks** of duration `{total_duration}`", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
             embed.add_field(name="Requested by", value=interaction.user.mention)
             embed.set_footer(text=FooterType.MADE_BY.value)
             embed.set_thumbnail(url=tracks[0].artwork)
@@ -72,7 +73,7 @@ class MusicPlayer(wavelink.Player):
         track = tracks[0]
         if not self.playing or play_force:
             embed = discord.Embed(
-                title="<:play_button:1028004869019279391> Now playing",
+                title=f"{emoji.PLAY} Now playing",
                 color = BASE_COLOR,
                 timestamp = datetime.datetime.utcnow()
             )
@@ -97,7 +98,7 @@ class MusicPlayer(wavelink.Player):
             
         if self.playing or put_force:
             embed = discord.Embed(
-                title = "<:play_button:1028004869019279391> Added song to the queue",
+                title = f"{emoji.PLAY} Added song to the queue",
                 color = BASE_COLOR,
                 timestamp = datetime.datetime.utcnow()
             )
@@ -158,7 +159,7 @@ class MusicPlayer(wavelink.Player):
                 if announceTracks:
                     track = next_track
                     embed = discord.Embed(
-                        title="<:play_button:1028004869019279391> Now playing",
+                        title=f"{emoji.PLAY} Now playing",
                         color = BASE_COLOR,
                         timestamp = datetime.datetime.utcnow()
                     )

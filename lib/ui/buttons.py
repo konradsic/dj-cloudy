@@ -26,62 +26,62 @@ class PlayButtonsMenu(View):
         self.timeout = timeout
         self.logger = logger
 
-    @ui.button(emoji="<:volume_high:1029437727294361691>", style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.VOLUME_HIGH), style=discord.ButtonStyle.gray)
     async def volume_up_button(self, interaction, button):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         config = Config(id=str(interaction.guild.id), user=False)
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.playing:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} Nothing is currently playing",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         volume = player.volume
         # print("got to the", config.data["maxVolume"])
         if volume+10 > config.data["maxVolume"]["value"]:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Trying to set volume to `{volume+10}%`, but max is `{config.data['maxVolume']}%`",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} Trying to set volume to `{volume+10}%`, but max is `{config.data['maxVolume']}%`",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         await player.set_volume(volume+10)
-        embed = discord.Embed(description=f"<:volume_high:1029437727294361691> Volume is now higher by `10%` (`{volume+10}%`)", color=BASE_COLOR)
+        embed = discord.Embed(description=f"{emoji.VOLUME_HIGH} Volume is now higher by `10%` (`{volume+10}%`)", color=BASE_COLOR)
         await interaction.followup.send(embed=embed, ephemeral=True)
 
-    @ui.button(emoji="<:volume_low:1029437729265688676>", style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.VOLUME_LOW), style=discord.ButtonStyle.gray)
     async def volume_low_button(self, interaction, button):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.playing:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} Nothing is currently playing",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         volume = player.volume
         if volume-10 < 0:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Trying to set volume to a negative value (`{volume-10}%`), can't do that!",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} Trying to set volume to a negative value (`{volume-10}%`), can't do that!",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         await player.set_volume(volume-10)
-        embed = discord.Embed(description=f"<:volume_low:1029437729265688676> Volume is now lower by `10%` (`{volume-10}%`)", color=BASE_COLOR)
+        embed = discord.Embed(description=f"{emoji.VOLUME_LOW} Volume is now lower by `10%` (`{volume-10}%`)", color=BASE_COLOR)
         await interaction.followup.send(embed=embed, ephemeral=True)
 
-    @ui.button(emoji="<:repeat_button:1030534158302330912>", style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.REPEAT), style=discord.ButtonStyle.gray)
     async def toggle_repeat_button(self, interaction, button):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.queue.tracks:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Queue is empty, cannot set repeat mode",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} Queue is empty, cannot set repeat mode",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         switch = { # to toggle between repeat modes
@@ -92,46 +92,46 @@ class PlayButtonsMenu(View):
         # set new repeat mode
         player.queue.repeat.set_repeat(switch[player.queue.repeat.string_mode])
         await interaction.followup.send(
-            embed=discord.Embed(description=f"<:repeat_button:1030534158302330912> Repeat mode updated to `{player.queue.repeat.string_mode}`",color=BASE_COLOR),
+            embed=discord.Embed(description=f"{emoji.REPEAT} Repeat mode updated to `{player.queue.repeat.string_mode}`",color=BASE_COLOR),
             ephemeral=True
         )
 
-    @ui.button(emoji="<:seek_button:1030534160844062790>", style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.SEEK), style=discord.ButtonStyle.gray)
     async def restart_playback_button(self, interaction: discord.Interaction, button):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.playing:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Cannot seek: nothing is currently playing",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} Cannot seek: nothing is currently playing",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         await player.seek(0) # restart
-        embed = discord.Embed(description=f"<:seek_button:1030534160844062790> Track successfully restarted",color=BASE_COLOR)
+        embed = discord.Embed(description=f"{emoji.SEEK} Track successfully restarted",color=BASE_COLOR)
         await interaction.followup.send(embed=embed, ephemeral=True)
         return True
 
-    @ui.button(emoji="<:star_button:1033999611238551562>", style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.STAR), style=discord.ButtonStyle.gray)
     async def add_to_starred_button(self, interaction: discord.Interaction, button):
         await interaction.response.defer(thinking=True)
         if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> The bot is not connected to a voice channel",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} The bot is not connected to a voice channel",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if not player.playing:
-            embed = discord.Embed(description=f"<:x_mark:1028004871313563758> Nothing is currently playing",color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.XMARK} Nothing is currently playing",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         resp = handler.add_to_starred(player.queue.current_track.uri)
         if resp:
-            await interaction.followup.send(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Added current playing song to your :star: playlist", color=BASE_COLOR))
+            await interaction.followup.send(ephemeral=True,embed=discord.Embed(description=f"{emoji.TICK1} Added current playing song to your {emoji.STAR} playlist", color=BASE_COLOR))
             return
-        await interaction.followup.send(ephemeral=True,embed=discord.Embed(description="<:tick:1028004866662084659> Un-starred current playing song", color=BASE_COLOR))
+        await interaction.followup.send(ephemeral=True,embed=discord.Embed(description=f"{emoji.TICK1} Un-starred current playing song", color=BASE_COLOR))
 
 class EmbedPaginator(View):
     def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:
@@ -173,25 +173,25 @@ class EmbedPaginator(View):
             view=self
         )
     
-    @ui.button(emoji=emoji.PREVIOUS.mention, style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.PREVIOUS), style=discord.ButtonStyle.gray)
     async def first_button(self, interaction: discord.Interaction, button):
         await self.show_page(0, interaction)
     
-    @ui.button(emoji=emoji.PREVIOUS_SHORT.mention, style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.PREVIOUS_SHORT), style=discord.ButtonStyle.gray)
     async def backwards_button(self, interaction: discord.Interaction, button):
         await self.show_page(self.current_page-1, interaction)
     
-    @ui.button(emoji=emoji.TRASH.mention, style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.TRASH), style=discord.ButtonStyle.gray)
     async def trash_button(self, interaction: discord.Interaction, button):
         # delete this embed
         await interaction.response.edit_message(content="The author of this message requested deletion", embeds=[], view=None)
         del self
     
-    @ui.button(emoji=emoji.NEXT_SHORT.mention, style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.NEXT_SHORT), style=discord.ButtonStyle.gray)
     async def forward_button(self, interaction: discord.Interaction, button):
         await self.show_page(self.current_page+1, interaction)
         
-    @ui.button(emoji=emoji.NEXT.mention, style=discord.ButtonStyle.gray)
+    @ui.button(emoji=str(emoji.NEXT), style=discord.ButtonStyle.gray)
     async def last_button(self, interaction: discord.Interaction, button):
         await self.show_page(len(self.pages)-1, interaction)
         
@@ -249,7 +249,7 @@ class SkipVotingMenu(View): # player: type: Any (due to circular imports)
         self.add_vote(interaction.user)
         
         if self.current_votes < self.num_votes:
-            embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Voting for skip! ({self.current_votes}/{self.num_votes})", color=BASE_COLOR)
+            embed = discord.Embed(description=f"{emoji.SKIP} Voting for skip! ({self.current_votes}/{self.num_votes})", color=BASE_COLOR)
             await interaction.response.edit_message(embed=embed, view=self)
             return
         
@@ -262,7 +262,7 @@ class SkipVotingMenu(View): # player: type: Any (due to circular imports)
             # ^ explained in cogs.queue_commands.OtherQueueCommands.queue_previous func
         await self.player.stop() # chain-calls player advance 
         
-        embed = discord.Embed(description=f"<:skip_button:1029418193321725952> Skipped! (action approved by channel users)", color=BASE_COLOR)
+        embed = discord.Embed(description=f"{emoji.SKIP} Skipped! (action approved by channel users)", color=BASE_COLOR)
         self.children[0].disabled = True
         await interaction.response.edit_message(embed=embed, view=self)
 
@@ -274,6 +274,7 @@ class QuizButtonsUI(View):
         
     @ui.button(label="Join quiz", style=discord.ButtonStyle.blurple)
     async def join_quiz_btn(self, interaction: discord.Interaction, button):
+        await interaction.response.defer(thinking=True)
         try:
             if interaction.user in self.bot.quizzes[str(interaction.guild.id)]:
                 await interaction.followup.send(embed=discord.Embed(
@@ -283,7 +284,7 @@ class QuizButtonsUI(View):
                 return
             
             # NOTE: vc checks - user needs to be in the vc to join
-            player = wavelink.NodePool.get_connected_node().get_player(interaction.guild.id)
+            player = wavelink.Pool.get_node().get_player(interaction.guild.id)
             if not interaction.user.voice:
                 await interaction.followup.send(embed=discord.Embed(
                     description=f"{emoji.XMARK.string} You need to be in a voice channel ({player.channel.mention}) to join the quiz",

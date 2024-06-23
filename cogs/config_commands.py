@@ -12,6 +12,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.utils.errors import IncorrectValueType
 from lib.ui.buttons import ResetCfgConfirmation
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+from lib.ui import emoji
 
 @logger.LoggerApplication
 class ConfigCog(commands.GroupCog, name="config"):
@@ -37,7 +38,7 @@ class ConfigCog(commands.GroupCog, name="config"):
         config = cfg.ConfigurationHandler(id=id, user=profile)
         data = config.data
 
-        embed = NormalEmbed(description="Settings for this profile: `key` **:** `value`\n", timestamp=True, footer=FooterType.COMMANDS)
+        embed = NormalEmbed(description=f"{emoji.CONFIG} Settings for this profile:", timestamp=True, footer=FooterType.COMMANDS)
         embed.set_author(name="Your configuration profile" if profile else "This guild's configuration profile", 
                          icon_url=interaction.user.display_avatar.url if profile else interaction.guild.icon.url)
         
@@ -55,9 +56,10 @@ class ConfigCog(commands.GroupCog, name="config"):
                 else:
                     val = "null"
             
-            description += f"`{key}` **:** `{str(val)}`\n"
+            embed.add_field(name=key, value=f"Value: `{str(val)}`", inline=False)
+            # description += f"`{key}` **:** `{str(val)}`\n"
 
-        embed.description += description
+        # embed.description += description
         await interaction.followup.send(embed=embed, ephemeral=True if profile else False)
 
     @app_commands.command(name="set-user", description="Set configuration for your profile")
@@ -74,7 +76,7 @@ class ConfigCog(commands.GroupCog, name="config"):
                 foundKey = k
                 break
         if not foundKey:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Key `{key}` was not found.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -96,19 +98,19 @@ class ConfigCog(commands.GroupCog, name="config"):
                 else: 
                     value = True
         except Exception as e:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot convert value to `{valType}`")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Cannot convert value to `{valType}`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
 
         try:
             config.config_set(foundKey, value)
-            embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully set `{foundKey}` to `{value}`")
+            embed = ShortEmbed(description=f"{emoji.TICK1} Successfully set `{foundKey}` to `{value}`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         except Exception as e:
             if isinstance(e, IncorrectValueType):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to `{value}`. Please try again")
+                embed = ShortEmbed(description=f"{emoji.XMARK} Failed to set `{foundKey}` to `{value}`. Please try again")
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             raise e
@@ -125,7 +127,7 @@ class ConfigCog(commands.GroupCog, name="config"):
         perms = interaction.user.resolved_permissions
         manage_guild = perms.manage_guild
         if not manage_guild:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.XMARK} `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -135,7 +137,7 @@ class ConfigCog(commands.GroupCog, name="config"):
                 foundKey = k
                 break
         if not foundKey:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.XMARK} Key `{key}` was not found.",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
@@ -157,18 +159,18 @@ class ConfigCog(commands.GroupCog, name="config"):
                 else: 
                     value = True
         except Exception as e:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Cannot convert value to `{valType}`",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.XMARK} Cannot convert value to `{valType}`",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         try:
             config.config_set(foundKey, value)
-            embed = ShortEmbed(description=f"<:tick:1028004866662084659> Successfully set `{foundKey}` to `{value}`",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.TICK1} Successfully set `{foundKey}` to `{value}`",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         except Exception as e:
             if isinstance(e, IncorrectValueType):
-                embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to `{value}`. Please try again",color=BASE_COLOR)
+                embed = ShortEmbed(description=f"{emoji.XMARK} Failed to set `{foundKey}` to `{value}`. Please try again",color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
             raise e
@@ -187,7 +189,7 @@ class ConfigCog(commands.GroupCog, name="config"):
         perms = interaction.user.resolved_permissions
         manage_guild = perms.manage_guild
         if (not manage_guild) and (profile == False):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
+            embed = ShortEmbed(description=f"{emoji.XMARK} `manage_guild` permission is required in order to change this configuration profile.",color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         config = cfg.ConfigurationHandler(id=interaction.user.id if profile else interaction.guild.id, user=profile)
@@ -211,7 +213,7 @@ class ConfigCog(commands.GroupCog, name="config"):
         perms = interaction.user.resolved_permissions
         manage_guild = perms.manage_guild
         if (not manage_guild) and (profile == False):
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> `manage_guild` permission is required in order to change this configuration profile.")
+            embed = ShortEmbed(description=f"{emoji.XMARK} `manage_guild` permission is required in order to change this configuration profile.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         config = cfg.ConfigurationHandler(id=interaction.user.id if profile else interaction.guild.id, user=profile)
@@ -221,14 +223,14 @@ class ConfigCog(commands.GroupCog, name="config"):
                 foundKey = k
                 break
         if not foundKey:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Key `{key}` was not found.")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Key `{key}` was not found.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
             config.restore_default_vaule(foundKey)
-            embed = ShortEmbed(description=f"<:tick:1028004866662084659> Success! Set `{foundKey}` to default value")
+            embed = ShortEmbed(description=f"{emoji.TICK1} Success! Set `{foundKey}` to default value")
         except:
-            embed = ShortEmbed(description=f"<:x_mark:1028004871313563758> Failed to set `{foundKey}` to default value")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Failed to set `{foundKey}` to default value")
         await interaction.followup.send(embed=embed, ephemeral=False)
 
 async def setup(bot):
