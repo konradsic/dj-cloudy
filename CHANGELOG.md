@@ -1,6 +1,28 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.4.0
+After a full year the bot gets un-privated and is now open-source again. A lot of bugs are now fixed, performance is even better and new commands have been added. Here is a list of what has been updated:
+1. Quiz now fully works (hopefully). New commands have been added: `/equalizers list` and `/filters list`. 
+1. Emojis have been redesigned. 
+1. Added play source (youtube, spotify, etc.) to `/playlists add-song` command
+1. New README
+1. Finally added progress bar when loading playlists to play
+1. YouTube support has been added back
+1. Added `force` parameter to `/skip` and `/previous` commands.
+1. Fixed a bug when repeat mode is set to `REPEAT_QUEUE` and users can't skip when it's the last track (if they would wait until the song has finished it would go to the first song)
+1. `/queue view` finally got a complete redesign
+1. `/config view` also got redesigned
+1. Updated wavelink to `3.3.0` and Lavalink to `>4.0.0` which caused the entire bot to crash, but made it stable again
+
+**What has not been added but will be implemented soon (versions 1.4.1...1.5.0)**
+- Track blacklist actually working [#18](https://github.com/konradsic/dj-cloudy/issues/18)
+- [#24](https://github.com/konradsic/dj-cloudy/issues/24)
+- [#22](https://github.com/konradsic/dj-cloudy/issues/22) 
+- [#48](https://github.com/konradsic/dj-cloudy/issues/48)
+- [#23](https://github.com/konradsic/dj-cloudy/issues/23)
+- and of course many ~~bugfixes~~ quality of life and design updates
+
 ## Version 1.4.0b
 I'm proud to announce the open beta of 1.4.0! This brings a lot of functionality and bug fixes.
 
