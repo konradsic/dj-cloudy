@@ -177,7 +177,7 @@ class ContextMenusCog(commands.Cog):
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_author(name=f"{member.name}'s starred playlist", icon_url=member.display_avatar.url)
             embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+            embed.add_field(name="Additional information", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
             embeds.append(embed)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user), ephemeral=True)
         return True

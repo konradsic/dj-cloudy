@@ -53,7 +53,7 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
         query = "ytsearch:Best music"
     elif any(current.startswith(x) for x in SEARCH_METHODS): pass
     elif not re.match(URL_REGEX, current):
-        query = "ytsearch:{}".format(current)
+        query = f"ytsearch:{current}"
     try:
         if query.startswith("🥇") or query.startswith("🥈") or query.startswith("🥉"):
             query = query[2:]
@@ -167,7 +167,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_author(name=f"{user.name}'s playlist: {found['name'] + '#' + found['id'] if found.get('name', '') else 'STARRED'}", icon_url=user.display_avatar.url)
             embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embed.add_field(name="Additional informations", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+            embed.add_field(name="Additional information", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
             embeds.append(embed)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user), ephemeral=True)
         return True
@@ -344,32 +344,30 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             limits = 10**15 # "infinity"
 
         if len(found["tracks"]) >= limits:
-            embed = ShortEmbed(description=f"{emoji.XMARK} Song addition exceeds your playlist's song limit. Higher limits are available for moderators and admins")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Song addition exceeds your playlist's song limit (`{limits} tracks`)")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         # Fixes issue #37: no song validation
         # Fixes issue #31: no loop for search
         for _ in range(20):
-            validation = await wavelink.Pool.fetch_tracks(song)
-            if validation: break
-        if not validation:
+            if any(song.starswith(x + ":") for x in SEARCH_METHODS) or re.match(URL_REGEX, song):
+                track = await wavelink.Pool.fetch_tracks(song)
+            else: 
+                track = await wavelink.Pool.fetch_tracks("ytsearch:" + song)
+            if not track: continue
+            track = track[0]
+            break
+        if not track:
             embed = ShortEmbed(
                 description=f"{emoji.XMARK.mention} No songs found with query `{song}`")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
-            handler.add_to_playlist(name_or_id.lower(), song)
+            handler.add_to_playlist(name_or_id.lower(), track.uri)
         except:
             embed = ShortEmbed(description=f"{emoji.XMARK} An error occured while trying to add the song. Please try again")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        
-        # get song data
-        for i in range(20):
-            track = await wavelink.Pool.fetch_tracks(song)
-            if not track: continue
-            track = track[0]
-            break
         
         await self.bot.song_cache_mgr.save(track.uri, {
             "uri": track.uri,
