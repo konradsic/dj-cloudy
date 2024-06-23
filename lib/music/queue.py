@@ -53,6 +53,14 @@ class Queue(wavelink.Queue):
 
     @property
     def upcoming_tracks(self):
+        # if self.repeat.mode == RepeatMode.REPEAT_NONE:
+        #     return self._queue[self.position+1:]
+        # if self.repeat.mode == RepeatMode.REPEAT_CURRENT_TRACK:
+        #     return [self._queue[self.position]]
+        # if self.repeat.mode == RepeatMode.REPEAT_QUEUE and self.position == len(self._queue)-1:
+        #     return self._queue
+        # else:
+        #     return self._queue[self.position+1:]
         return self._queue[self.position+1:]
     
     @property

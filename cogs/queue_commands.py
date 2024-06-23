@@ -96,7 +96,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
         embeds = []
         for i, field in enumerate(res_fields, start=1):
             embeds.append(NormalEmbed(
-                title=f"{emoji.PLAYLSIT} Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", 
+                title=f"{emoji.PLAYLIST} Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", 
                 timestamp=True, 
             ))
             embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
@@ -261,15 +261,19 @@ class OtherQueueCommands(commands.Cog):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
-        player.queue.position = position - 2 # same as in previous command
+        if not player.queue.repeat.string_mode == "REPEAT_CURRENT_TRACK":
+            player.queue.position = position - 2
+        else:
+            player.queue.position = position-1
         await player.stop() # stopping the player explained in skip command
         embed = ShortEmbed(description=f"{emoji.SKIP} Skipping to track at position `{position}`")
         await interaction.followup.send(embed=embed)
 
     
     @app_commands.command(name="skip", description="Skip to the next track if one exists")
-    @help_utils.add("skip", "Skip to the next track track if one exists", "Music")
-    async def queue_skip_command(self, interaction: discord.Interaction):
+    @app_commands.describe(force="If repeat mode is set to `REPEAT_CURRENT_TRACK` you can force skip to the next track (normally it would play the same song again)")
+    @help_utils.add("skip", "Skip to the next track track if one exists", "Music", arguments={"force": {"description": "If repeat mode is set to `REPEAT_CURRENT_TRACK` you can force skip to the next track (normally it would play the same song again)", "required": False}})
+    async def queue_skip_command(self, interaction: discord.Interaction, force: bool=False):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -288,19 +292,29 @@ class OtherQueueCommands(commands.Cog):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         
-        elif not player.queue.upcoming_tracks:
+        elif not player.queue.upcoming_tracks and (player.queue.position == len(player.queue)-1 and not player.queue.repeat.string_mode == "REPEAT_QUEUE") and not player.queue.repeat.string_mode == "REPEAT_CURRENT_TRACK":
             embed = ShortEmbed(description=f"{emoji.XMARK} The `skip` command could not be executed because there is nothing to skip to")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
         # we are using stop function because then the advance function will be called (from the event) and next track will be played
-        await player.stop()
+        if force and player.queue.repeat.string_mode == "REPEAT_CURRENT_TRACK":
+            if player.queue.position != len(player.queue)-1: 
+                player.queue.position += 1
+                await player.stop()
+            else:
+                embed = ShortEmbed(description=f"{emoji.XMARK} The `skip` command could not be executed because there is nothing to skip to")
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+        else:
+            await player.stop()
         embed = ShortEmbed(description=f"{emoji.SKIP} Successfully skipped to the next track")
         await interaction.followup.send(embed=embed)
         
     @app_commands.command(name="previous", description="Play the previous track if one exists")
-    @help_utils.add("previous", "Play the previous track if one exists", "Music")
-    async def queue_previous(self, interaction: discord.Interaction):
+    @app_commands.describe(force="If repeat mode is set to `REPEAT_CURRENT_TRACK` you can force skip to the next previous (normally it would play the same song again)")
+    @help_utils.add("previous", "Play the previous track if one exists", "Music", arguments={"force": {"description": "If repeat mode is set to `REPEAT_CURRENT_TRACK` you can force skip to the previous track (normally it would play the same song again)", "required": False}})
+    async def queue_previous(self, interaction: discord.Interaction, force: bool=False):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
         if not await quiz_check(self.bot, interaction, self.logger): return
@@ -318,7 +332,7 @@ class OtherQueueCommands(commands.Cog):
                 color=BASE_COLOR)
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        elif not player.queue.track_history:
+        elif not player.queue.track_history and (player.queue.position == 0 and not player.queue.repeat.string_mode == "REPEAT_QUEUE") and not player.queue.repeat.string_mode == "REPEAT_CURRENT_TRACK":
             embed = ShortEmbed(description=f"{emoji.XMARK} The `previous` command could not be executed because there is nothing to play that is before this track")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -327,7 +341,16 @@ class OtherQueueCommands(commands.Cog):
         #   1) we go 1 track back
         #   2) we go one more because when stop() is invoked we go to the next track so it would play the current track one more time
 
-        player.queue.position -= 2 # explained up there
+        if player.queue.repeat.string_mode == "REPEAT_QUEUE" and player.queue.position == 0:
+            player.queue.position = len(player.queue)-2
+        elif force and player.queue.repeat.string_mode == "REPEAT_CURRENT_TRACK":
+            if player.queue.position == 0:
+                embed = ShortEmbed(description=f"{emoji.XMARK} The `previous` command could not be executed because there is nothing to play that is before this track")
+                await interaction.followup.send(embed=embed, ephemeral=True)
+                return
+            player.queue.position -= 1
+        elif not player.queue.repeat.string_mode == "REPEAT_CURRENT_TRACK":
+            player.queue.position -= 2 # explained up there
         await player.stop()
         embed = ShortEmbed(description=f"{emoji.PREVIOUS} Playing previous track")
         await interaction.followup.send(embed=embed)

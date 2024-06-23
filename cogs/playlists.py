@@ -431,7 +431,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         if not await quiz_check(self.bot, interaction, self.logger): return
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
         try:
-            if (player := self.bot.node.get_player(interaction.guild.id)) is None:
+            if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
                 raise NoPlayerFound("There is no player connected in this guild")
 
             voice = interaction.user.voice
@@ -445,7 +445,8 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                     color=BASE_COLOR)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 return
-        except:
+        except Exception as e:
+            # print(e, e.__class__.__name__)
             if interaction.user.voice is None:
                 embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
                 await interaction.followup.send(embed=embed, ephemeral=True)
