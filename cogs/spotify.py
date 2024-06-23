@@ -1,23 +1,24 @@
 import datetime
 import re
+import time
 import typing as t
 
 import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
+
+from lib.logger import logger
+from lib.music.core import MusicPlayer
 # from wavelink.ext import spotify
 from lib.ui import emoji
-from lib.utils import help_utils
-
-from lib.music.core import MusicPlayer
-from lib.logger import logger
-from lib.utils.base_utils import (convert_to_double, double_to_int, get_config,
-                              get_length, limit_string_to, quiz_check)
 from lib.ui.colors import BASE_COLOR
+from lib.ui.embeds import FooterType, NormalEmbed, ShortEmbed
+from lib.utils import help_utils
+from lib.utils.base_utils import (convert_to_double, double_to_int, get_config,
+                                  get_length, limit_string_to, quiz_check)
 from lib.utils.errors import NoPlayerFound
 from lib.utils.regexes import URL_REGEX
-from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 
 logging = logger.Logger("cogs.spotify")
 
@@ -105,6 +106,9 @@ class SpotifyExtensionCog(commands.Cog):
             player = await channel.connect(cls=MusicPlayer, self_deaf=True)
             player.bound_channel = interaction.channel
         
+        if search_type == "list": 
+            embed = NormalEmbed(timestamp=True, description=f"Started: <t:{round(time.time())}:R>\n> {emoji.LOADING} `Status: loading...`", title=f"{emoji.SEARCH} Fetching tracks...")
+            msg: discord.WebhookMessage = await interaction.followup.send(embed=embed)
         query = query.strip("<>")
         
         for i in range(20):
@@ -123,6 +127,9 @@ class SpotifyExtensionCog(commands.Cog):
         if search_type == "track":
             tracks = [tracks[0]]
         # print(tracks.raw_data)
+        if search_type == "list":
+            embed = NormalEmbed(description=f"Completed\n> {emoji.TICK2} `Status: found {len(tracks)} tracks`", title=f"{emoji.SEARCH} Fetching tracks...")
+            await msg.edit(embed=embed)
         await player.add_tracks(interaction, tracks, spotify=True)
 
 

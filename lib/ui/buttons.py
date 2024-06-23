@@ -155,6 +155,11 @@ class EmbedPaginator(View):
             self.children[1].disabled = False
             self.children[-2].disabled = True
             self.children[-1].disabled = True
+        elif self.length == 1:
+            self.children[0].disabled = True
+            self.children[1].disabled = True
+            self.children[-2].disabled = True
+            self.children[-1].disabled = True
         else:
             for i in self.children: i.disabled = False
 
@@ -360,3 +365,4 @@ class SendAnswerUI(View):
     @ui.button(label="Click to answer!", style=discord.ButtonStyle.blurple)
     async def answer_button(self, interaction: discord.Interaction, button):
         await interaction.response.send_modal(QuizResponseModal())
+

@@ -59,6 +59,7 @@ CONFIG    = DJCloudyEmoji.from_mention("<:config:1202669697737424926>")
 PLUS      = DJCloudyEmoji.from_mention("<:plus:1202669928478675017>")
 MINUS     = DJCloudyEmoji.from_mention("<:minus:1202669933532553297>")
 SEARCH    = DJCloudyEmoji.from_mention("<:search:1203719924594511963>")
+RENAME    = DJCloudyEmoji.from_mention("<:rename:1254505070297612288>")
 
 TICK1 = DJCloudyEmoji.from_mention("<:ok1:1202669936120565862>")
 TICK2 = DJCloudyEmoji.from_mention("<:ok2:1202669709259177996>")

@@ -423,7 +423,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="play", description="Play your playlist!")
-    @app_commands.describe(name_or_id="Name or IDof the playlist you want to play")
+    @app_commands.describe(name_or_id="Name or ID of the playlist you want to play")
     @app_commands.describe(replace_queue="Whether to replace queue with the playlist or just to extend")
     @help_utils.add("playlists play", "Play your playlist!", "Playlists", {"name_or_id": {"description": "Name or ID of the playlist you want to play", "required": True}, "replace_queue": {"description": "Whether to replace queue with the playlist or just to extend", "required": False}})
     async def playlist_play(self, interaction: discord.Interaction, name_or_id: str, replace_queue: bool=False):
@@ -468,14 +468,16 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         # adapt the playlist
+        start = round(time.time())
+        embed = NormalEmbed(timestamp=True, description=f"Started: <t:{start}:R>\n> {emoji.LOADING} `Status: loaded 0/{len(res['tracks'])} songs...`", title=f"{emoji.SEARCH} Fetching tracks...")
+        msg: discord.WebhookMessage = await interaction.followup.send(embed=embed)
         if replace_queue:
             if not await djRole_check(interaction, self.logger): return
             # we need to replace the queue
             player.queue.cleanup()
             
             tracks = []
-            start = time.time()
-            for song in res['tracks']:
+            for idx,song in enumerate(res['tracks']):
                 # to prevent errors we infinite request over the track if it fails, 
                 # otherwise we break out of the loop
                 for i in range(20):
@@ -484,18 +486,23 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                         self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")
                         continue
                     tracks.append(query[0])
+                    if (idx+1)%10 == 0:
+                        embed = NormalEmbed(timestamp=True, description=f"Started: <t:{start}:R>\n> {emoji.LOADING} `Status: loaded {idx+1}/{len(res['tracks'])} songs...`", title=f"{emoji.SEARCH} Fetching tracks...")
+                        await msg.edit(embed=embed)
                     break
             took_time = time.time() - start
             
             self.logger.info(f"Loaded {len(res['tracks'])} tracks in ~{took_time:.2f}s")
             player.queue.add(*zip(tracks, [interaction.user, ] * len(tracks)))
             self.logger.info(f"Playling playlist {name_or_id} at {player.guild.id} (queue replaced)")
+            embed = NormalEmbed(timestamp=True, description=f"Completed\n> {emoji.LOADING} `Status: loaded {len(res['tracks'])}/{len(res['tracks'])} songs...`", title=f"{emoji.SEARCH} Fetching tracks...")
+            await msg.edit(embed=embed)
             await player.play_first_track()
             return
         else:
             tracks = []
             start = time.time()
-            for song in res['tracks']:
+            for idx,song in enumerate(res['tracks']):
                 # to prevent errors we infinite request over the track if it fails, 
                 # otherwise we break out of the loop
                 for i in range(20):
@@ -503,12 +510,16 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                     if not query:
                         self.logger.debug(f"Failed to fetch song \"{song}\" (request failed)")
                         continue
+                    if (idx+1)%10 == 0:
+                        embed = NormalEmbed(timestamp=True, description=f"Started: <t:{start}:R>\n> {emoji.LOADING} `Status: loaded {idx+1}/{len(res['tracks'])} songs...`", title=f"{emoji.SEARCH} Fetching tracks...")
+                        await msg.edit(embed=embed)
                     tracks.append(query[0])
                     break
             took_time = time.time() - start
             
             self.logger.info(f"Loaded {len(res['tracks'])} tracks in ~{took_time:.2f}s")
-            
+            embed = NormalEmbed(timestamp=True, description=f"Completed\n> {emoji.LOADING} `Status: loaded {len(res['tracks'])}/{len(res['tracks'])} songs...`", title=f"{emoji.SEARCH} Fetching tracks...")
+            await msg.edit(embed=embed)
             self.logger.info(f"Playling playlist {name_or_id} at {player.guild.id} (songs added)")
             await player.add_tracks(interaction, tracks)
             return
@@ -524,7 +535,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
         try:
             res = handler.rename_playlist(name_or_id, new_name)
-            embed = ShortEmbed(description=f"{emoji.TICK1} Playlist renamed from `{name_or_id}` to `{new_name}`")
+            embed = ShortEmbed(description=f"{emoji.RENAME} Playlist renamed from `{name_or_id}` to `{new_name}`")
             await interaction.followup.send(embed=embed)
             return
         except Exception as e:

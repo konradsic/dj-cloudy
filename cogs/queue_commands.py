@@ -48,61 +48,82 @@ class QueueCommands(commands.GroupCog, name="queue"):
             embed = ShortEmbed(description=f"{emoji.XMARK} There are not tracks in the queue")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if len(player.queue) <= 6:
-            history = player.queue.track_history
-            upcoming = player.queue.upcoming_tracks
-            current = player.queue.current_track
-            length = get_length(
-                sum([t.length for t in player.queue.get_tracks()]))
 
-            embed = NormalEmbed(title=f"{emoji.PLAYLIST} Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", timestamp=True)
-            embed.set_thumbnail(url=self.bot.user.display_avatar.url)
-            if history:
-                history_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.length)}]" for i,t in enumerate(history, 1)]
-                history_field = "".join(e + "\n" for e in history_field)
-                embed.add_field(name="Before tracks", value=history_field, inline=False)
-            if current:
-                embed.add_field(name="Now playing", value=f"`{len(history)+1}. ` [**{current.title}**]({current.uri}) [{get_length(current.length)}]")
-            if upcoming:
-                upcoming_field = [f"`{i}. ` [{t.title}]({t.uri}) [{get_length(t.length)}]" for i,t in enumerate(upcoming, len(history)+2)]
-                upcoming_field = "".join(e + "\n" for e in upcoming_field)
-                embed.add_field(name="Upcoming tracks", value=upcoming_field, inline=False)
-            embed.add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
-            await interaction.followup.send(embed=embed, view=PlayButtonsMenu(user=interaction.user))
-            return
-        
+        MAX_FIELD_LEN = 1000        
         history = player.queue.track_history
         upcoming = player.queue.upcoming_tracks
         current = player.queue.current_track
         length = sum([t.length for t in player.queue.get_tracks()])
         length = get_length(length)
-        fields = [
-            f"{'**Now playing:** ' if t == current else ''}**{i}.** [{t.title}]({t.uri}) `[{get_length(t.length)}]`\n"
-            for i,t in enumerate(history + [current] + upcoming, start=1)
+        history_fields = [
+            f"**{i}.** [{t.title}]({t.uri}) by {t.author} `[{get_length(t.length)}]`\n"
+            for i,t in enumerate(history, start=1)
         ]
-        num_fields = len(fields)//6
-        if len(fields)%num_fields != 0:
-            num_fields += 1
-        per_page = len(fields)//(num_fields-1)
-        res_fields = []
-        for _ in range(num_fields):
-            res_fields.append([])
-            for _ in range(per_page):
-                try:
-                    res_fields[-1].append(fields[0])
-                    del fields[0]
-                except:
-                    break
-        embeds = []
-        for i, field in enumerate(res_fields, start=1):
-            embeds.append(NormalEmbed(
-                title=f"{emoji.PLAYLIST} Queue (currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'})", 
+        offset = len(history)+1
+        nowplaying = f"**{player.queue.position+1}. [{current.title}]({current.uri}) by {current.author}** `[{get_length(player.position)}/{get_length(current.length)}]`"
+        upcoming_fields = [
+            f"**{i+offset}.** [{t.title}]({t.uri}) by {t.author} `[{get_length(t.length)}]`\n"
+            for i,t in enumerate(upcoming, start=1)
+        ]
+
+        embed_fields = []
+        currentlen = 0
+            #     embeds.append(NormalEmbed(
+            #         title=f"{emoji.PLAYLIST} Queue: currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'}", 
+            #         timestamp=True, 
+            #     ))
+            #     pages += 1
+            #     embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
+            #     embeds[-1].add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
+            # currentlen += flen
+            # embeds[-1].add_field(name=f"History", value="".join(t for t in field), inline=False)
+        for field in history_fields:
+            flen = len(field)
+            if flen + currentlen > MAX_FIELD_LEN or len(embed_fields) == 0:
+                embed_fields.append(["", -1])
+                currentlen = 0 # reset current len because new field
+            embed_fields[-1][0] += field
+            currentlen += flen
+        
+        currentlen = 0
+        for field in upcoming_fields:
+            flen = len(field)
+            if flen + currentlen > MAX_FIELD_LEN or len(embed_fields) == 0 or currentlen == 0:
+                embed_fields.append(["", 1])
+                currentlen = 0 # reset current len because new field
+            embed_fields[-1][0] += field
+            currentlen += flen
+        # print(list([[len(x[0]), x[1]] for x in embed_fields]))
+        embed_result = []
+        skipnext = False
+        for i,field in enumerate(embed_fields, start=1):
+            if skipnext:
+                skipnext = False
+                continue
+            embed = NormalEmbed(
+                title=f"{emoji.PLAYLIST} Queue: currently {len(player.queue)} {'tracks' if len(player.queue) > 1 else 'track'}", 
                 timestamp=True, 
-            ))
-            embeds[-1].set_thumbnail(url=self.bot.user.display_avatar.url)
-            embeds[-1].add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embeds[-1].add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
-        await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user))
+                footer_add="",
+                replace_footer=True
+            )
+            embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+            field_names = {
+                -1: "History",
+                1: "Upcoming tracks"
+            }
+            field_name = field_names[field[1]]
+            embed.add_field(name=field_name, value=field[0], inline=False)
+            embed.add_field(name="Currently playing track", value=f"{nowplaying}\n*This field is displayed in every page of the queue*", inline=False)
+            if embed_fields[i-1][1] == -1 and embed_fields[i][1] == 1 and len(field) <= 500:
+                embed.add_field(name="Upcoming tracks", value=embed_fields[i][0], inline=False)
+                skipnext = True
+            embed.add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
+            embed_result.append(embed)
+        
+        for i, _ in enumerate(embed_result):
+            embed_result[i].set_footer(text=f"Page {i+1}/{len(embed_result)}, made by @konradsic")
+        
+        await interaction.followup.send(embed=embed_result[0], view=EmbedPaginator(pages=embed_result, timeout=1200, user=interaction.user))
 
     @app_commands.command(name="shuffle", description="Shuffle the queue or manage the queue shuffle mode")
     @app_commands.describe(shuffle_mode_state="Turn on/off shuffle mode")
@@ -217,14 +238,17 @@ class QueueCommands(commands.GroupCog, name="queue"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if (index-1) == player.queue.position:
-            embed = ShortEmbed(description=f"{emoji.XMARK} For now you cannot remove current playing track")
+            del player.queue._queue[index-1]
+            if not (player.queue.repeat.string_mode == "REPEAT_CURRENT_TRACK" and player.queue.position != len(player.queue)-1): player.queue.position -= 1
+            await player.stop()
+            embed = ShortEmbed(description=f"{emoji.MINUS} Currently playing track removed (index: `{index}`)")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         del player.queue._queue[index-1]
         if (index-1) < player.queue.position:
             player.queue.position -= 1
         
-        embed = ShortEmbed(description=f"{emoji.TICK1} Successfully removed track at position `{index}`")
+        embed = ShortEmbed(description=f"{emoji.MINUS} Successfully removed track at position `{index}`")
         await interaction.followup.send(embed=embed)
         return
 
