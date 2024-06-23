@@ -77,7 +77,7 @@ class FiltersCog(commands.GroupCog, name="filters"):
         self.logger.info(f"Applied filter '{filter}' in guild #{interaction.guild.id}")
 
     @app_commands.command(name="reset", description="Reset applied filters")
-    @help_utils.add("filters reset", "Reset applied filters", "Filters and equalizers")
+    @help_utils.add("filters reset", "Reset all applied filters AND equalizers", "Filters and equalizers")
     async def filters_reset_command(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         if not await djRole_check(interaction, self.logger): return
@@ -289,7 +289,7 @@ class EqualizersCog(commands.GroupCog, name="equalizers"):
         
         filters: wavelink.Filters = player.filters
         filters.equalizer.set(bands=[{"band": x, "gain": 0.0} for x in range(15)])
-        await player.set_filter(filters) # empty filter for reseting
+        await player.set_filters(filters) # empty filter for reseting
         embed = ShortEmbed(description=f"{emoji.TICK1} Equalizers have been successfully reset")
         await interaction.followup.send(embed=embed)
         self.logger.info(f"Filters reset in guild #{interaction.guild.id}")

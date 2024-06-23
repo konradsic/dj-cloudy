@@ -10,13 +10,14 @@ __version__ = "1.4.0b"
 __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
+import time
+start = time.time() # for measurments purposes
 import asyncio
 import datetime
 import getpass
 import os
 import platform
 import threading
-import time
 import traceback
 
 import colorama
@@ -181,6 +182,7 @@ class DJ_Cloudy(commands.Bot):
         try: self.quiz_cache: JSONCacheManager = JSONCacheManager("quizzes.json", expiration_time = -1)
         except: self.logger.error(f"Could not load manager quiz_cache\n{traceback.format_exc()}")
         self.logger.debug("JSON Cache managers initialized")
+        self.logger.info(f"Full bot loading complete in {time.time()-start:.1f}s (excluding lavalink nodes) (measuring time since start of the program)")
 
     async def close(self):
         garbage.close()
