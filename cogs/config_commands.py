@@ -13,6 +13,41 @@ from lib.utils.errors import IncorrectValueType
 from lib.ui.buttons import ResetCfgConfirmation
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 from lib.ui import emoji
+import difflib
+
+async def config_guild_autocomplete(interaction: discord.Interaction, current: str):
+    config = list(cfg.ConfigurationHandler(id=interaction.guild.id, user=False).get_default_profile_for("guild").keys())
+    if current == "":
+        return [app_commands.Choice(name=x, value=x) for x in config[:10]]
+    
+    ranking = sorted([(x, difflib.SequenceMatcher(None, x.lower(), current).quick_ratio()) for x in config], reverse=True, key=lambda x: x[1])
+    # print(ranking)
+    for i in range(len(ranking)):
+        if ranking[i][1] < 0.7:
+            ranking = ranking[:i]
+            break
+    # print("2", ranking)
+    return [
+        app_commands.Choice(name=x[0], value=x[0]) 
+        for x in ranking[:20]
+    ]
+
+async def config_user_autocomplete(interaction: discord.Interaction, current: str):
+    config = list(cfg.ConfigurationHandler(id=interaction.user.id, user=True).get_default_profile_for("user"))
+    if current == "":
+        return [app_commands.Choice(name=x, value=x) for x in config[:10]]
+    
+    ranking = sorted([(x, difflib.SequenceMatcher(None, x.lower(), current).quick_ratio()) for x in config], reverse=True, key=lambda x: x[1])
+    # print(ranking)
+    for i in range(len(ranking)):
+        if ranking[i][1] < 0.7:
+            ranking = ranking[:i]
+            break
+    # print("2", ranking)
+    return [
+        app_commands.Choice(name=x[0], value=x[0]) 
+        for x in ranking[:20]
+    ]
 
 @logger.LoggerApplication
 class ConfigCog(commands.GroupCog, name="config"):
@@ -64,6 +99,7 @@ class ConfigCog(commands.GroupCog, name="config"):
 
     @app_commands.command(name="set-user", description="Set configuration for your profile")
     @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use their respective ID")
+    @app_commands.autocomplete(key=config_user_autocomplete)
     @help_utils.add("config set-user", "Set configuration for your profile", "Configuration",
                     {"key": {"description": "A parameter you want to change", "required": True}, "value": {"description": "New value for the parameter. For roles,users etc. use their respective ID", "required": True}})
     async def config_set_user_cmd(self, interaction: discord.Interaction, key: str, value: str):
@@ -118,6 +154,7 @@ class ConfigCog(commands.GroupCog, name="config"):
     
     @app_commands.command(name="set-guild", description="Set configuration for current guild. Requires `manage_guild` permission")
     @app_commands.describe(key="A parameter you want to change", value="New value for the parameter. For roles,users etc. use thier respective ID")
+    @app_commands.autocomplete(key=config_guild_autocomplete)
     @help_utils.add("config set-guild", "Set configuration for current guild. Requires `manage_guild` permission", "Configuration",
                     {"key": {"description": "A parameter you want to change", "required": True}, "value": {"description": "New value for the parameter. For roles,users etc. use their respective ID", "required": True}})
     async def config_set_guild_cmd(self, interaction: discord.Interaction, key: str, value: str):
