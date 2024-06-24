@@ -69,7 +69,7 @@ class GeniusSong:
         self.views: int = self.stats.get("pageviews")
 
     def __str__(self):
-        return f"<class GeniusSong> {self.short_title} by {self.artist} in lang: {self.lang} path: {self.path}"
+        return f"<GeniusSong: {self.short_title} by {self.artist} in lang: {self.lang} path: {self.path}>"
 
 
 def correct_string(string):

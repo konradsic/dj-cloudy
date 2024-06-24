@@ -13,8 +13,8 @@ from lib.utils.regexes import URL_REGEX
 from lib.logger import logger
 from lib.music.songs import (
     GeniusAPIClient, 
-    SearchResponse, 
-    GeniusSong
+    # SearchResponse, 
+    # GeniusSong
 )
 from unidecode import unidecode
 from lib.utils.base_utils import quiz_check

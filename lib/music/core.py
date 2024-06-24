@@ -43,7 +43,7 @@ class MusicPlayer(wavelink.Player):
             pass
 
     async def add_tracks(self, interaction: discord.Interaction, tracks: list,
-                         put_force: bool=False, play_force: bool=False, *, spotify: bool=False):
+                         put_force: bool=False, play_force: bool=False):
                          # ^ put_force, play_force - new in 1.4.0
         if not tracks:
             raise NoTracksFound

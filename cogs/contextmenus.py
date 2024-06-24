@@ -10,19 +10,30 @@ import wavelink
 from lib.utils.base_utils import get_length
 import math
 from lib.ui.buttons import EmbedPaginator
+from lib.ui.conflicted_ui import SearchResultsButtons
 from lib.utils.errors import CacheExpired, CacheNotFound
 import time
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 from lib.ui import emoji
+import re
+from lib.utils.regexes import URL_REGEX
+
+SEARCH_METHODS = [
+    "spsearch",
+    "ytsearch",
+    "ytmsearch",
+    "scsearch"
+]
 
 @logger.LoggerApplication
 class ContextMenusCog(commands.Cog):
     def __init__(self, bot: commands.Bot, logger: logger.Logger) -> None:
         self.bot = bot
         self.logger = logger
-        self.bot.tree.add_command(app_commands.ContextMenu(name="View Playlists", callback=self.view_playlist_menu), guilds=self.bot.guilds)
-        self.bot.tree.add_command(app_commands.ContextMenu(name="View Starred Playlist", callback=self.view_starred_playlist_menu), guilds=self.bot.guilds)
-        self.bot.tree.add_command(app_commands.ContextMenu(name="Copy Starred Playlist", callback=self.copy_user_playlist_menu), guilds=self.bot.guilds)
+        self.bot.tree.add_command(app_commands.ContextMenu(name="View Playlists", callback=self.view_playlist_menu))
+        self.bot.tree.add_command(app_commands.ContextMenu(name="View Starred Playlist", callback=self.view_starred_playlist_menu))
+        self.bot.tree.add_command(app_commands.ContextMenu(name="Copy Starred Playlist", callback=self.copy_user_playlist_menu))
+        self.bot.tree.add_command(app_commands.ContextMenu(name="Search for songs", callback=self.search_for_song))
         
     async def view_playlist_menu(self, interaction: discord.Interaction, user: discord.Member):
         await interaction.response.defer(ephemeral=True, thinking=True)
@@ -196,5 +207,41 @@ class ContextMenusCog(commands.Cog):
             author_handler.add_to_starred(song)
         await interaction.followup.send(embed=ShortEmbed(description=f"{emoji.TICK1} Success, added {member.name}'s starred playlist to yours"),ephemeral=True)
 
+    async def search_for_song(self, interaction: discord.Interaction, message: discord.Message):
+        await interaction.response.defer(thinking=True)
+        message = message.content.strip("<>")
+        
+        embed = ShortEmbed(f"{emoji.SEARCH} Searching for `{message}`...")
+        msg = await interaction.followup.send(embed=embed)
+        is_list = False
+        
+        if re.match(URL_REGEX, message) or any(message.startswith(x + ":") for x in SEARCH_METHODS):
+            query = message
+            if any(x in message for x in ["/playlist/", "/album/"]):
+                is_list = True
+        else:
+            query = "ytsearch:" + message
+        for i in range(20):
+            tracks = await wavelink.Pool.fetch_tracks(query)
+            if tracks: break
+            if i == 19:
+                await msg.edit(embed=ShortEmbed(f"{emoji.XMARK} No tracks were found"))
+            
+        if not is_list: tracks = [tracks[0]]
+        embed = NormalEmbed(timestamp=True, title=f"{emoji.SEARCH} Search result", description=f"Original query: `{message}`")
+        embed.set_thumbnail(url=tracks[0].artwork) 
+        if is_list:
+            embed.add_field(name="Playlist/Album", value=f"Tracks: `{len(tracks)}`, total duration: `{get_length(sum(t.length for t in tracks))}`", inline=False)
+        else:
+            t = tracks[0]
+            embed.add_field(name="Track title", value=f"[{t.title}]({t.uri})", inline=False)
+            embed.add_field(name="Author", value=t.author, inline=True)
+            embed.add_field(name="Length", value=f"`{get_length(t.length)}`", inline=True)
+            
+        await msg.edit(embed=embed, view=SearchResultsButtons(1200, tracks, self.bot, message))
+        
+
 async def setup(bot):
     await bot.add_cog(ContextMenusCog(bot))
+    
+    

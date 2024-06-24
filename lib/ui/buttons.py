@@ -11,12 +11,11 @@ from discord.ui import Modal, View
 from lib.music import playlist
 
 from ..logger import logger
-from ..utils.base_utils import RepeatMode, djRole_check
+from ..utils.base_utils import djRole_check
 from ..utils.cache import JSONCacheManager
 from ..utils.configuration import ConfigurationHandler as Config
 from . import emoji
 from .colors import BASE_COLOR
-
 
 @logger.LoggerApplication
 class PlayButtonsMenu(View):
@@ -142,6 +141,11 @@ class EmbedPaginator(View):
         self.length = len(self.pages)-1
         self.children[0].disabled = True
         self.children[1].disabled = True
+        if self.length == 0:
+            self.children[0].disabled = True
+            self.children[1].disabled = True
+            self.children[-2].disabled = True
+            self.children[-1].disabled = True
 
     async def update(self, page:int):
         self.current_page = page
@@ -365,4 +369,5 @@ class SendAnswerUI(View):
     @ui.button(label="Click to answer!", style=discord.ButtonStyle.blurple)
     async def answer_button(self, interaction: discord.Interaction, button):
         await interaction.response.send_modal(QuizResponseModal())
+
 
