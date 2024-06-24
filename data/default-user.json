@@ -7,6 +7,10 @@
         "value": true,
         "type": "bool"
     },
+    "defaultVolume": {
+        "value": 100,
+        "type": "int"
+    },
     "experimental.autoBugReport": {
         "value": false,
         "type": "bool"
