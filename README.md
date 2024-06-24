@@ -6,7 +6,7 @@ With over 50 commands and advanced customization, you can tailor DJ Cloudy to pe
 
 ### Features
 * 🎶 **Play music from various sources** such as YouTube, SoundCloud, Spotify and more
-* 📜 **Playlists** designed easily create, manage and play them
+* 📜 **Playlists** designed to easily create, manage and play them
 * 🛠️ **Intuitive command system** - simple naming for easy access. You can always type `/help` if you get lost
 * 📋 **Context menus** providing faster access to data than some commands
 * ⚙️ **Advanced customization** to suit tour needs
