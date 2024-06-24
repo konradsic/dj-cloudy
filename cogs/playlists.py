@@ -23,6 +23,7 @@ from lib.utils.errors import (NoPlayerFound, PlaylistCreationError,
 from lib.utils.regexes import URL_REGEX
 from lib.ui import emoji
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
+import difflib
 
 logger_instance = logger.Logger().get("cogs.playlists")
 
@@ -74,6 +75,41 @@ async def song_url_autocomplete(interaction: discord.Interaction, current: str) 
         logger_instance.error(f"Error: {e.__class__.__name__} - {str(e)}")
         return []
 
+async def playlists_autocomplete(interaction: discord.Interaction, current: str) -> t.List[app_commands.Choice]:
+    try:
+        user = interaction.namespace.user or interaction.user
+    except:
+        user = interaction.user
+    
+    user_playlists = playlist.PlaylistHandler(str(user.id)).playlists
+    if current == "":
+        return [
+            app_commands.Choice(name=f"{i}. {p['name']} (id:{p['id']}, {len(p['tracks'])} tracks)", value=p["id"])
+            for i,p in enumerate(user_playlists[:10], start=1)
+        ]
+    
+    result_names = sorted([(p, difflib.SequenceMatcher(None, p["name"], current).quick_ratio()) for p in user_playlists], key=lambda x: x[1])
+    result_ids = sorted([(p, difflib.SequenceMatcher(None, p["id"], current).quick_ratio()) for p in user_playlists], key=lambda x: x[1])
+    all_results = sorted(result_names + result_ids, key=lambda x: x[1], reverse=True)
+
+    # eliminate results with less than 70% accuracy
+    for i in range(len(all_results)):
+        # print(all_results[i][1])
+        if all_results[i][1] < 0.7:
+            all_results = all_results[:i]
+            break
+    # print(3)
+    all_results = list([x[0] for x in all_results])
+    new_results = []
+    for x in all_results:
+        if x not in new_results: new_results.append(x)
+    all_results = new_results # duplicates removed
+    # print(4, list(all_results))
+    return [
+        app_commands.Choice(name=f"{i}. {p['name']} (id:{p['id']}, {len(p['tracks'])} tracks)", value=p["id"])
+        for i,p in enumerate(all_results[:10], start=1)
+    ]
+    
 @logger.LoggerApplication
 class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     def __init__(self, bot, logger):
@@ -84,6 +120,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.command(name="view-playlist", description="View playlist's content (you can also search for others playlists)")
     @app_commands.describe(name_or_id="Name or ID of the playlist")
     @app_commands.describe(user="User to get the playlist from")
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
     @help_utils.add("playlists view-playlist", "View playlist's content (you can also search for others playlists)", "Playlists", {"name_or_id": {"description": "Name or ID of the playlist", "required": True}, "user": {"required": False, "description": "User to get the playlist from"}})
     async def view_playlist_of_user_command(self, interaction: discord.Interaction, name_or_id: str, user: t.Union[discord.Member, None]=None):
         await interaction.response.defer(ephemeral=True, thinking=True)
@@ -314,6 +351,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.command(name="add-song", description="Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to add the song to")
     @app_commands.describe(song="Song you want to add")
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
     @app_commands.autocomplete(song=song_url_autocomplete)
     @help_utils.add("playlists add-song", "Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist", "Playlists", 
                     {"name_or_id": {"description": "Name of the playlist you want to add the song to", "required": True}, "song": {"description": "Song you want to add", "required": True}})
@@ -385,6 +423,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.command(name="remove-song", description="Remove a song from your playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove the song from")
     @app_commands.describe(index="Index of the song you want to remove (1-playlist length)")
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
     @help_utils.add("playlists remove-song", "Remove a song from your playlist", "Playlists", 
                     {"name-or_id": {"description": "Name of the playlist youw ant to remove the song from", "required": True}, "index": {"description": "Index of the song you want to remove (1-playlist length)", "required": True}})
     async def playlist_remove_song_command(self, interaction: discord.Interaction, name_or_id: str, index: int):
@@ -406,6 +445,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="remove-playlist", description="Remove a playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove")
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
     @help_utils.add("playlists remove", "Remove a playlist", "Playlists", {"name_or_id": {"description": "Name of the playlist you want to remove", "required": True}})
     async def playlist_remove_command(self, interaction: discord.Interaction, name_or_id: str):
         await interaction.response.defer(ephemeral=True, thinking=True)
@@ -422,6 +462,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="play", description="Play your playlist!")
     @app_commands.describe(name_or_id="Name or ID of the playlist you want to play")
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
     @app_commands.describe(replace_queue="Whether to replace queue with the playlist or just to extend")
     @help_utils.add("playlists play", "Play your playlist!", "Playlists", {"name_or_id": {"description": "Name or ID of the playlist you want to play", "required": True}, "replace_queue": {"description": "Whether to replace queue with the playlist or just to extend", "required": False}})
     async def playlist_play(self, interaction: discord.Interaction, name_or_id: str, replace_queue: bool=False):
@@ -524,6 +565,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
 
     @app_commands.command(name="rename", description="Rename playlist to given name")
     @app_commands.describe(name_or_id="Name or ID of the playlist you want to rename")
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
     @app_commands.describe(new_name="New name of the playlist you want to rename")
     @help_utils.add("playlists rename", "Rename playlist to given name", "Playlists", 
                     {"name_or_id": {"description": "Name or ID of the playlist you want to rename", "required": True}, "new_name": {"description": "New name of the playlist you want to rename", "required": True}})
