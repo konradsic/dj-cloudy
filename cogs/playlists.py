@@ -110,6 +110,22 @@ async def playlists_autocomplete(interaction: discord.Interaction, current: str)
         for i,p in enumerate(all_results[:10], start=1)
     ]
     
+async def playlist_index_autocomplete(interaction: discord.Interaction, current: str) -> t.List[app_commands.Choice]:
+    user_playlists = playlist.PlaylistHandler(str(interaction.user.id)).playlists
+    name = interaction.namespace.name_or_id
+    found = None
+    
+    for idx, p in enumerate(user_playlists):
+        if p["id"] == name or p["id"] == name:
+            found = user_playlists[idx]
+    if not found: return []
+    if not 1 <= int(current) <= len(found['tracks']):
+        return []
+    
+    track = await wavelink.Pool.fetch_tracks(found["tracks"][int(current)])
+    track = track[0]
+    return [app_commands.Choice(name=f"{current}. {track.title} by {track.author} [{get_length(track.length)}]", value=int(current))]
+    
 @logger.LoggerApplication
 class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     def __init__(self, bot, logger):
@@ -351,8 +367,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.command(name="add-song", description="Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to add the song to")
     @app_commands.describe(song="Song you want to add")
-    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
-    @app_commands.autocomplete(song=song_url_autocomplete)
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete, song=song_url_autocomplete)
     @help_utils.add("playlists add-song", "Add a song to your playlist. Use 'starred' when you want to add it to your starred songs playlist", "Playlists", 
                     {"name_or_id": {"description": "Name of the playlist you want to add the song to", "required": True}, "song": {"description": "Song you want to add", "required": True}})
     async def playlist_add_song_command(self, interaction: discord.Interaction, name_or_id: str, song: str):
@@ -388,7 +403,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         # Fixes issue #37: no song validation
         # Fixes issue #31: no loop for search
         for _ in range(20):
-            if any(song.starswith(x + ":") for x in SEARCH_METHODS) or re.match(URL_REGEX, song):
+            if any(song.startswith(x + ":") for x in SEARCH_METHODS) or re.match(URL_REGEX, song):
                 track = await wavelink.Pool.fetch_tracks(song)
             else: 
                 track = await wavelink.Pool.fetch_tracks("ytsearch:" + song)
@@ -423,7 +438,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
     @app_commands.command(name="remove-song", description="Remove a song from your playlist")
     @app_commands.describe(name_or_id="Name of the playlist you want to remove the song from")
     @app_commands.describe(index="Index of the song you want to remove (1-playlist length)")
-    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete, index=playlist_index_autocomplete)
     @help_utils.add("playlists remove-song", "Remove a song from your playlist", "Playlists", 
                     {"name-or_id": {"description": "Name of the playlist youw ant to remove the song from", "required": True}, "index": {"description": "Index of the song you want to remove (1-playlist length)", "required": True}})
     async def playlist_remove_song_command(self, interaction: discord.Interaction, name_or_id: str, index: int):
@@ -574,7 +589,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
 
         try:
-            res = handler.rename_playlist(name_or_id, new_name)
+            handler.rename_playlist(name_or_id, new_name)
             embed = ShortEmbed(description=f"{emoji.RENAME} Playlist renamed from `{name_or_id}` to `{new_name}`")
             await interaction.followup.send(embed=embed)
             return
