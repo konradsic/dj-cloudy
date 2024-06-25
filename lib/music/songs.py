@@ -164,5 +164,7 @@ class GeniusAPIClient():
                 
         found_parser = BeautifulSoup(str(all_text).replace("<br>", "<br/>").replace("<br/>", "\n"), "html.parser")
         res = "".join(e for e in found_parser.strings)
+        print(res)
         # self.logger.debug(res)
         return res
+    

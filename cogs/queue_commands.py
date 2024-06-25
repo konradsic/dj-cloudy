@@ -17,6 +17,18 @@ from lib.ui import emoji
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
  
 
+async def index_autocomplete(interaction: discord.Interaction, current: str):
+    player = wavelink.Pool.get_node().get_player(interaction.guild.id)
+    if player is None: return []
+    queue = player.queue
+    if not len(queue): return []
+    try: int(current)
+    except: return []
+    if not (1 <= int(current) <= len(queue)): return []
+    track = queue.get_tracks()[int(current)-1]
+    # finished checks
+    return [app_commands.Choice(name=f"{current}. {track.title} by {track.author} [{get_length(track.length)}]", value=int(current))]
+
 @logger.LoggerApplication
 class QueueCommands(commands.GroupCog, name="queue"):
     def __init__(self, bot: commands.Bot, logger) -> None:
@@ -114,9 +126,10 @@ class QueueCommands(commands.GroupCog, name="queue"):
             field_name = field_names[field[1]]
             embed.add_field(name=field_name, value=field[0], inline=False)
             embed.add_field(name="Currently playing track", value=f"{nowplaying}\n*This field is displayed in every page of the queue*", inline=False)
-            if embed_fields[i-1][1] == -1 and embed_fields[i][1] == 1 and len(field) <= 500:
-                embed.add_field(name="Upcoming tracks", value=embed_fields[i][0], inline=False)
-                skipnext = True
+            if i != len(embed_fields):
+                if embed_fields[i-1][1] == -1 and embed_fields[i][1] == 1 and len(field) <= 500:
+                    embed.add_field(name="Upcoming tracks", value=embed_fields[i][0], inline=False)
+                    skipnext = True
             embed.add_field(name="Additional information", value=f"Total queue length: `{length}`\nRepeat mode: `{player.queue.repeat.string_mode}`\nShuffle mode: `{bool(player.queue.shuffle_mode_state)}`\nPlayback paused: `{'Yes' if player.paused else 'No'}`", inline=False)
             embed_result.append(embed)
         
@@ -211,6 +224,7 @@ class QueueCommands(commands.GroupCog, name="queue"):
 
     @app_commands.command(name="remove", description="Remove track with the given index from the queue")
     @app_commands.describe(index="Index of the song you want to remove")
+    @app_commands.autocomplete(index=index_autocomplete)
     @help_utils.add("queue remove", "Remove track with the given index from the queue", "Music", {"index": {"description": "Index of the song you want to remove", "required": True}})
     async def queue_remove_command(self, interaction: discord.Interaction, index: int):
         await interaction.response.defer(thinking=True)
@@ -245,8 +259,10 @@ class QueueCommands(commands.GroupCog, name="queue"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         del player.queue._queue[index-1]
+        del player.queue._requested[index-1]
         if (index-1) < player.queue.position:
             player.queue.position -= 1
+            print("before removed")
         
         embed = ShortEmbed(description=f"{emoji.MINUS} Successfully removed track at position `{index}`")
         await interaction.followup.send(embed=embed)
@@ -260,6 +276,7 @@ class OtherQueueCommands(commands.Cog):
 
     @app_commands.command(name="skipto", description="Move the player to the specified position in the queue")
     @app_commands.describe(position="Position in the queue between 1 and queue length")
+    @app_commands.autocomplete(position=index_autocomplete)
     @help_utils.add("skipto", "Move the player to the specified position in the queue", "Music", {"position": {"description": "Position in the queue between 1 and queue length", "required": True}})
     async def queue_skipto_command(self, interaction: discord.Interaction, position: int):
         await interaction.response.defer(thinking=True)

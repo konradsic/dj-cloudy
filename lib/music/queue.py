@@ -143,3 +143,4 @@ class Queue(wavelink.Queue):
 
     def __len__(self):
         return len(self._queue)
+

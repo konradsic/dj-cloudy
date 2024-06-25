@@ -122,7 +122,7 @@ async def playlist_index_autocomplete(interaction: discord.Interaction, current:
     if not 1 <= int(current) <= len(found['tracks']):
         return []
     
-    track = await wavelink.Pool.fetch_tracks(found["tracks"][int(current)])
+    track = await wavelink.Pool.fetch_tracks(found["tracks"][int(current)-1])
     track = track[0]
     return [app_commands.Choice(name=f"{current}. {track.title} by {track.author} [{get_length(track.length)}]", value=int(current))]
     
@@ -555,7 +555,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             return
         else:
             tracks = []
-            start = time.time()
+            start = round(time.time())
             for idx,song in enumerate(res['tracks']):
                 # to prevent errors we infinite request over the track if it fails, 
                 # otherwise we break out of the loop
