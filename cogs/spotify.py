@@ -130,7 +130,7 @@ class SpotifyExtensionCog(commands.Cog):
         if search_type == "list":
             embed = NormalEmbed(description=f"Completed\n> {emoji.TICK2} `Status: found {len(tracks)} tracks`", title=f"{emoji.SEARCH} Fetching tracks...")
             await msg.edit(embed=embed)
-        await player.add_tracks(interaction, tracks, spotify=True)
+        await player.add_tracks(interaction, tracks)
 
 
 async def setup(bot):

@@ -14,5 +14,9 @@
     "announceTracks": {
         "value": true,
         "type": "bool"
+    },
+    "allowExplicit": {
+        "value": true,
+        "type": "bool"
     }
 }

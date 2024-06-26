@@ -4,22 +4,27 @@ from enum import Enum
 from time import time
 
 import discord
+import spotipy
 import wavelink
 from discord.ext import commands
+from spotipy.oauth2 import SpotifyClientCredentials
 
 import lib.logger.logger as log
 from lib.music.queue import Queue
+from lib.ui import emoji
 from lib.ui.buttons import PlayButtonsMenu
 from lib.ui.colors import BASE_COLOR
-from lib.ui.embeds import FooterType, random_footer
-from lib.utils.base_utils import RepeatMode, convert_to_double, get_length
+from lib.ui.embeds import FooterType, ShortEmbed, random_footer
+from lib.utils import base_djRole_check
+from lib.utils.base_utils import (RepeatMode, convert_to_double, get_config,
+                                  get_length)
 from lib.utils.configuration import ConfigurationHandler
-from lib.ui import emoji
 from lib.utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
                               NoTracksFound, NoVoiceChannel, QueueIsEmpty)
-from lib.utils import base_djRole_check
 
 logger = log.Logger().get("music.core.MusicPlayer")
+
+cfg = get_config()["extensions"]["spotify"]
 
 def shorten_name(string):
     if len(string) > 25:
@@ -36,6 +41,10 @@ class MusicPlayer(wavelink.Player):
         self.queue: Queue = Queue()
         self.bound_channel: discord.TextChannel = None
         # self.eq_levels: list[float] = [.0,] * 15
+        self.spotipy_client = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+            client_id=cfg["client_id"], 
+            client_secret=cfg["client_secret"]
+        ))
 
     async def teardown(self):
         try:
@@ -46,8 +55,26 @@ class MusicPlayer(wavelink.Player):
     async def add_tracks(self, interaction: discord.Interaction, tracks: list,
                          put_force: bool=False, play_force: bool=False):
                          # ^ put_force, play_force - new in 1.4.0
+        tracks = list([t for t in tracks])
         if not tracks:
             raise NoTracksFound
+        # check explicit settings
+        allow_explicit = ConfigurationHandler(str(interaction.guild.id), user=False).data["allowExplicit"]["value"]
+        if not allow_explicit:
+            indexes_to_remove = []
+            offset = 0
+            for i,track in enumerate(tracks):
+                # search for track
+                explicit = self.spotipy_client.track(track.uri)["explicit"]
+                if explicit: indexes_to_remove.append(i)
+                
+            for idx in indexes_to_remove:
+                del tracks[idx-offset]
+                offset += 1
+            
+            if indexes_to_remove:
+                await interaction.followup.send(embed=ShortEmbed(f"{emoji.MINUS} `{len(indexes_to_remove)}` {'tracks have' if len(indexes_to_remove) > 1 else 'track has'} been removed due to `allowExplicit` guild setting set to `True`"))
+        if not tracks: return
 
         if not (put_force or play_force):
             if interaction:
@@ -58,7 +85,7 @@ class MusicPlayer(wavelink.Player):
                 self.queue.add((tracks[0], interaction.user))
             else:
                 self.queue.insert_current(tracks[0])
-            
+        
         if len(tracks) >= 2:
             total_duration = get_length(sum([t.length for t in tracks]))
             embed = discord.Embed(title=f"{emoji.PLAY} Queue extended", description=f"You extended the queue by **{len(tracks)} tracks** of duration `{total_duration}`", color=BASE_COLOR, timestamp=datetime.datetime.utcnow())
@@ -70,6 +97,7 @@ class MusicPlayer(wavelink.Player):
                 await self.start_playback(interaction)
             return
         
+        # print(tracks[0].raw_data)
         play_force_play_check = False
         track = tracks[0]
         if not self.playing or play_force:

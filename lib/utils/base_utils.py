@@ -274,8 +274,13 @@ async def quiz_check(
     return False
 
 async def banned_check(interaction) -> bool:
-    with open("./data/banned.json", mode="r") as f:
-        contents = json.load(f)
+    try: 
+        with open("./data/banned.json", mode="r") as f:
+            contents = json.load(f)
+    except:
+        with open("./data/banned.json", "w") as f:
+            json.dump({"guilds": [], "users": []}, f)
+            contents = {"guilds": [], "users": []}
 
     if str(interaction.user.id) in contents["users"]:
         print(f"User {interaction.user.id}/{interaction.user.name} tried to execute a command, but banned globally")
