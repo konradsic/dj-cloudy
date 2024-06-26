@@ -5,7 +5,8 @@
         "status-change-interval-range": [45, 90],
         "support-server-id": "1029077576037183490",
         "auto-bug-report-channel": "1204051471147081798",
-        "emoji-guilds": []
+        "emoji-guilds": [],
+        "owner": "your discord id here"
     },
     "lyrics": {
         "genius-auth-token": "your genius api auth token here"

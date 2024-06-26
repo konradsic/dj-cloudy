@@ -17,6 +17,7 @@ from lib.utils.configuration import ConfigurationHandler
 from lib.ui import emoji
 from lib.utils.errors import (AlreadyConnectedToVoice, NotConnectedToVoice,
                               NoTracksFound, NoVoiceChannel, QueueIsEmpty)
+from lib.utils import base_djRole_check
 
 logger = log.Logger().get("music.core.MusicPlayer")
 
@@ -140,11 +141,17 @@ class MusicPlayer(wavelink.Player):
             
 
     async def start_playback(self, interaction: discord.Interaction=None): # interaction used for logging info
+        defaultVolume = ConfigurationHandler(interaction.user.id).data["defaultVolume"]["value"]
+        maxVolume = ConfigurationHandler(interaction.guild.id, user=False).data["maxVolume"]["value"]
+        volume = min(defaultVolume, maxVolume)
         try:
             message = f"(guild:`{interaction.guild.name}` channel:`{interaction.user.voice.channel.name}`)"
         except:
             message = "(No additional interaction info)"
         self.logger.info(f"Playing {self.queue.current_track.uri} {message}")
+        if await base_djRole_check(interaction):
+            await self.play(self.queue.current_track, volume=volume)
+            return
         await self.play(self.queue.current_track)
 
     async def advance(self):

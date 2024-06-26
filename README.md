@@ -34,12 +34,13 @@ git clone https://github.com/konradsic/dj-cloudy
 You can also click `Code` (located above the files section) and then `Download ZIP`, then extract the ZIP file
 
 ### Set up the bot
-It's very easy and intuitive to set up DJ Cloudy, download Lavalink and its required plugins, configure it, update Python requirements. You need to run only two commands. In your termianl type:
+It's very easy and intuitive to set up DJ Cloudy, download Lavalink and its required plugins, configure it, update Python requirements. You need to run only three commands. In your termianl type:
 ```sh
 cd dj-cloudy
+pip install -r requirements.txt
 python setup.py
 ```
-Follow the instructions and you will be ready to launch the bot. Note that if `python` command won't work you can replace `python` with `py`, `python3`
+Follow the instructions and you will be ready to launch the bot. Note that if `python` command other possible commands are `py` and `python3`
 
 ### Run the bot
 To run the bot read the instructions displayed after configuring everything in the last step

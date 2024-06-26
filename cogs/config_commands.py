@@ -124,7 +124,6 @@ class ConfigCog(commands.GroupCog, name="config"):
             elif valType == "int":
                 value = int(value)
             elif valType == "bool":
-                
                 try:
                     if (int(value) <= 0): 
                         value = False
@@ -138,6 +137,10 @@ class ConfigCog(commands.GroupCog, name="config"):
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
 
+        if key in ["defaultVolume"]:
+            if not (0 <= value <= 1000):
+                await interaction.followup.send(embed=ShortEmbed(f"{emoji.XMARK} Volume values must be between `0` and `1000`"))
+                return
 
         try:
             config.config_set(foundKey, value)

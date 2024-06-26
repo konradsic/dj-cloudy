@@ -6,7 +6,7 @@ A Discord bot that adds music functionality to your server.
 """
 #######################################################################
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
@@ -32,7 +32,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.utils import (clearscreen, get_application_id, get_bot_token,
                        get_config, get_length, hide_cursor, inittable,
                        load_logger_config, make_files, show_cursor,
-                       show_figlet)
+                       show_figlet, banned_check, CustomTree)
 from lib.utils.cache import JSONCacheManager
 from lib.utils.configuration import ConfigurationHandler
 from lib.utils.garbage import GarbageCollector
@@ -162,7 +162,8 @@ class DJ_Cloudy(commands.Bot):
         super().__init__(
             command_prefix = "dj$",
             intents = discord.Intents.all(),
-            application_id = app_id
+            application_id = app_id,
+            tree_cls=CustomTree
         )
     
     async def on_ready(self):
@@ -241,7 +242,7 @@ async def on_command_exception(interaction: discord.Interaction, error: Exceptio
         await interaction.followup.send(embed=embed, ephemeral=True)
     except:
         await interaction.response.send_message(embed=embed, ephemeral=True)
-    
+
 
 hide_cursor()
 bot.loaded = False

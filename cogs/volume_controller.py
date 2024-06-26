@@ -47,10 +47,10 @@ class VolumeController(commands.Cog):
         volume = player.volume
         if value is None:
             emoji = ""
-            if value == 0: emoji = emojilib.VOLUME_NONE
-            if (1 <= value <= 60): emoji = emojilib.VOLUME_LOW
-            if (61 <= value <= 90): emoji = emojilib.VOLUME_MID
-            if (91 <= value <= 1000): emoji = emojilib.VOLUME_HIGH
+            if volume == 0: emoji = emojilib.VOLUME_NONE
+            if (1 <= volume <= 60): emoji = emojilib.VOLUME_LOW
+            if (61 <= volume <= 90): emoji = emojilib.VOLUME_MID
+            if (91 <= volume <= 1000): emoji = emojilib.VOLUME_HIGH
 
             embed = ShortEmbed(description=f"{emoji} Current volume is set to `{volume}%`")
             await interaction.followup.send(embed=embed)

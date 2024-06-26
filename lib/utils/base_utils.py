@@ -13,6 +13,7 @@ from ..logger import logger
 from .configuration import ConfigurationHandler
 from ..ui.colors import BASE_COLOR
 from ..ui import emoji
+from discord import app_commands
 
 BOLD_ON = "\033[1m"
 BOLD_OFF = "\033[0m"
@@ -215,7 +216,17 @@ def load_logger_config():
     except:
         logging.error("Error while parsing logger config, using default config")
         return logger.LogLevels.INFO, "bot-logs"
+
+async def base_djRole_check(interaction: discord.Interaction):
+    djRole = ConfigurationHandler(id=str(interaction.guild.id), user=False).data.get("djRole")["value"]
+    if not djRole: return True # no role - no reqs
     
+    djRole = str(djRole) # to make sure this is a string
+    user_role_ids = [str(role.id) for role in interaction.user.roles]
+    if djRole in user_role_ids:
+        return True
+    return False
+
 async def djRole_check(interaction: discord.Interaction, logger: logger.Logger):
     djRole = ConfigurationHandler(id=str(interaction.guild.id), user=False).data.get("djRole")["value"]
     if not djRole: return True # no role - no reqs
@@ -261,3 +272,17 @@ async def quiz_check(
         await interaction.followup.send(embed=embed)
         
     return False
+
+async def banned_check(interaction) -> bool:
+    with open("./data/banned.json", mode="r") as f:
+        contents = json.load(f)
+
+    if str(interaction.user.id) in contents["users"]:
+        print(f"User {interaction.user.id}/{interaction.user.name} tried to execute a command, but banned globally")
+        return False
+    return True 
+
+class CustomTree(app_commands.CommandTree):
+    async def interaction_check(self, interaction: discord.Interaction):
+        return await banned_check(interaction)
+

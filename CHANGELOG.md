@@ -1,6 +1,22 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.4.1
+This version resolves some bugs and adds simple new functionality.
+* Added message context menus ([#22](https://github.com/konradsic/dj-cloudy/issues/22))
+    - "Search for songs" message context menus: right-click on a message -> apps -> "Search for songs"
+* Added more autocomplete fields ([#24](https://github.com/konradsic/dj-cloudy/issues/24)). COmmands which got autocomplete fields
+    - Queue remove, skipto: `index`
+    - All playlists commands: `name`, `index` (playlists remove)
+* Added `defaultVolume` user setting - when you have DJ permissions and play a track when nothing is playing the volume will be set to `defaultVolume` (or 100 if not configured)
+* Marked issue [#48](https://github.com/konradsic/dj-cloudy/issues/48) because source was already replaced and I'm not adding `search.defaultSource` for now.
+* "mode" argument in `/repeat` is now optional - if not passed it will send an embed with current repeat mode [#53](https://github.com/konradsic/dj-cloudy/issues/53)
+* Bug fixes: 
+    - Fixed indexing bugs in playlist remove (autocomplete)
+    - Fixed embed paginator "Index out of range" error
+    - Fixed grammar in readme (not really a bug but grammar fix)
+* Small tweaks and improvements
+
 ## Version 1.4.0
 After a full year the bot gets un-privated and is now open-source again. A lot of bugs are now fixed, performance is even better and new commands have been added. Here is a list of what has been updated:
 1. Quiz now fully works (hopefully). New commands have been added: `/equalizers list` and `/filters list`. 

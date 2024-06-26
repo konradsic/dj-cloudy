@@ -23,9 +23,10 @@ template.*
 emoji-pack
 img
 
-# bot token and genius auth token - configs
+# bot token and genius auth token - configs, banned
 data/bot-config.json
 data/*-config.json 
+data/banned.json
 # ^ all other configs
 
 # playlists
