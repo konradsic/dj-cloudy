@@ -59,14 +59,19 @@ class MusicPlayer(wavelink.Player):
         if not tracks:
             raise NoTracksFound
         # check explicit settings
-        allow_explicit = ConfigurationHandler(str(interaction.guild.id), user=False).data["allowExplicit"]["value"]
+        config = ConfigurationHandler(str(interaction.guild.id), user=False)
+        allow_explicit = config.data["allowExplicit"]["value"]
+        blacklist = config.data["blacklistRules"]["value"]
         if not allow_explicit:
             indexes_to_remove = []
             offset = 0
             for i,track in enumerate(tracks):
                 # search for track
-                explicit = self.spotipy_client.track(track.uri)["explicit"]
-                if explicit: indexes_to_remove.append(i)
+                try:
+                    if "spotify" in track.uri:
+                        explicit = self.spotipy_client.track(track.uri)["explicit"]
+                        if explicit: indexes_to_remove.append(i)
+                except: pass
                 
             for idx in indexes_to_remove:
                 del tracks[idx-offset]
@@ -74,6 +79,22 @@ class MusicPlayer(wavelink.Player):
             
             if indexes_to_remove:
                 await interaction.followup.send(embed=ShortEmbed(f"{emoji.MINUS} `{len(indexes_to_remove)}` {'tracks have' if len(indexes_to_remove) > 1 else 'track has'} been removed due to `allowExplicit` guild setting set to `True`"))
+        indexes_to_remove = set()
+        for rule in blacklist:
+            for i, track in enumerate(tracks):
+                if rule[0] == 0: # author name contains:
+                    if rule[1].lower() in track.author.lower(): indexes_to_remove.add(i)
+                if rule[0] == 1: # track title contains:
+                    if rule[1].lower() in track.title.lower(): indexes_to_remove.add(i)
+                if rule[0] == 2: # track url contains:
+                    if rule[1] == track.uri: indexes_to_remove.add(i)
+        offset = 0
+        for idx in indexes_to_remove:
+            del tracks[idx-offset]
+            offset += 1
+        if indexes_to_remove:
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.MINUS} `{len(indexes_to_remove)}` {'tracks have' if len(indexes_to_remove) > 1 else 'track has'} been removed due to the blacklist. Check rules added by moderators: `/config blacklist-view`"))
+        
         if not tracks: return
 
         if not (put_force or play_force):
@@ -115,7 +136,7 @@ class MusicPlayer(wavelink.Player):
             embed.add_field(name="Author", value=track.author)
             embed.add_field(name="Duration", value=f"`{dur}`")
             embed.add_field(name="Requested by", value=interaction.user.mention)
-            embed.set_footer(text="Made by Konradoo#6938, licensed under the MIT License")
+            embed.set_footer(text=FooterType.COMMANDS.value)
             
             # play_force
             if play_force:

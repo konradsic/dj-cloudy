@@ -18,5 +18,9 @@
     "allowExplicit": {
         "value": true,
         "type": "bool"
+    },
+    "blacklistRules": {
+        "value": [],
+        "type": "blacklist"
     }
 }

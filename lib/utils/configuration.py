@@ -74,13 +74,13 @@ class ConfigurationHandler:
         except:
             raise KeyDoesNotExist(f"Key \"{key}\" does not exist")
         valType = get_class_from_value(value)
-        print(valType)
+        # print(valType)
         if valType in ["discord.role.Role", "Role"]:
             valType = "role"
             value = str(value.id)
-        if valType not in ["int", "str", "bool", "role"]:
+        if valType not in ["int", "str", "bool", "role", "list"]:
             raise IncorrectValueType(f"{valType} is not a correct value type")
-        if valType != current["type"]:
+        if valType != current["type"] and key != "blacklistRules":
             raise IncorrectValueType(f"{valType} does not match type for key {key} (expected {current['type']})")
 
         # correct data type - lets overwrite data
@@ -131,5 +131,15 @@ class ConfigurationHandler:
         self.data = data
         self.save()
         return True
+    
+    def blacklist_add(self, rule, content):
+        current_blacklist = self.data["blacklistRules"]["value"]
+        current_blacklist.append((rule, content))
+        self.config_set("blacklistRules", current_blacklist)
+    
+    def blacklsit_remove(self, index):
+        current_blacklist = self.data["blacklistRules"]["value"]
+        del current_blacklist[index]
+        self.config_set("blacklistRules", current_blacklist)
     
     
