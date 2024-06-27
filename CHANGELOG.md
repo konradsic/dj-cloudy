@@ -1,6 +1,17 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.4.2
+This version adds the blacklist and `allowExplicit` guild setting [(#18)](https://github.com/konradsic/dj-cloudy/issues/18). There are three types of rules in the track blacklist:
+* 0 - Exclude track when author's name contains `<value>`
+* 1 - Exclude track when track title contains `<value>`
+* 2 - Exclude track when it's link is equal to `<value>`
+
+Note that `allowExplicit` setting works only for Spotify tracks.
+Bug fixes:
+* Finally removed `lib.utils.run` - nobody uses that, it caused flask errors (it wasn't in `requirements.txt`) and quickly patched `lib.utils.run` does not exist error
+* Small tweaks and improvements 
+
 ## Version 1.4.1
 This version resolves some bugs and adds simple new functionality.
 * Added message context menus ([#22](https://github.com/konradsic/dj-cloudy/issues/22))
@@ -262,7 +273,7 @@ What we've added:
 - Fixed some small bugs and issues
 - We are approaching the end of fixing bugs and adding new features. Version v1.0.0 will come soon!
 
-## Release history
+## Before v0.9.2: Release history
 **0.9.1** Brand new help command <br/>
 **0.9.0** Complete playlist system: commands, context menus and more <br/>
 **pre-0.9.0** Playlist system + some playlist commands <br/>
@@ -292,4 +303,4 @@ What we've added:
 **0.2.1** Player advance patch <br/>
 **0.2.0** Pause and resume commands <br/>
 **0.1.0** Everything is now embedded, complete new logger and many more <br/>
-**0.0.1** Initial update -> 4 October 2022
+**0.0.1** Initial update -> 4th of October 2022
