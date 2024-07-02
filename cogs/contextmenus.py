@@ -47,6 +47,13 @@ class ContextMenusCog(commands.Cog):
         user_data = playlist.PlaylistHandler(key=str(user.id))
         playlists = user_data.playlists
         playlist_res = "No playlists for this user. Create a playlist with `/playlist create <name>`!"
+        # filter out private playlists
+        if (user.id != interaction.user.id):
+            # exclude private playlists
+            new_playlists = []
+            for playlist_ in playlists:
+                if not playlist_["private"]: new_playlists.append(playlist_)
+            playlists = new_playlists
         
         total_tracks = 0
         start = time.time()
@@ -116,7 +123,8 @@ class ContextMenusCog(commands.Cog):
         took_time = time.time() - start
         self.logger.info(f"Loaded starred playlist ({total_tracks} songs) in ~{took_time:.2f}s")
         
-        starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total length `{get_length(starred_dur)}`\n"
+        starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total length `{get_length(starred_dur)}`"
+        if interaction.user.id != user.id and user_data.data['starred_private']: starred_playlist_data = "Author of this playlist has privated it"
         embed = NormalEmbed(description="These are the user's playlists", timestamp=True, footer=FooterType.COMMANDS)
         embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
         embed.add_field(name="Custom playlists", value=playlist_res, inline=False)
@@ -130,6 +138,10 @@ class ContextMenusCog(commands.Cog):
         starred_playlist = handler.data['starred-playlist']
         track_data = "No tracks in their :star: songs playlist"
         tracks = []
+        
+        if handler.data["starred_private"]:
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.XMARK} This playlist has been privated by the user"))
+            return
         
         if starred_playlist:
             track_data = ""
@@ -200,12 +212,15 @@ class ContextMenusCog(commands.Cog):
             await interaction.followup.send(ephemeral=True, embed=ShortEmbed(description=f"{emoji.XMARK} You can't copy your playlist"))
             return
         handler = playlist.PlaylistHandler(key=str(member.id))
+        if handler.data["starred_private"]:
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.XMARK} This playlist has been privated by the user"))
+            return
+        
         starred = handler.data['starred-playlist']
         author_handler = playlist.PlaylistHandler(key=str(member.id))
-        author_starred = handler.data['starred-playlist']
         for song in starred:
             author_handler.add_to_starred(song)
-        await interaction.followup.send(embed=ShortEmbed(description=f"{emoji.TICK1} Success, added {member.name}'s starred playlist to yours"),ephemeral=True)
+        await interaction.followup.send(embed=ShortEmbed(description=f"{emoji.STAR} Success, added {member.name}'s starred playlist to yours"),ephemeral=True)
 
     async def search_for_song(self, interaction: discord.Interaction, message: discord.Message):
         await interaction.response.defer(thinking=True)

@@ -34,7 +34,7 @@ class PlaylistHandler:
         try:
             self.data = data[self.key]
         except KeyError:
-            data[self.key] = {"credentials": 0, "playlists": [], "starred-playlist": []}
+            data[self.key] = {"credentials": 0, "playlists": [], "starred-playlist": [], "starred_private": True}
             with open("data/playlists.json", mode="w") as f:
                 json.dump(data, f)
             with open("data/playlists.json", mode="r") as f:
@@ -58,9 +58,9 @@ class PlaylistHandler:
         with open("data/playlists.json", mode="w") as f:
             json.dump(content, f)
 
-    def create_playlist(self, name, tracks=[]):
+    def create_playlist(self, name, private: bool, tracks=[]):
         try:
-            self.data["playlists"].append({"name": name, "id": getid(f'{name};{time.time():.3f};{self.key}'), "tracks": tracks})
+            self.data["playlists"].append({"name": name, "id": getid(f'{name};{time.time():.3f};{self.key}'), "tracks": tracks, "private": private})
             with open("data/playlists.json", mode="r") as f:
                 content = json.load(f)
             content[self.key] = self.data
@@ -68,7 +68,7 @@ class PlaylistHandler:
                 json.dump(content,f)
             return self.data["playlists"]
         except:
-            raise PlaylistCreationError(f"Failed to create playlist {name}/tracks:{tracks}")
+            raise PlaylistCreationError(f"Failed to create playlist {name}/private:{private}/tracks:{tracks}")
 
     def add_to_playlist(self, playlist_name: str, song_url: str):
         try:
@@ -178,6 +178,29 @@ class PlaylistHandler:
                 return True
         
         raise NoPlaylistFound(f"Playlist with name/id {playlist_name_or_id} was not found and cannot be renamed (user: {self.key})")
+    
+    def toggle_private_playlist(self, name_or_id, private):
+        lower_name_id = name_or_id.lower()
+        if lower_name_id == "starred":
+            self.data["starred_private"] = private
+            with open("data/playlists.json", mode="r") as f:
+                    content = json.load(f)
+            content[self.key] = self.data
+            with open("data/playlists.json", mode="w") as f:
+                json.dump(content, f)
+            return True
+        
+        for i,playlist in enumerate(self.data["playlists"]):
+            if lower_name_id == playlist["id"].lower() or lower_name_id == playlist["name"].lower():
+                self.data["playlists"][i]["private"] = private
+                with open("data/playlists.json", mode="r") as f:
+                    content = json.load(f)
+                content[self.key] = self.data
+                with open("data/playlists.json", mode="w") as f:
+                    json.dump(content, f)
+                return True
+            
+        raise NoPlaylistFound(f"Playlist with name/id {name_or_id} was not found and cannot be privated (user: {self.key}, private switch: {private})")
 
     def __getitem__(self, item):
         return self.data["playlists"][item]

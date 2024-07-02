@@ -1,6 +1,16 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.5.0
+This version adds private playlists. Some grammar errors have been fixed and a few improvements in some places have occured.
+
+Private playlists functionality
+* When creating a playlist using `/playlists create` you can now set `private` to either `True` or `False`
+* Only you can see your private playlists
+* You can always change public visibility (privacy) of the playlist by using `/playlists toggle-private`
+* You can change public visibility of your starred playlists (your starred playlist is now private **by default**) using `/playlists toggle-private name_or_id:starred` and set `private` to either `True` or `False`
+
+
 ## Version 1.4.2
 This version adds the blacklist and `allowExplicit` guild setting [(#18)](https://github.com/konradsic/dj-cloudy/issues/18). There are three types of rules in the track blacklist:
 * 0 - Exclude track when author's name contains `<value>`

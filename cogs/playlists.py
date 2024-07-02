@@ -82,6 +82,13 @@ async def playlists_autocomplete(interaction: discord.Interaction, current: str)
         user = interaction.user
     
     user_playlists = playlist.PlaylistHandler(str(user.id)).playlists
+    if (user.id != interaction.user.id):
+        # exclude private playlists
+        new_playlists = []
+        for playlist_ in user_playlists:
+            if not playlist_["private"]: new_playlists.append(playlist_)
+        user_playlists = new_playlists
+    # print(user_playlists)
     if current == "":
         return [
             app_commands.Choice(name=f"{i}. {p['name']} (id:{p['id']}, {len(p['tracks'])} tracks)", value=p["id"])
@@ -155,9 +162,12 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         if name_or_id.lower() == "starred":
             found = {"tracks":handler.data["starred-playlist"]}
             starred = True
+            
+        if (user.id != interaction.user.id) and (found.get("private", False) or (name_or_id == 'starred' and handler.data['starred_private'])):
+            found = None
         
         if not found:
-            embed = ShortEmbed(description=f"{emoji.XMARK} No playlist was found")
+            embed = ShortEmbed(description=f"{emoji.XMARK} No playlist was found.{' The playlist you`re looking for **could be** privated by the user' if user.id != interaction.user.id else ''}")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         tracks = []
@@ -196,7 +206,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             for i in range(len(tracks))
         ]
         if not fields:
-            embed = NormalEmbed(description=f"ID: `{found.get('id', 'STARRED')}`\nNo tracks in the playlist", timestamp=True)
+            embed = NormalEmbed(description=f"ID: `{found.get('id', 'STARRED')}`\nNo tracks in the playlist\nPrivate: `{'Yes' if found.get('private') or (name_or_id == 'starred' and handler.data['starred_private'])else 'No'}`", timestamp=True)
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_author(name=f"{user.name}'s playlist: {'STARRED' if starred else found['name']}", icon_url=user.display_avatar.url)
             await interaction.followup.send(embed=embed, ephemeral=True)
@@ -220,7 +230,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
             embed.set_thumbnail(url=self.bot.user.display_avatar.url)
             embed.set_author(name=f"{user.name}'s playlist: {found['name'] + '#' + found['id'] if found.get('name', '') else 'STARRED'}", icon_url=user.display_avatar.url)
             embed.add_field(name=f"Tracks (page {i}/{len(res_fields)})", value="".join(t for t in field), inline=False)
-            embed.add_field(name="Additional information", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`")
+            embed.add_field(name="Additional information", value=f"Playlist length: `{get_length(sum([track['length'] for track in tracks]))}`\nTotal songs: `{len(tracks)}`\nPrivate: `{'Yes' if found.get('private') or (handler.data['starred_private'] and name_or_id.lower() == 'starred') else 'No'}`")
             embeds.append(embed)
         await interaction.followup.send(embed=embeds[0], view=EmbedPaginator(pages=embeds, timeout=1200, user=interaction.user), ephemeral=True)
         return True
@@ -240,6 +250,13 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         user_data = playlist.PlaylistHandler(key=str(user.id))
         playlists = user_data.playlists
         playlist_res = "No playlists for this user. Create a playlist with `/playlist create <name>`!"
+        # filter out private playlists
+        if (user.id != interaction.user.id):
+            # exclude private playlists
+            new_playlists = []
+            for playlist_ in playlists:
+                if not playlist_["private"]: new_playlists.append(playlist_)
+            playlists = new_playlists
         
         total_tracks = 0
         start = time.time()
@@ -310,6 +327,7 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         self.logger.info(f"Loaded starred playlist ({total_tracks} songs) in ~{took_time:.2f}s")
         
         starred_playlist_data = f"{len(user_data.data['starred-playlist'])} total songs, total length `{get_length(starred_dur)}`\n"
+        if interaction.user.id != user.id and user_data.data['starred_private']: starred_playlist_data = "Author of this playlist has privated it"
         embed = NormalEmbed(description="These are the user's playlists", timestamp=True)
         embed.add_field(name="Starred songs", value=starred_playlist_data, inline=False)
         embed.add_field(name="Custom playlists", value=playlist_res, inline=False)
@@ -317,14 +335,28 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         embed.set_author(name=f"{user.name}'s playlists", icon_url=user.display_avatar.url)
         await interaction.followup.send(embed=embed, ephemeral=True)
 
+    @app_commands.command(name="toggle-private", description="Toggle visibility of your playlist. Use 'starred' toggle visibility for your starred playlist")
+    @app_commands.describe(name_or_id="Name or ID of the playlist", private="Whether the playlist should become private or not")
+    @app_commands.autocomplete(name_or_id=playlists_autocomplete)
+    @help_utils.add("playlists toggle-private", "Toggle visibility of your playlist. Use 'starred' toggle visibility for your starred playlist", "Playlists", {"name_or_id": {"description": "Name or ID of the playlist",  "required": True}, "private": {"description": "Whether the playlist should become private or not", "required": True}})
+    async def playlist_toggle_private_command(self, interaction: discord.Interaction, name_or_id: str, private: bool):
+        await interaction.response.defer(thinking=True, ephemeral=True)
+
+        try:
+            handler = playlist.PlaylistHandler(key=str(interaction.user.id))
+            handler.toggle_private_playlist(name_or_id, private)
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.LOCKED if private else emoji.UNLOCKED} Playlist security updated for **{name_or_id}**. Now this playlist is `{'private' if private else 'no longer private'}`"))
+        except:
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.XMARK} There was an error. Please check the spelling and try again. If the error persists, submit a bug report via the `/bug-report` command"))
+
     @app_commands.command(name="create", description="Create a new playlist")
     @app_commands.describe(name="Name of the playlist")
-    @app_commands.describe(copy_queue="Whether to copy the queue to playlist or not")
-    @help_utils.add("playlists create", "Create a new playlist", "Playlists", {"name": {"description": "Name of the playlist", "required": True}, "copy_queue": {"description": "Whether to copy the queue to playlist or not", "required": False}})
-    async def playlist_create_command(self, interaction: discord.Interaction, name: str, copy_queue: bool=False):
+    @app_commands.describe(copy_queue="Whether to copy the queue to playlist or not", private="Whether the playlist should be private or not. Defaults to `False`")
+    @help_utils.add("playlists create", "Create a new playlist", "Playlists", {"name": {"description": "Name of the playlist", "required": True}, "private": {"description": "Whether the playlist should be private or not. Defaults to `False`", "required": False}, "copy_queue": {"description": "Whether to copy the queue to playlist or not", "required": False}})
+    async def playlist_create_command(self, interaction: discord.Interaction, name: str,  private: bool=False, copy_queue: bool=False):
         await interaction.response.defer(ephemeral=True, thinking=True)
         if len(name) > 30:
-            embed = ShortEmbed(description=f"{emoji.XMARK} Playlist name should be less that 30 characters!")
+            embed = ShortEmbed(description=f"{emoji.XMARK} Playlist name should be less than 30 characters!")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         handler = playlist.PlaylistHandler(key=str(interaction.user.id))
@@ -334,11 +366,11 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
         elif handler.data['credentials'] == 2:
             limits = 10**15 # "infinity", max playlists for admins
         if len(handler.playlists) >= limits:
-            embed = ShortEmbed(description=f"{emoji.XMARK} Playlist creation exceeds your current limits. Only moderators, admins and devs have higher limits. Contact us for more info")
+            embed = ShortEmbed(description=f"{emoji.XMARK} A maximum of {limits} playlists can be created on your account.")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         if name.lower() == "starred":
-            embed = ShortEmbed(description=f"{emoji.XMARK} 'starred' is a special playlist name that stands for your :star: songs. You can't use it for playlist creation")
+            embed = ShortEmbed(description=f"{emoji.XMARK} 'starred' is a special playlist name that stands for your {emoji.STAR} songs. You can't use it for playlist creation")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
         try:
@@ -348,15 +380,15 @@ class PlaylistGroupCog(commands.GroupCog, name="playlists"):
                     if (player := wavelink.Pool.get_node().get_player(interaction.guild.id)) is None:
                         raise NoPlayerFound("There is no player connected in this guild")
                 except NoPlayerFound:
-                    embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel `->` no queue `->` no songs to copy")
+                    embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel, so there is no queue, so there are no songs to copy")
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 if player.queue.is_empty:
-                    embed = ShortEmbed(description=f"{emoji.XMARK} There are not tracks in the queue so there is nothing to copy")
+                    embed = ShortEmbed(description=f"{emoji.XMARK} There are no tracks in the queue so there is nothing to copy")
                     await interaction.followup.send(embed=embed, ephemeral=True)
                     return
                 tracks = [song.uri for song in player.queue.get_tracks()]
-            handler.create_playlist(name, tracks)
+            handler.create_playlist(name, private, tracks)
         except PlaylistCreationError:
             embed = ShortEmbed(description=f"{emoji.XMARK} Failed to create playlist, please try again")
             await interaction.followup.send(embed=embed, ephemeral=True)

@@ -61,6 +61,9 @@ MINUS     = DJCloudyEmoji.from_mention("<:minus:1202669933532553297>")
 SEARCH    = DJCloudyEmoji.from_mention("<:search:1203719924594511963>")
 RENAME    = DJCloudyEmoji.from_mention("<:rename:1254505070297612288>")
 
+LOCKED   = DJCloudyEmoji.from_mention("<:lock_locked:1256705590395404401>")
+UNLOCKED = DJCloudyEmoji.from_mention("<:lock_unlocked:1256705592819449906>")
+
 TICK1 = DJCloudyEmoji.from_mention("<:ok1:1202669936120565862>")
 TICK2 = DJCloudyEmoji.from_mention("<:ok2:1202669709259177996>")
 XMARK = DJCloudyEmoji.from_mention("<:xmark:1202669692754595880>")

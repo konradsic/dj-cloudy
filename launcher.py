@@ -6,7 +6,7 @@ A Discord bot that adds music functionality to your server.
 """
 #######################################################################
 
-__version__ = "1.4.2"
+__version__ = "1.5.0"
 __author__ = "@konradsic"
 __copyright__ = "Copyright 2022-present konradsic"
 
@@ -44,7 +44,6 @@ inittable(__version__, __author__, platform.python_version(), discord.__version_
 # setting up logging instances
 logger.config["logging-path"] = "bot-logs/bot.log"
 logger.set_level(logger.LogLevels.DEBUG) # change whenever you want (DEBUG, INFO, WARN, ERROR, CRITICAL)
-logger.register_cls("main.DJ_Cloudy")
 main_logger = logger.Logger("main")
 
 # import modules using logger after setting it up
