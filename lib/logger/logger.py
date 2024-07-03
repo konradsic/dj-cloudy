@@ -252,6 +252,13 @@ class Logger:
     
     def critical(self, *messages):
         self._log("CRITICAL", compile_args(messages, " "))
+        path = config['logging-path']
+        # get directory
+        log_dir = path.split("/")[0]
+        longest_logger_name = config["optimal_leng"]
+        fit = fit_logger_cls(self.name, config['optimal_leng'])
+        with open(os.path.join(log_dir, "critical.log"), "a") as f:
+            f.write(f"{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f')[:-3]} {fit}{' '*(longest_logger_name+1-len(fit))}CRITICAL : {compile_args(messages, ' ')}\n")
 
 
 # print_logs: @deprecated

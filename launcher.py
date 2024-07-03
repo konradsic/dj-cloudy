@@ -92,7 +92,19 @@ async def load_extension(ext):
 async def extload(extensions):
     for extension in extensions:
         try:
+            this_start = time.time() 
             await load_extension(extension)
+            time_took = time.time() - this_start
+            color = Fore.GREEN
+            if time_took > 1:
+                color = Fore.YELLOW
+            if time_took > 5:
+                color = Fore.RED
+            if time_took > 10:
+                color = Fore.RED + Style.BRIGHT
+            text = f" ↪  Extension {Fore.CYAN}{extension}{Fore.RESET} loaded successfully in {color}{time.time()-this_start:.2f}s{Style.RESET_ALL}"
+            rem = os.get_terminal_size().columns - len(text)
+            print(f"{text}{' '*(rem)}")
         except Exception as e:
             error = "".join(traceback.format_exc())
             main_logger.critical(error)
