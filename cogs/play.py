@@ -14,7 +14,7 @@ from lib.ui.colors import BASE_COLOR
 from lib.utils.errors import NoPlayerFound, NoTracksFound, CacheExpired, CacheNotFound
 from lib.utils.regexes import URL_REGEX
 from lib.utils.base_utils import progressbar_emojis, get_length, limit_string_to, quiz_check
-from lib.ui.buttons import PlayButtonsMenu
+from lib.ui.buttons import PlayButtonsMenu, ShareSongModal
 from lib.utils.base_utils import djRole_check
 from lib.ui.embeds import ShortEmbed, NormalEmbed, FooterType
 from lib.ui import emoji
@@ -253,7 +253,7 @@ class PlayCommand(commands.Cog):
             embed = ShortEmbed(description=f"{emoji.XMARK} You are not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
-        if not (player := self.bot.node.get_player(interaction.guild.id)):
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
             embed = ShortEmbed(description=f"{emoji.XMARK} The bot is not connected to a voice channel")
             await interaction.followup.send(embed=embed, ephemeral=True)
             return
@@ -289,7 +289,7 @@ class PlayCommand(commands.Cog):
         embed.add_field(name="Song title", value=f"[{title}]({song.uri if not spotify else 'https://open.spotify.com/track/' + song.uri.split(':')[2]})", inline=False)
         if spotify: embed.add_field(name="Artist(s)", value=", ".join(song.artists))
         else: embed.add_field(name="Author", value=song.author)
-        embed.add_field(name="length", value=f"`{get_length(song.length)}`")
+        embed.add_field(name="Length", value=f"`{get_length(song.length)}`")
         embed.add_field(name="Channel", value=f"<#{interaction.channel.id}>")
         embed.add_field(name="Guild", value=interaction.guild.name)
 
@@ -300,6 +300,11 @@ class PlayCommand(commands.Cog):
             embed = ShortEmbed(description=f"{emoji.XMARK} Failed to grab, make sure your DMs are open to everyone")
             await interaction.followup.send(embed=embed)
             return
+        
+    @app_commands.command(name="share", description="Share currently playing track to your friends!")
+    @help_utils.add("share", "Share currently playing track to your friends!", "Music")
+    async def share_command(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(ShareSongModal())
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(PlayCommand(bot))

@@ -115,7 +115,7 @@ class LyricsCommandHandler(commands.Cog):
             genius_author = genius.artist
             genius_title = genius.short_title
             lyrics = "".join("`"+e+"`\n" if e.startswith("[") else e + "\n" for e in song.split("\n"))
-            title = f"{genius_title} by {genius_author} ({title if not raw_search else 'genius search'})"
+            title = f"{genius_title} by {genius_author} {'(' + title + ')' if not raw_search else ''}"
         except Exception as e:
             embed = ShortEmbed(description=f"{emoji.XMARK} No lyrics were found. Try entering a different song")
             await interaction.followup.send(embed=embed, ephemeral=True)

@@ -16,6 +16,9 @@ from ..utils.cache import JSONCacheManager
 from ..utils.configuration import ConfigurationHandler as Config
 from . import emoji
 from .colors import BASE_COLOR
+from .embeds import ShortEmbed, NormalEmbed
+from ..utils import get_length
+from ..utils.configuration import ConfigurationHandler
 
 @logger.LoggerApplication
 class PlayButtonsMenu(View):
@@ -131,6 +134,12 @@ class PlayButtonsMenu(View):
             await interaction.followup.send(ephemeral=True,embed=discord.Embed(description=f"{emoji.TICK1} Added current playing song to your {emoji.STAR} playlist", color=BASE_COLOR))
             return
         await interaction.followup.send(ephemeral=True,embed=discord.Embed(description=f"{emoji.TICK1} Un-starred current playing song", color=BASE_COLOR))
+
+    @ui.button(emoji=str(emoji.SHARE), style=discord.ButtonStyle.gray)
+    async def share_button(self, interaction: discord.Interaction, button):
+        # await interaction.response.defer(thinking=True, ephemeral=True)
+        # await interaction.followup.send(embed=ShortEmbed(f"{emoji.SHARE} Prompting user with a share modal..."))
+        await interaction.response.send_modal(ShareSongModal())
 
 class EmbedPaginator(View):
     def __init__(self, pages:list, timeout:float, user: t.Optional[discord.Member]=None) -> None:
@@ -358,7 +367,6 @@ class QuizResponseModal(Modal, title="What is the song and author?"):
         except Exception as e:
             print(e.__class__.__name__, str(e), format_tb())
                  
-        
 
 class SendAnswerUI(View):
     def __init__(self, timeout: float, interaction: discord.Interaction, quiz) -> None:
@@ -371,3 +379,67 @@ class SendAnswerUI(View):
         await interaction.response.send_modal(QuizResponseModal())
 
 
+class ShareSongModal(Modal, title="Share"):
+    user_ = ui.TextInput(label="User handle", required=True, placeholder="e.g. konradsic")
+    additional_message = ui.TextInput(label="Additional message to the user", required=False, placeholder="Yo check out that banger! (max. 500 characters)", max_length=500, style=discord.TextStyle.long)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        if not (player := wavelink.Pool.get_node().get_player(interaction.guild.id)):
+            embed = discord.Embed(description=f"{emoji.XMARK} The bot is not connected to a voice channel",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        if not player.playing:
+            embed = discord.Embed(description=f"{emoji.XMARK} Nothing is currently playing",color=BASE_COLOR)
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        
+        message = str(self.additional_message)
+        
+        # attepmt to find user
+        all_members = []
+        for g in interaction.client.guilds: all_members.extend(g.members)
+        # print(self.user_)
+        found = None
+        sname = str(self.user_)
+        for user in all_members:
+            # print(user.name)
+            if user.name == sname:
+                found = user
+                break
+            
+        if not found:
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.XMARK} User was not found. They have to have atleast one mutual server with the bot."), ephemeral=True)
+            return
+            
+        if found.bot:
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.XMARK} Cannot share to a bot!"), ephemeral=True)
+            return
+        
+        if not ConfigurationHandler(str(found.id)).data["share.acceptDM"]["value"]:
+            await interaction.followup.send(embed=ShortEmbed(f"{emoji.XMARK} User **does not** accept share DMs. Enable sharing DMs via `/config set-user key:share.acceptDM value:True`"))
+            return
+        
+        msg: discord.WebhookMessage = await interaction.followup.send(embed=ShortEmbed(f"{emoji.SHARE} Sharing to `@{found.name}` ({found.global_name}, {found.id})"))
+        
+        # yoinked from /grab, adjusted
+        song = player.queue.current_track
+        embed = NormalEmbed(timestamp = True)
+        embed.set_author(name="A song was shared to you", icon_url=interaction.user.display_avatar.url)
+        embed.set_thumbnail(url=song.artwork)
+        title = song.title
+        embed.set_footer(text=f"Sent to you by @{interaction.user.name}", icon_url=interaction.client.user.display_avatar.url)
+        embed.add_field(name="Song title", value=f"[{title}]({song.uri})", inline=False)
+        embed.add_field(name="Author", value=song.author)
+        embed.add_field(name="Length", value=f"`{get_length(song.length)}`")
+        if message: embed.add_field(name="Message from user", value=message, inline=False)
+        # print("here")
+        try:
+            await found.send(embed=embed)
+        except:
+            embed = ShortEmbed(description=f"{emoji.XMARK} Failed to send to user, maybe he has blocked the bot **or** has DMs closed")
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            return
+        
+        await interaction.followup.send(embed=ShortEmbed(f"{emoji.SHARE} Successfully shared to {found.mention}"))
+        

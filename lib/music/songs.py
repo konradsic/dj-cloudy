@@ -1,10 +1,13 @@
+import http
+import json
+import re
 import urllib
 from urllib.request import Request
-import json
-import http
-from bs4 import BeautifulSoup
-from lib.logger import logger
+
 import requests
+from bs4 import BeautifulSoup
+
+from lib.logger import logger
 
 URL_BASE = "https://api.genius.com"
 SEARCH_ENDPOINT = "/search?q="
@@ -157,7 +160,7 @@ class GeniusAPIClient():
             })        
         
         soup = BeautifulSoup(res.text, "html.parser")
-        found = soup.find_all("div", {"data-lyrics-container": True})
+        found = soup.find_all("div", class_=re.compile("^lyrics$|Lyrics__Container"))
         all_text = ""
         for elem in found:
             all_text += str(elem)

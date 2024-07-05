@@ -11,6 +11,10 @@
         "value": 100,
         "type": "int"
     },
+    "share.acceptDM": {
+        "value": true,
+        "type": "bool"
+    },
     "experimental.autoBugReport": {
         "value": false,
         "type": "bool"
