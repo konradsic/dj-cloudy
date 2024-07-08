@@ -1,6 +1,9 @@
 # 📋 DJ Cloudy changelog
 Welcome to DJ Cloudy's release notes / change log! As the name of this file says this is a file when we log changes. What you can find here is some informations about latest releases
 
+## Version 1.5.1
+This version adds sharing songs via a brand new "share" button and a `/share` command. Some bugs have been fixed and minor improvements have been made. 
+
 ## Version 1.5.0
 This version adds private playlists. Some grammar errors have been fixed and a few improvements in some places have occured.
 
