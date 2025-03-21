@@ -1,3 +1,6 @@
+> [!WARNING]  
+> As of March 21, the project will no longer be maintained due to limitations imposed by YouTube (and other platforms) on streaming music tracks.
+
 # [DJ Cloudy](https://konradsic.github.io/dj-cloudy): The ultimate Discord music experience
 Welcome to DJ Cloudy, the Discord music bot that will amplify your server's music experience! Ever wanted to play a song while chatting with friends? Say no more. With DJ Cloudy you can play songs, create playlists and configure the server for your needs. Created by @konradsic, DJ Cloudy is here to deliver top-notch voice channel music experience!
 
